@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace dka.net5.codesamples.library.Extentions
 {
@@ -145,6 +147,172 @@ namespace dka.net5.codesamples.library.Extentions
             var result = string.Join(string.Empty, arrayOfDigits);
 
             return result;
+        }
+        
+        public static string Compact(this string source)
+        {
+            var result = source.ToLower().Replace(" ", string.Empty);
+            return result;
+        }
+
+        public static bool CheckSimilarity(this string source, string target, float threshold)
+        {
+            var sourceCompact = source.Compact();
+            var targetCompact = target.Compact();
+
+            return sourceCompact.ComputeSimilarity(targetCompact) >= threshold;
+        }
+        
+        public static bool IsWordBreaker(this char source)
+        {
+            if (source == 43 // '+' not counted as word separator
+                || source == 45 // '-' not counted as word separator
+                || source == 47 // '/' not counted as word separator
+                || source == 92) // '\' not counted as word separator
+            {
+                return false;
+            }
+
+            // See ASCII table for description.
+            var result = (source >= 32 && source <= 47)
+                         || (source >= 58 && source <= 64)
+                         || (source >= 91 && source <= 96)
+                         || (source >= 123 && source <= 126);
+
+            return result;
+        }
+        
+        public static string RemoveWords(this string stringToClean, IEnumerable<string> wordsToRemove)
+        {
+            var wordSeparators = new[] {' ', ',', '.', '?', '!'};
+            var result = string.Join(" ", stringToClean.Split(wordSeparators, StringSplitOptions.RemoveEmptyEntries).Where(w => !wordsToRemove.Contains(w)));
+            return result;
         }        
+        
+        public static (string string1, string string2) RemoveSameWordsWithRegex(string string1, string string2, IEnumerable<string> words)
+        {
+            foreach (var word in words)
+            {
+                var pattern = $@"\b{word}\b";
+
+                var newString1 = Regex.Replace(string1, pattern, string.Empty);
+                var newString2 = Regex.Replace(string2, pattern, string.Empty);
+                
+                if (newString1.Length != string1.Length && newString2.Length != string2.Length)
+                {
+                    string1 = newString1;
+                    string2 = newString2;
+                }                
+            }
+
+            return (string1, string2);
+        }        
+        
+        public static (string string1, string string2) RemoveSameWords(string string1, string string2, IEnumerable<string> words)
+        {
+            foreach (var word in words)
+            {
+                var newString1 = string1.RemoveWord(word);
+                var newString2 = string2.RemoveWord(word);
+
+                if (newString1.Length != string1.Length && newString2.Length != string2.Length)
+                {
+                    string1 = newString1;
+                    string2 = newString2;
+                }
+            }
+
+            return (string1, string2);
+        }
+        
+        public static string RemoveWord(this string stringToClean, string wordToRemove)
+        {
+            var wordSeparators = new[] {' ', ',', '.', '?', '!'};
+            var result = string.Join(" ", stringToClean.Split(wordSeparators, StringSplitOptions.RemoveEmptyEntries).Where(w => w != wordToRemove));
+            return result;
+        }   
+        
+        public static (string string1, string string2) RemoveSameWordsEx(string string1, string string2, IEnumerable<string> words)
+        {
+            foreach (var word in words)
+            {
+                var newString1 = string1.ReplaceWordEx(word, string.Empty);                
+                var newString2 = string2.ReplaceWordEx(word, string.Empty);
+
+                if (newString1.Length != string1.Length && newString2.Length != string2.Length)
+                {
+                    string1 = newString1;
+                    string2 = newString2;
+                }
+            }
+
+            return (string1, string2);
+        }
+
+        public static string ReplaceWordEx(this string originalString, string word, string replacement)
+        {
+            if (originalString == null ||
+                word == null ||
+                replacement == null)
+            {
+                return originalString;
+            }
+
+            var upperString = originalString.ToUpper();
+            var upperPattern = word.ToUpper();
+            
+            var count = 0;
+            var position0 = 0;
+            int position1;
+
+            var inc = originalString.Length / word.Length * (replacement.Length - word.Length);
+            var chars = new char[originalString.Length + Math.Max(0, inc)];
+
+            var tempPosition0 = position0; 
+            
+            while ((position1 = upperString.IndexOf(upperPattern, tempPosition0, StringComparison.Ordinal)) != -1)
+            {
+                var position1Start = position1 - 1;
+                
+                if (position1Start >= 0 && !originalString[position1Start].IsWordBreaker())
+                {
+                    tempPosition0 = position1 + word.Length;
+                    continue;
+                }
+
+                var position1End = position1 + upperPattern.Length;
+                
+                if (position1End < originalString.Length && !originalString[position1End].IsWordBreaker())
+                {
+                    tempPosition0 = position1 + word.Length;
+                    continue;
+                }
+
+                for (var i = position0; i < position1; ++i)
+                {
+                    chars[count++] = originalString[i];
+                }
+
+                for (var i = 0; i < replacement.Length; ++i)
+                {
+                    chars[count++] = replacement[i];
+                }
+
+                tempPosition0 = position1 + word.Length;
+                position0 = tempPosition0;
+            }
+
+            if (position0 == 0)
+            {
+                return originalString;
+            }
+
+            for (var i = position0; i < originalString.Length; ++i)
+            {
+                chars[count++] = originalString[i];
+            }
+
+            return new string(chars, 0, count);
+        }
     }
 }
