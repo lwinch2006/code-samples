@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dka.net5.codesamples", "dka
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dka.net5.codesamples.library", "dka.net5.codesamples.library\dka.net5.codesamples.library.csproj", "{197443DC-6F41-46C6-8470-D03E7A2A39C3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dka.net5.codesamples.web", "dka.net5.codesamples.web\dka.net5.codesamples.web.csproj", "{0EA55F13-5D42-4689-9BDE-7167D38DE51B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{197443DC-6F41-46C6-8470-D03E7A2A39C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{197443DC-6F41-46C6-8470-D03E7A2A39C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{197443DC-6F41-46C6-8470-D03E7A2A39C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EA55F13-5D42-4689-9BDE-7167D38DE51B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EA55F13-5D42-4689-9BDE-7167D38DE51B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EA55F13-5D42-4689-9BDE-7167D38DE51B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EA55F13-5D42-4689-9BDE-7167D38DE51B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
