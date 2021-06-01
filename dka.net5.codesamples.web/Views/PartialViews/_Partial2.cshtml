@@ -1,0 +1,19 @@
+﻿@model dka.net5.codesamples.web.Models.PartialViews.PartialViewsUpdateViewModel
+
+<form method="post" asp-action="UpdateLastName" asp-route-id="@Model.LastName.Id" class="mb-2">
+    <div class="row align-items-center">
+        <div class="col-sm-1"><label asp-for="@Model.LastName.LastName"></label></div>
+        <div class="col-auto">
+            <input asp-for="@Model.LastName.LastName" class="form-control"/>
+            <span asp-validation-for="@Model.LastName.LastName" class="text-danger"></span>
+        </div>
+        <div class="col-auto"><button type="submit" class="btn btn-primary">Save</button></div>
+        <input type="hidden" asp-for="@Model.LastName.Id"/>
+        <input type="hidden" asp-for="@Model.FirstName.Id"/>
+        <input type="hidden" asp-for="@Model.FirstName.FirstName"/>        
+    </div>
+</form>
+
+
+
+

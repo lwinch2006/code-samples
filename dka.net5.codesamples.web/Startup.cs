@@ -32,6 +32,7 @@ namespace dka.net5.codesamples.web
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseBrowserLink();
             }
             else
             {
@@ -50,8 +51,13 @@ namespace dka.net5.codesamples.web
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
+                    name: "test",
+                    pattern: "TestingRoutes/Index/{testingRouteId}/{controller}/{action=Index}/{id?}",
+                    constraints: new {controller = "TestingRoutes"});
+                
+                endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=TestingRoutes}/{action=Index}/{id?}");
             });
         }
     }

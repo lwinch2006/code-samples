@@ -26,7 +26,16 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="About">About</a>
-                    </li>                    
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="TestingRoutes" asp-action="Index" asp-route-testingRouteId="111">TestingRoutes</a>
+                    </li>    
+                    <li class="nav-item">
+                        <a href="@Url.RouteUrl("test", new {controller = "TestingRoutes", action = "Index", testingRouteId = 111})" class="nav-link text-dark">TestingRoutes</a>
+                    </li>    
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="PartialViews" asp-action="Index">Index</a>
+                    </li>                     
                 </ul>
             </div>
         </div>
