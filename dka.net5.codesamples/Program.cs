@@ -11,8 +11,12 @@ namespace dka.net5.codesamples
         {
             Console.WriteLine("Algorithms");
             
+            // Strings.
             Init();
             StringExamples.Run();
+            
+            // Regular expressions.
+            RegularExpressionExamples.Run();
         }
 
         static void ProduceWordSamplesFile()
