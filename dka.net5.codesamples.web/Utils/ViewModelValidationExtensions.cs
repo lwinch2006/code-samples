@@ -6,10 +6,11 @@ namespace dka.net5.codesamples.web.Utils
 {
     public static class ViewModelValidationExtensions
     {
-        public static void ValidateModel(this Controller controller, object viewModel, string propertyPerfix)
+        public static void ValidateModel(this Controller controller, object viewModel, string propertyPrefix)
         {
             if (viewModel == null)
             {
+                controller.ModelState.AddModelError(nameof(viewModel), "Model is null");
                 return;
             }
 
@@ -21,9 +22,9 @@ namespace dka.net5.codesamples.web.Utils
             {
                 foreach (var memberName in validationResult.MemberNames)
                 {
-                    controller.ModelState.AddModelError($"{propertyPerfix}{memberName}", validationResult.ErrorMessage);
+                    controller.ModelState.AddModelError($"{propertyPrefix}{memberName}", validationResult.ErrorMessage);
                 }
-            }            
+            }
         }
     }
 }
