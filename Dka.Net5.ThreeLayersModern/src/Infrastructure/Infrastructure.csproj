@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <AssemblyName>Dka.Net5.ThreeLayersModern.Infrastructure</AssemblyName>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Dapper" Version="2.0.90" />
+      <PackageReference Include="dbup-sqlserver" Version="4.5.0" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Migrations\202106291030-create_table_tenants.sql" />
+      <EmbeddedResource Include="Migrations\202106291030-create_table_tenants.sql" />
+      <None Remove="Migrations\Development\202106291031-update-table-tenants-seed-dev-data.sql" />
+      <EmbeddedResource Include="Migrations\Development\202106291031-update-table-tenants-seed-dev-data.sql" />
+    </ItemGroup>
+
+</Project>
