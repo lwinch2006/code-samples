@@ -1,0 +1,21 @@
+﻿@model Application.Logic.Tenants.Commands.UpdateTenantCommand;
+
+@{
+    ViewData["Title"] = "Tenants - Update";
+}
+
+<h1> Tenants - Update</h1>
+
+<form method="post" asp-action="Update">
+    <div class="form-group">
+        <label asp-for="@Model.Name"></label>
+        <input asp-for="@Model.Name" class="form-control" maxlength="300"/>
+        <span asp-validation-for="@Model.Name" class="text-danger"></span>
+        <small class="text-muted">Choose name for tenant</small>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Update" class="btn btn-primary"/>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        <input type="hidden" asp-for="@Model.Id"/>
+    </div>    
+</form>

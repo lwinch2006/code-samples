@@ -2,6 +2,7 @@
 using Application.Mapping;
 using FluentValidation;
 using Infrastructure;
+using Infrastructure.Mapping;
 using Infrastructure.Repositories;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +24,7 @@ namespace Application.Extensions
 
         private static void AddInfrastructure(this IServiceCollection services)
         {
+            services.AddAutoMapper(typeof(InfrastructureProfile));
             services.Scan(scan =>
             {
                 scan

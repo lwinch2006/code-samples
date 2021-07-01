@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
+using AutoMapper;
 using Dapper;
 using Infrastructure.DTO.Tenants;
 using Infrastructure.Entities;
@@ -25,10 +26,12 @@ namespace Infrastructure.Repositories
     public class TenantsRepository : ITenantsRepository
     {
         private readonly string _connectionString;
+        private readonly IMapper _mapper;
 
-        public TenantsRepository(IConfiguration configuration)
+        public TenantsRepository(IConfiguration configuration, IMapper mapper)
         {
             _connectionString = configuration["Data:ConnectionString"];
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<Tenant>> Get()
@@ -47,22 +50,61 @@ namespace Infrastructure.Repositories
 
         public async Task<Tenant> Get(Guid id)
         {
-            return await Task.FromResult(new Tenant());
+            const string query = @"
+                SELECT *
+                FROM [Tenants]
+                WHERE [Id] = @Id
+            ";
+
+            await using (var connecion = new SqlConnection(_connectionString))
+            {
+                var result = await connecion.QuerySingleOrDefaultAsync<Tenant>(query, new { @Id = id });
+                return result;
+            }            
         }
 
         public async Task<Tenant> Create(CreateTenantDto createTenantDto)
         {
-            return await Task.FromResult(new Tenant());
+            const string query = @"
+                INSERT INTO [Tenants]([Id], [Name])
+                VALUES (@Id, @Name)
+            ";
+            
+            await using (var connecion = new SqlConnection(_connectionString))
+            {
+                var result = await connecion.ExecuteAsync(query, createTenantDto);
+                var createdTenant = result == 0 ? null : _mapper.Map<Tenant>(createTenantDto);
+                return createdTenant;
+            }
         }
 
         public async Task<int> Update(UpdateTenantDto updateTenantDto)
         {
-            return await Task.FromResult(1);
+            const string query = @"
+                UPDATE [Tenants]
+                SET [Name] = @Name
+                WHERE [Id] = @Id
+            ";
+            
+            await using (var connecion = new SqlConnection(_connectionString))
+            {
+                var result = await connecion.ExecuteAsync(query, updateTenantDto);
+                return result;
+            }
         }
 
         public async Task<int> Delete(DeleteTenantDto deleteTenantDto)
         {
-            return await Task.FromResult(1);
+            const string query = @"
+                DELETE FROM [Tenants]
+                WHERE [Id] = @Id
+            ";
+            
+            await using (var connecion = new SqlConnection(_connectionString))
+            {
+                var result = await connecion.ExecuteAsync(query, deleteTenantDto);
+                return result;
+            }
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using Application.Logic.Tenants.Commands;
 using Application.Logic.Tenants.Queries;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,6 +12,69 @@ namespace WebUI.Controllers
         {
             var vm = await Mediator.Send(new GetTenantsQuery());
             return View(vm);
+        }
+
+        public async Task<IActionResult> Details(Guid id)
+        {
+            var vm = await Mediator.Send(new GetTenantQuery {Id = id});
+
+            if (vm == null)
+            {
+                return NotFound();
+            }
+            
+            return View(vm);
+        }
+        
+        public IActionResult Create()
+        {
+            return View(new CreateTenantCommand());
+        }
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CreateTenantCommand command)
+        {
+            await Mediator.Send(command);
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Update(Guid id)
+        {
+            var tenantVm = await Mediator.Send(new GetTenantQuery {Id = id});
+            var command = Mapper.Map<UpdateTenantCommand>(tenantVm);
+            return View(command);
+        }
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Update(Guid id, UpdateTenantCommand command)
+        {
+            if (id != command.Id)
+            {
+                return BadRequest();
+            }
+            
+            await Mediator.Send(command);
+            return RedirectToAction(nameof(Index));
+        }
+        
+        public IActionResult Delete(Guid id)
+        {
+            return View(new DeleteTenantCommand {Id = id});
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(Guid id, DeleteTenantCommand command)
+        {
+            if (id != command.Id)
+            {
+                return BadRequest();
+            }
+            
+            await Mediator.Send(command);
+            return RedirectToAction(nameof(Index));
         }
     }
 }

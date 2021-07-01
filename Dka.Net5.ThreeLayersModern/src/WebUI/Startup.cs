@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using WebUI.Mapping;
 
 namespace WebUI
 {
@@ -16,6 +17,7 @@ namespace WebUI
         
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAutoMapper(typeof(WebUIProfile));
             services.AddApplication();
             services.AddMvc().AddRazorRuntimeCompilation();
         }
