@@ -1,4 +1,6 @@
 using Application.Extensions;
+using Application.Logic.Tenants.Commands;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +21,10 @@ namespace WebUI
         {
             services.AddAutoMapper(typeof(WebUIProfile));
             services.AddApplication();
-            services.AddMvc().AddRazorRuntimeCompilation();
+            services
+                .AddMvc()
+                .AddRazorRuntimeCompilation()
+                .AddFluentValidation(config => config.RegisterValidatorsFromAssemblyContaining<CreateTenantCommandValidator>());
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

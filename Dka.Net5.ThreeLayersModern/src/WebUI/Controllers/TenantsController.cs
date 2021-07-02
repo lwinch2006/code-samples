@@ -17,12 +17,7 @@ namespace WebUI.Controllers
         public async Task<IActionResult> Details(Guid id)
         {
             var vm = await Mediator.Send(new GetTenantQuery {Id = id});
-
-            if (vm == null)
-            {
-                return NotFound();
-            }
-            
+            if (vm == null) return NotFound();
             return View(vm);
         }
         
@@ -35,6 +30,7 @@ namespace WebUI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateTenantCommand command)
         {
+            if (!ModelState.IsValid) return View(command);
             await Mediator.Send(command);
             return RedirectToAction(nameof(Index));
         }
@@ -42,6 +38,7 @@ namespace WebUI.Controllers
         public async Task<IActionResult> Update(Guid id)
         {
             var tenantVm = await Mediator.Send(new GetTenantQuery {Id = id});
+            if (tenantVm == null) return NotFound();
             var command = Mapper.Map<UpdateTenantCommand>(tenantVm);
             return View(command);
         }
@@ -50,11 +47,8 @@ namespace WebUI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(Guid id, UpdateTenantCommand command)
         {
-            if (id != command.Id)
-            {
-                return BadRequest();
-            }
-            
+            if (id != command.Id) return BadRequest();
+            if (!ModelState.IsValid) return View(command);
             await Mediator.Send(command);
             return RedirectToAction(nameof(Index));
         }
@@ -66,13 +60,10 @@ namespace WebUI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id, DeleteTenantCommand command)
+        public async Task<IActionResult> Delete(Guid id, DeleteTenantCommand command)
         {
-            if (id != command.Id)
-            {
-                return BadRequest();
-            }
-            
+            if (id != command.Id) return BadRequest();
+            if (!ModelState.IsValid) return View(command);
             await Mediator.Send(command);
             return RedirectToAction(nameof(Index));
         }

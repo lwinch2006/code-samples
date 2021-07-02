@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using Application.Mapping;
-using FluentValidation;
 using Infrastructure;
 using Infrastructure.Mapping;
 using Infrastructure.Repositories;
@@ -18,7 +17,6 @@ namespace Application.Extensions
             services.SetupInfrastructure();
             
             services.AddAutoMapper(typeof(ApplicationProfile));
-            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             services.AddMediatR(Assembly.GetExecutingAssembly());
         }
 
