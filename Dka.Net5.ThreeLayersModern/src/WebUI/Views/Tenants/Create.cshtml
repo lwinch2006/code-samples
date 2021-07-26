@@ -1,19 +1,18 @@
 ﻿@model Application.Logic.Tenants.Commands.CreateTenantCommand;
 
 @{
-    ViewData["Title"] = "Tenants - Create";
+    ViewData["Title"] = "Add new tenant";
+    ViewData["CardHeader"] = "Add new tenant";
 }
 
-<h1> Tenants - Create</h1>
-
 <form method="post" asp-action="Create">
-    <div class="form-group">
-        <label asp-for="@Model.Name"></label>
-        <input asp-for="@Model.Name" class="form-control" maxlength="300"/>
+    <div class="mb-3">
+        <label asp-for="@Model.Name" class="form-label"></label>
+        <input asp-for="@Model.Name" class="form-control" style="max-width: 500px;" maxlength="300"/>
         <span asp-validation-for="@Model.Name" class="text-danger"></span>
-        <small class="text-muted">Choose name for tenant</small>
+        <div class="form-text">Choose name for tenant</div>
     </div>
-    <div class="form-group">
+    <div class="mb-3">
         <input type="submit" value="Create" class="btn btn-primary"/>
         <a asp-action="Index" class="btn btn-secondary">Cancel</a>
     </div>    
