@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 
 namespace WebUI.Controllers
 {
@@ -12,6 +13,16 @@ namespace WebUI.Controllers
         public IActionResult Privacy()
         {
             return View();
+        }
+
+        public IActionResult GetError()
+        {
+            throw new Exception("Generated exception");
+        }
+
+        public IActionResult GetNotFound()
+        {
+            return NotFound();
         }
     }
 }

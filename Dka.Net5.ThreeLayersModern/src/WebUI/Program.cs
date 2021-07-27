@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Events;
 using Serilog.Exceptions;
 using Serilog.Sinks.Elasticsearch;
 
@@ -70,18 +71,11 @@ namespace WebUI
 
         private static void BuildLogger()
         {
-            var elasticSearchUrl = _configuration["ElasticSearch:Url"];
-            var indexFormat = _configuration["ElasticSearch:Index"];
-            
             Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(_configuration)
+                .Enrich.WithProperty("Environment", _environmentName)
                 .Enrich.FromLogContext()
                 .Enrich.WithExceptionDetails()
-                .WriteTo.Console()
-                .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(elasticSearchUrl))
-                {
-                    AutoRegisterTemplate = true,
-                    IndexFormat = indexFormat
-                })
                 .CreateLogger();            
         }
     }

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using WebUI.Mapping;
+using WebUI.Middleware;
 
 namespace WebUI
 {
@@ -31,7 +32,8 @@ namespace WebUI
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                //app.UseDeveloperExceptionPage();
+                app.UseExceptionHandler("/Error/500");
             }
             else
             {
@@ -39,6 +41,7 @@ namespace WebUI
                 app.UseHsts();
             }
 
+            app.UseLogContextMiddleware();
             app.UseStatusCodePagesWithReExecute("/Error/{0}");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
