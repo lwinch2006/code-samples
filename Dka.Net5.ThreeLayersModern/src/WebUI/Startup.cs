@@ -1,5 +1,6 @@
 using Application.Extensions;
 using Application.Logic.Tenants.Commands;
+using Dka.Net5.IdentityWithDapper.Utils.Extensions;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -22,6 +23,7 @@ namespace WebUI
         {
             services.AddAutoMapper(typeof(WebUIProfile));
             services.AddApplication();
+            services.AddMinIdentityWithDapper();
             services
                 .AddMvc()
                 .AddRazorRuntimeCompilation()
@@ -46,6 +48,9 @@ namespace WebUI
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

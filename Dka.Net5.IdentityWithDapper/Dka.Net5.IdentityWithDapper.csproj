@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
+      <PackageReference Include="Dapper" Version="2.0.90" />
+      <PackageReference Include="dbup-sqlserver" Version="4.5.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.8" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="5.0.8" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+      <PackageReference Include="Scrutor" Version="3.3.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Migrations\202107291317-create_table_users.sql" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="Infrastructure\Migrations\202107291317-create_table_users.sql" />
+      <None Remove="Infrastructure\Migrations\202107291318-create_table_roles.sql" />
+      <EmbeddedResource Include="Infrastructure\Migrations\202107291318-create_table_roles.sql" />
+      <None Remove="Infrastructure\Migrations\202107291348-create_table_userroles.sql" />
+      <EmbeddedResource Include="Infrastructure\Migrations\202107291348-create_table_userroles.sql" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Infrastructure\Models" />
+    </ItemGroup>
+
+</Project>

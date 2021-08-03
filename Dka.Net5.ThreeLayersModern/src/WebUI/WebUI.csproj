@@ -14,11 +14,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\Dka.Net5.IdentityWithDapper\Dka.Net5.IdentityWithDapper.csproj" />
       <ProjectReference Include="..\Application\Application.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Areas" />
     </ItemGroup>
 
 </Project>
