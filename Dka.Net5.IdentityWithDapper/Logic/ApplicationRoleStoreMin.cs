@@ -24,7 +24,6 @@ namespace Dka.Net5.IdentityWithDapper.Logic
         
         public void Dispose()
         {
-            throw new System.NotImplementedException();
         }
 
         public async Task<IdentityResult> CreateAsync(ApplicationRole role, CancellationToken cancellationToken)

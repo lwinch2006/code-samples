@@ -44,11 +44,6 @@ namespace Dka.Net5.IdentityWithDapper.Utils.Extensions
 
             services.AddTransient<IUserStore<ApplicationUser>, ApplicationUserStoreFull>();
             services.AddTransient<IRoleStore<ApplicationRole>, ApplicationRoleStoreFull>();
-
-            services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IRoleRepository, RoleRepository>();
-            services.AddScoped<IInfrastructure, Infrastructure.Infrastructure>();
-
             services.AddAutoMapper(typeof(IdentityWithDapperProfile));
         }
 
@@ -56,6 +51,7 @@ namespace Dka.Net5.IdentityWithDapper.Utils.Extensions
         {
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IUserTokenRepository, UserTokenRepository>();
             services.AddScoped<IInfrastructure, Infrastructure.Infrastructure>();            
             services.AddAutoMapper(typeof(InfrastructureProfile));
         }

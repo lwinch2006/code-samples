@@ -39,5 +39,23 @@ namespace dka.net5.codesamples.web.Controllers
         {
             return View(new ErrorViewModel {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier});
         }
+
+        public IActionResult TestingFormsOnOnePage()
+        {
+            return View();
+        }
+
+        [HttpPost]        
+        public IActionResult Form1Posted()
+        {
+            return RedirectToAction(nameof(Index));
+        }
+        
+        [HttpPost]        
+        public IActionResult Form2Posted()
+        {
+            return RedirectToAction(nameof(Index));
+        }        
+        
     }
 }

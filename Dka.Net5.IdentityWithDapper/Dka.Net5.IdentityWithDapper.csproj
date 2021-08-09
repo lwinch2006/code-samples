@@ -24,6 +24,7 @@
 
     <ItemGroup>
       <EmbeddedResource Include="Infrastructure\Migrations\202107291317-create_table_users.sql" />
+      <EmbeddedResource Include="Infrastructure\Migrations\202108090830-create_table_usertokens.sql" />
       <None Remove="Infrastructure\Migrations\202107291318-create_table_roles.sql" />
       <EmbeddedResource Include="Infrastructure\Migrations\202107291318-create_table_roles.sql" />
       <None Remove="Infrastructure\Migrations\202107291348-create_table_userroles.sql" />

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.DTO.Role;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.DTO.User;
+using Dka.Net5.IdentityWithDapper.Infrastructure.Models.DTO.UserToken;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.Entities;
 
 namespace Dka.Net5.IdentityWithDapper.Infrastructure.Mapping
@@ -14,6 +15,9 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Mapping
             
             CreateMap<CreateRoleDto, RoleDto>();
             CreateMap<Role, RoleDto>();
+
+            CreateMap<UserToken, UserTokenDto>();
+            CreateMap<CreateOrUpdateUserTokenDto, UserTokenDto>();
         }
     }
 }

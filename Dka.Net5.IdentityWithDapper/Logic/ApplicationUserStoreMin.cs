@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.DTO.User;
+using Dka.Net5.IdentityWithDapper.Infrastructure.Models.DTO.UserToken;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Repositories;
 using Dka.Net5.IdentityWithDapper.Models;
+using Dka.Net5.IdentityWithDapper.Utils.Constants;
 using Microsoft.AspNetCore.Identity;
 
 namespace Dka.Net5.IdentityWithDapper.Logic
@@ -14,16 +17,22 @@ namespace Dka.Net5.IdentityWithDapper.Logic
         IUserPasswordStore<ApplicationUser>, 
         IUserEmailStore<ApplicationUser>, 
         IUserRoleStore<ApplicationUser>,
-        IUserPhoneNumberStore<ApplicationUser>
+        IUserPhoneNumberStore<ApplicationUser>,
+        IUserTwoFactorStore<ApplicationUser>,
+        IUserAuthenticatorKeyStore<ApplicationUser>,
+        IUserTwoFactorRecoveryCodeStore<ApplicationUser>
     {
         private readonly IUserRepository _userRepository;
+        private readonly IUserTokenRepository _userTokenRepository;
         private readonly IMapper _mapper;
         
         public ApplicationUserStoreMin(
             IUserRepository userRepository,
+            IUserTokenRepository userTokenRepository,
             IMapper mapper)
         {
             _userRepository = userRepository;
+            _userTokenRepository = userTokenRepository;
             _mapper = mapper;
         }
         
@@ -296,6 +305,115 @@ namespace Dka.Net5.IdentityWithDapper.Logic
             user.PhoneNumberConfirmed = confirmed;
             
             return Task.CompletedTask;
+        }
+
+        public Task SetTwoFactorEnabledAsync(ApplicationUser user, bool enabled, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            user.TwoFactorEnabled = enabled;
+            
+            return Task.CompletedTask;
+        }
+
+        public async Task<bool> GetTwoFactorEnabledAsync(ApplicationUser user, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return await Task.FromResult(user.TwoFactorEnabled);
+        }
+
+        public async Task SetAuthenticatorKeyAsync(ApplicationUser user, string key, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var createUserTokenDto = new CreateOrUpdateUserTokenDto
+            {
+                UserId = user.Id,
+                LoginProvider = SystemConstants.LoginProviderName,
+                Name = SystemConstants.TwoFA.AuthenticatorKeyTokenName,
+                Value = key
+            };
+            
+            await _userTokenRepository.CreateOrUpdate(createUserTokenDto);
+        }
+
+        public async Task<string> GetAuthenticatorKeyAsync(ApplicationUser user, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var getUserTokenDto = new GetUserTokenDto
+            {
+                UserId = user.Id,
+                LoginProvider = SystemConstants.LoginProviderName,
+                Name = SystemConstants.TwoFA.AuthenticatorKeyTokenName
+            };
+
+            var userTokenDto = await _userTokenRepository.Get(getUserTokenDto);
+            
+            return userTokenDto?.Value;
+        }
+
+        public async Task ReplaceCodesAsync(ApplicationUser user, IEnumerable<string> recoveryCodes, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var mergedCodes = string.Join(";", recoveryCodes);
+
+            var createUserTokenDto = new CreateOrUpdateUserTokenDto
+            {
+                UserId = user.Id,
+                LoginProvider = SystemConstants.LoginProviderName,
+                Name = SystemConstants.TwoFA.RecoveryCodeTokenName,
+                Value = mergedCodes
+            };
+
+            await _userTokenRepository.CreateOrUpdate(createUserTokenDto);
+        }
+
+        public async Task<bool> RedeemCodeAsync(ApplicationUser user, string code, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            
+            var getUserTokenDto = new GetUserTokenDto
+            {
+                UserId = user.Id,
+                LoginProvider = SystemConstants.LoginProviderName,
+                Name = SystemConstants.TwoFA.RecoveryCodeTokenName
+            };
+            
+            var recoveryCodes = await _userTokenRepository.Get(getUserTokenDto);
+
+            var recoveryCodesSplitted = recoveryCodes.Value.Split(";");
+
+            if (!recoveryCodesSplitted.Contains(code))
+            {
+                return false;
+            }
+
+            var updatedRecoveryCodes = recoveryCodesSplitted.Where(t => t != code);
+
+            await ReplaceCodesAsync(user, updatedRecoveryCodes, cancellationToken);
+
+            return true;
+        }
+
+        public async Task<int> CountCodesAsync(ApplicationUser user, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            
+            var getUserTokenDto = new GetUserTokenDto
+            {
+                UserId = user.Id,
+                LoginProvider = SystemConstants.LoginProviderName,
+                Name = SystemConstants.TwoFA.RecoveryCodeTokenName
+            };
+            
+            var recoveryCodes = await _userTokenRepository.Get(getUserTokenDto);
+            
+            var recoveryCodesSplitted = (recoveryCodes?.Value ?? string.Empty).Split(";");
+
+            return recoveryCodesSplitted.Length;
         }
     }
 }
