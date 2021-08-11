@@ -19,11 +19,14 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
         Task<UserDto> FindByIdAsync(Guid userId);
         Task<UserDto> FindByNameAsync(string normalizedUserName);
         Task<UserDto> FindByEmailAsync(string normalizedEmail);
+        Task<UserDto> FindByLogin(string loginProvider, string providerKey);
         Task AddToRoleAsync(UserDto userDto, string roleName);
         Task RemoveFromRoleAsync(UserDto userDto, string roleName);
         Task<IList<string>> GetRolesAsync(UserDto userDto);
         Task<bool> IsInRoleAsync(UserDto userDto, string roleName);
         Task<IList<UserDto>> GetUsersInRoleAsync(string roleName);
+        Task<IList<UserDto>> GetUsersForClaim(GetUsersForClaimDto getUsersForClaimDto);
+        Task<IEnumerable<UserDto>> Get();
     }
     
     public class UserRepository : IUserRepository
@@ -189,6 +192,23 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
             }
         }
 
+        public async Task<UserDto> FindByLogin(string loginProvider, string providerKey)
+        {
+            const string query = @"
+                SELECT [u].*
+                FROM [Users] [u] INNER JOIN [UserLogins] [ul] on [u].[Id] = [ul].[UserId]
+                WHERE [ul].[LoginProvider] = @LoginProvider
+                AND [ul].[ProviderKey] = @ProviderKey;
+            ";
+
+            await using (var connection = new SqlConnection(_connectionString))
+            {
+                var user = await connection.QuerySingleOrDefaultAsync<User>(query, new { @LoginProvider = loginProvider, @ProviderKey = providerKey });
+                var userDto = _mapper.Map<UserDto>(user);
+                return userDto;
+            }
+        }
+
         public async Task AddToRoleAsync(UserDto userDto, string roleName)
         {
             const string query = @"
@@ -285,6 +305,38 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
             {
                 var users = await connection.QueryAsync<User>(query, new {@RoleName = roleName});
                 var usersDto = _mapper.Map<IList<UserDto>>(users);
+                return usersDto;
+            }
+        }
+
+        public async Task<IList<UserDto>> GetUsersForClaim(GetUsersForClaimDto getUsersForClaimDto)
+        {
+            const string query = @"
+                SELECT [u].*
+                FROM [Users] [u] INNER JOIN [UserClaims] [uc] ON [u].[Id] = [uc].[UserId]
+                WHERE [uc].[ClaimType] = @ClaimType
+                AND [uc].[ClaimValue] = @ClaimValue
+            ";
+
+            await using (var connection = new SqlConnection(_connectionString))
+            {
+                var users = await connection.QueryAsync<User>(query, getUsersForClaimDto);
+                var usersDto = _mapper.Map<IList<UserDto>>(users);
+                return usersDto;
+            }
+        }
+
+        public async Task<IEnumerable<UserDto>> Get()
+        {
+            const string query = @"
+                SELECT *
+                FROM [Users]
+            ";
+
+            await using (var connection = new SqlConnection(_connectionString))
+            {
+                var users = await connection.QueryAsync<User>(query);
+                var usersDto = _mapper.Map<IEnumerable<UserDto>>(users);
                 return usersDto;
             }
         }

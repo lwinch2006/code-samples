@@ -1,15 +1,14 @@
 BEGIN TRY
     BEGIN TRANSACTION;
 
-    IF NOT EXISTS(SELECT * FROM Information_Schema.Tables WHERE Table_Name='UserTokens')
+    IF NOT EXISTS(SELECT * FROM Information_Schema.Tables WHERE Table_Name='RoleClaims')
         BEGIN
-            CREATE TABLE [UserTokens] (
-                [UserId] UNIQUEIDENTIFIER NOT NULL,
-                [LoginProvider] VARCHAR(255) NOT NULL,
-                [Name] VARCHAR(255) NOT NULL,
-                [Value] VARCHAR(MAX),
-                CONSTRAINT PK_UserTokens PRIMARY KEY (UserId, LoginProvider, Name),
-                CONSTRAINT FK_UserUserToken FOREIGN KEY (UserId) REFERENCES Users(Id) ON UPDATE CASCADE ON DELETE CASCADE, 
+            CREATE TABLE [RoleClaims] (
+                [Id] INT IDENTITY(1,1) NOT NULL CONSTRAINT [PK_RoleClaims] PRIMARY KEY CLUSTERED,
+                [ClaimType] VARCHAR(255) NOT NULL,
+                [ClaimValue] VARCHAR(255),
+                [RoleId] UNIQUEIDENTIFIER NOT NULL,
+                CONSTRAINT FK_RoleRoleClaim FOREIGN KEY (RoleId) REFERENCES Roles(Id) ON UPDATE CASCADE ON DELETE CASCADE 
             );
         END;
 

@@ -25,6 +25,9 @@
     <ItemGroup>
       <EmbeddedResource Include="Infrastructure\Migrations\202107291317-create_table_users.sql" />
       <EmbeddedResource Include="Infrastructure\Migrations\202108090830-create_table_usertokens.sql" />
+      <EmbeddedResource Include="Infrastructure\Migrations\202108091039-create_table_roleclaims.sql" />
+      <EmbeddedResource Include="Infrastructure\Migrations\202108091040-create_table_userclaims.sql" />
+      <EmbeddedResource Include="Infrastructure\Migrations\202108091041-create_table_userlogins.sql" />
       <None Remove="Infrastructure\Migrations\202107291318-create_table_roles.sql" />
       <EmbeddedResource Include="Infrastructure\Migrations\202107291318-create_table_roles.sql" />
       <None Remove="Infrastructure\Migrations\202107291348-create_table_userroles.sql" />

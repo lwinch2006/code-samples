@@ -1,15 +1,15 @@
 BEGIN TRY
     BEGIN TRANSACTION;
 
-    IF NOT EXISTS(SELECT * FROM Information_Schema.Tables WHERE Table_Name='UserTokens')
+    IF NOT EXISTS(SELECT * FROM Information_Schema.Tables WHERE Table_Name='UserLogins')
         BEGIN
-            CREATE TABLE [UserTokens] (
-                [UserId] UNIQUEIDENTIFIER NOT NULL,
+            CREATE TABLE [UserLogins] (
                 [LoginProvider] VARCHAR(255) NOT NULL,
-                [Name] VARCHAR(255) NOT NULL,
-                [Value] VARCHAR(MAX),
-                CONSTRAINT PK_UserTokens PRIMARY KEY (UserId, LoginProvider, Name),
-                CONSTRAINT FK_UserUserToken FOREIGN KEY (UserId) REFERENCES Users(Id) ON UPDATE CASCADE ON DELETE CASCADE, 
+                [ProviderKey] VARCHAR(255) NOT NULL,
+                [ProviderDisplayName] VARCHAR(255),
+                [UserId] UNIQUEIDENTIFIER NOT NULL,
+                CONSTRAINT PK_UserLogins PRIMARY KEY (LoginProvider, ProviderKey),
+                CONSTRAINT FK_UserUserLogin FOREIGN KEY (UserId) REFERENCES Users(Id) ON UPDATE CASCADE ON DELETE CASCADE 
             );
         END;
 

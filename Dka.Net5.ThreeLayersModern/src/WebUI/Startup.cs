@@ -23,7 +23,7 @@ namespace WebUI
         {
             services.AddAutoMapper(typeof(WebUIProfile));
             services.AddApplication();
-            services.AddMinIdentityWithDapper();
+            services.AddFullIdentityWithDapper();
             services
                 .AddMvc()
                 .AddRazorRuntimeCompilation()

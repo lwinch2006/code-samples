@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using AutoMapper;
 using Dapper;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.DTO.Role;
+using Dka.Net5.IdentityWithDapper.Infrastructure.Models.Entities;
 using Dka.Net5.IdentityWithDapper.Utils.Constants;
 using Microsoft.Extensions.Configuration;
 
@@ -16,6 +18,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
         Task<int> DeleteAsync(DeleteRoleDto deleteRoleDto);
         Task<RoleDto> FindByIdAsync(Guid roleId);
         Task<RoleDto> FindByNameAsync(string normalizedRoleName);
+        Task<IEnumerable<RoleDto>> Get();
     }
     
     public class RoleRepository : IRoleRepository
@@ -122,6 +125,21 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 var role = await connection.QuerySingleOrDefaultAsync(query, new {@NormalizedRoleName = normalizedRoleName});
                 var roleDto = _mapper.Map<RoleDto>(role);
                 return roleDto;
+            }
+        }
+
+        public async Task<IEnumerable<RoleDto>> Get()
+        {
+            const string query = @"
+                SELECT *
+                FROM [Roles]
+            ";
+
+            await using (var connection = new SqlConnection(_connectionString))
+            {
+                var roles = await connection.QueryAsync<Role>(query);
+                var rolesDto = _mapper.Map<IEnumerable<RoleDto>>(roles);
+                return rolesDto;
             }
         }
     }
