@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
 using Serilog.Exceptions;
-using Serilog.Sinks.Elasticsearch;
+using WebUI.Utils.Extensions;
 
 namespace WebUI
 {
@@ -37,17 +37,21 @@ namespace WebUI
             var webHost = Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    var urls = _configuration.GetSection("host:urls")
-                        .AsEnumerable()
-                        .Select(t => t.Value)
-                        .Where(t => t != null)
-                        .ToArray();
-                        
                     webBuilder.UseEnvironment(_environmentName);
                     webBuilder.UseConfiguration(_configuration);
                     webBuilder.UseSerilog();
                     webBuilder.UseStartup<Startup>();
-                    webBuilder.UseUrls(urls);
+
+                    if (_environmentName.IsDevelopment())
+                    {
+                        var urls = _configuration.GetSection("host:urls")
+                            .AsEnumerable()
+                            .Select(t => t.Value)
+                            .Where(t => t != null)
+                            .ToArray();                        
+                        
+                        webBuilder.UseUrls(urls);
+                    }
                 })
                 .Build();
 
