@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Reflection;
 using DbUp;
+using DbUp.Builder;
+using Infrastructure.Utils.Constants;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -16,13 +18,15 @@ namespace Infrastructure
     {
         private readonly IHostEnvironment _environment;
         private readonly ILogger<Infrastructure> _logger;
-        private readonly string _connectionString;        
+        private readonly string _connectionString;
+        private readonly InfrastructureConstants.DbTypes _dbType;
         
         public Infrastructure(IHostEnvironment environment, IConfiguration configuration, ILogger<Infrastructure> logger)
         {
             _environment = environment;
             _logger = logger;
-            _connectionString = configuration["Data:ConnectionString"];            
+            _connectionString = configuration[InfrastructureConstants.DbConnectionConfigParamName];
+            _dbType = Enum.Parse<InfrastructureConstants.DbTypes>(configuration[InfrastructureConstants.DbTypeConfigParamName]);
         }        
         
         public void Setup()
@@ -38,15 +42,26 @@ namespace Infrastructure
         
         private void RunDbMigrations()
         {
-            EnsureDatabase.For.SqlDatabase(_connectionString);
+            UpgradeEngineBuilder upgradeBuilder;
             
-            var upgrader =
-                DeployChanges.To
-                    .SqlDatabase(_connectionString)
-                    .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), scriptName => !scriptName.Contains("seed-dev-data", StringComparison.OrdinalIgnoreCase))
-                    .LogToConsole()
-                    .Build();
-
+            switch (_dbType)
+            {
+                case InfrastructureConstants.DbTypes.Sqlite:
+                    upgradeBuilder = DeployChanges.To.SQLiteDatabase(_connectionString);
+                    break;
+                
+                case InfrastructureConstants.DbTypes.Mssql:
+                default:
+                    EnsureDatabase.For.SqlDatabase(_connectionString);
+                    upgradeBuilder = DeployChanges.To.SqlDatabase(_connectionString);
+                    break;                    
+            }
+            
+            var upgrader = upgradeBuilder
+                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), scriptName => !scriptName.Contains("seed-dev-data", StringComparison.OrdinalIgnoreCase))
+                .LogToConsole()
+                .Build();
+            
             var result = upgrader.PerformUpgrade();
 
             if (!result.Successful)
@@ -59,14 +74,25 @@ namespace Infrastructure
         
         private void RunDbMigrationsInDevelopmentEnvironment()
         {
-            EnsureDatabase.For.SqlDatabase(_connectionString);
+            UpgradeEngineBuilder upgradeBuilder;
             
-            var upgrader =
-                DeployChanges.To
-                    .SqlDatabase(_connectionString)
-                    .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), scriptName => scriptName.Contains("seed-dev-data", StringComparison.OrdinalIgnoreCase))
-                    .LogToConsole()
-                    .Build();
+            switch (_dbType)
+            {
+                case InfrastructureConstants.DbTypes.Sqlite:
+                    upgradeBuilder = DeployChanges.To.SQLiteDatabase(_connectionString);
+                    break;
+                
+                case InfrastructureConstants.DbTypes.Mssql:
+                default:
+                    EnsureDatabase.For.SqlDatabase(_connectionString);
+                    upgradeBuilder = DeployChanges.To.SqlDatabase(_connectionString);
+                    break;                    
+            }            
+            
+            var upgrader = upgradeBuilder
+                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), scriptName => scriptName.Contains("seed-dev-data", StringComparison.OrdinalIgnoreCase))
+                .LogToConsole()
+                .Build();
 
             var result = upgrader.PerformUpgrade();
 

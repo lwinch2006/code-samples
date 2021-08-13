@@ -33,7 +33,8 @@ namespace Application.Extensions
 
         private static void SetupInfrastructure(this IServiceCollection services)
         {
-            var infrastucture = services.BuildServiceProvider().GetService<IInfrastructure>();
+            var sp = services.BuildServiceProvider();
+            var infrastucture = sp.GetService<IInfrastructure>();
             infrastucture.Setup();
         }
     }

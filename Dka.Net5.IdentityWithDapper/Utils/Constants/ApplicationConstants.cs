@@ -1,6 +1,6 @@
 ﻿namespace Dka.Net5.IdentityWithDapper.Utils.Constants
 {
-    public static class SystemConstants
+    public static class ApplicationConstants
     {
         public const string DbConnectionConfigParamName = "Data:ConnectionString";
         public const string LoginProviderName = "IdentityWithDapper";

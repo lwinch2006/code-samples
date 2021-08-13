@@ -355,3 +355,4 @@ MigrationBackup/
 # Misc folders and files
 .idea/
 appsettings.Development.json
+log*.txt

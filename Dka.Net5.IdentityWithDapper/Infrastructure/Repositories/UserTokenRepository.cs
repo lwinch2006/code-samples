@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Dapper;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.DTO.UserToken;
+using Dka.Net5.IdentityWithDapper.Infrastructure.Utils;
 using Dka.Net5.IdentityWithDapper.Utils.Constants;
 using Microsoft.Extensions.Configuration;
 
@@ -16,12 +17,12 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
     
     public class UserTokenRepository : IUserTokenRepository
     {
-        private readonly string _connectionString;
+        private readonly IDbConnectionFactory _dbConnectionFactory;
         private readonly IMapper _mapper;
         
-        public UserTokenRepository(IConfiguration configuration, IMapper mapper)
+        public UserTokenRepository(IDbConnectionFactory dbConnectionFactory, IMapper mapper)
         {
-            _connectionString = configuration[SystemConstants.DbConnectionConfigParamName];
+            _dbConnectionFactory = dbConnectionFactory;
             _mapper = mapper;
         }
         
@@ -43,7 +44,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 END;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var insertedRowsNum = await connection.ExecuteAsync(query, createOrUpdateUserTokenDto);
 
@@ -68,7 +69,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 AND [Name] = @Name;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var userToken = await connection.QuerySingleOrDefaultAsync(
                     query,

@@ -1,6 +1,7 @@
 ﻿using Dka.Net5.IdentityWithDapper.Infrastructure;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Mapping;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Repositories;
+using Dka.Net5.IdentityWithDapper.Infrastructure.Utils;
 using Dka.Net5.IdentityWithDapper.Logic;
 using Dka.Net5.IdentityWithDapper.Mapping;
 using Dka.Net5.IdentityWithDapper.Models;
@@ -55,6 +56,7 @@ namespace Dka.Net5.IdentityWithDapper.Utils.Extensions
             services.AddScoped<IUserClaimRepository, UserClaimRepository>();
             services.AddScoped<IUserLoginRepository, UserLoginRepository>();
             services.AddScoped<IRoleClaimRepository, RoleClaimRepository>();
+            services.AddScoped<IDbConnectionFactory, DbConnectionFactory>();
             services.AddScoped<IInfrastructure, Infrastructure.Infrastructure>();            
             services.AddAutoMapper(typeof(InfrastructureProfile));
         }

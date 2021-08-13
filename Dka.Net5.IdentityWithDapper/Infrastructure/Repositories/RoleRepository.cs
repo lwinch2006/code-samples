@@ -6,6 +6,7 @@ using AutoMapper;
 using Dapper;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.DTO.Role;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.Entities;
+using Dka.Net5.IdentityWithDapper.Infrastructure.Utils;
 using Dka.Net5.IdentityWithDapper.Utils.Constants;
 using Microsoft.Extensions.Configuration;
 
@@ -23,14 +24,14 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
     
     public class RoleRepository : IRoleRepository
     {
-        private readonly string _connectionString;
+        private readonly IDbConnectionFactory _dbConnectionFactory;
         private readonly IMapper _mapper;
         
         public RoleRepository(
-            IConfiguration configuration,
+            IDbConnectionFactory dbConnectionFactory,
             IMapper mapper)
         {
-            _connectionString = configuration[SystemConstants.DbConnectionConfigParamName];
+            _dbConnectionFactory = dbConnectionFactory;
             _mapper = mapper;
         }
         
@@ -49,7 +50,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                     ,@ConcurrencyStamp);
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var insertedRowsNum = await connection.ExecuteAsync(query, createRoleDto);
 
@@ -74,7 +75,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 WHERE [Id] = @Id;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var updatedRowsNum = await connection.ExecuteAsync(query, updateRoleDto);
                 return updatedRowsNum;
@@ -89,7 +90,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 WHERE [Id] = @Id
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var deletedRowsNum = await connection.ExecuteAsync(query, new {@Id = deleteRoleDto.Id});
                 return deletedRowsNum;
@@ -104,7 +105,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 WHERE [Id] = @Id;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var role = await connection.QuerySingleOrDefaultAsync(query, new {@Id = roleId});
                 var roleDto = _mapper.Map<RoleDto>(role);
@@ -120,7 +121,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 WHERE [NormalizedRoleName] = @NormalizedRoleName;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var role = await connection.QuerySingleOrDefaultAsync(query, new {@NormalizedRoleName = normalizedRoleName});
                 var roleDto = _mapper.Map<RoleDto>(role);
@@ -135,7 +136,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 FROM [Roles]
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var roles = await connection.QueryAsync<Role>(query);
                 var rolesDto = _mapper.Map<IEnumerable<RoleDto>>(roles);

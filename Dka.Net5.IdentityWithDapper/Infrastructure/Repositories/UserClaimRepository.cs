@@ -6,6 +6,7 @@ using AutoMapper;
 using Dapper;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.DTO.UserClaim;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.Entities;
+using Dka.Net5.IdentityWithDapper.Infrastructure.Utils;
 using Dka.Net5.IdentityWithDapper.Utils.Constants;
 using Microsoft.Extensions.Configuration;
 
@@ -21,12 +22,12 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
     
     public class UserClaimRepository : IUserClaimRepository
     {
-        private readonly string _connectionString;
+        private readonly IDbConnectionFactory _dbConnectionFactory;
         private readonly IMapper _mapper;
         
-        public UserClaimRepository(IConfiguration configuration, IMapper mapper)
+        public UserClaimRepository(IDbConnectionFactory dbConnectionFactory, IMapper mapper)
         {
-            _connectionString = configuration[SystemConstants.DbConnectionConfigParamName];
+            _dbConnectionFactory = dbConnectionFactory;
             _mapper = mapper;
         }        
         
@@ -38,7 +39,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 WHERE [UserId] = @UserId;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var userClaims = await connection.QueryAsync<UserClaim>(query, new { @UserId = userId });
                 var userClaimsDto = _mapper.Map<IEnumerable<UserClaimDto>>(userClaims);
@@ -53,7 +54,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 VALUES (@ClaimType, @ClaimValue, @UserId);
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var insertedRowsNum = await connection.ExecuteAsync(query, createUserClaimsDto);
                 return insertedRowsNum;
@@ -73,7 +74,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 AND [ClaimValue] = @OldClaimValue
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var updatedRowsNum = await connection.ExecuteAsync(query, updateUserClaimDto);
                 return updatedRowsNum;
@@ -89,7 +90,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 AND [ClaimValue] = @ClaimValue;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var deletedRowsNum = await connection.ExecuteAsync(query, deleteUserClaimsDto);
                 return deletedRowsNum;

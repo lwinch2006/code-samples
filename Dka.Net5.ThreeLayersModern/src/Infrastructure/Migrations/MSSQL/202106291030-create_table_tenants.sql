@@ -7,7 +7,7 @@ BEGIN TRY
             (
                 Id UNIQUEIDENTIFIER NOT NULL,
                 Name NVARCHAR(255) NOT NULL,
-                CONSTRAINT PK_Tenant PRIMARY KEY (Id)
+                CONSTRAINT PK_Tenants PRIMARY KEY (Id)
             );
         END;
 

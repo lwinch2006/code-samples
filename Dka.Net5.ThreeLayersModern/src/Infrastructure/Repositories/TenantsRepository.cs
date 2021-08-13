@@ -6,6 +6,7 @@ using AutoMapper;
 using Dapper;
 using Infrastructure.DTO.Tenants;
 using Infrastructure.Entities;
+using Infrastructure.Utils;
 using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Repositories
@@ -25,12 +26,12 @@ namespace Infrastructure.Repositories
     
     public class TenantsRepository : ITenantsRepository
     {
-        private readonly string _connectionString;
+        private readonly IDbConnectionFactory _dbConnectionFactory;
         private readonly IMapper _mapper;
 
-        public TenantsRepository(IConfiguration configuration, IMapper mapper)
+        public TenantsRepository(IDbConnectionFactory dbConnectionFactory, IMapper mapper)
         {
-            _connectionString = configuration["Data:ConnectionString"];
+            _dbConnectionFactory = dbConnectionFactory;
             _mapper = mapper;
         }
 
@@ -41,7 +42,7 @@ namespace Infrastructure.Repositories
                 FROM [Tenants]
             ";
 
-            await using (var connecion = new SqlConnection(_connectionString))
+            await using (var connecion = _dbConnectionFactory.GetDbConnection())
             {
                 var result = await connecion.QueryAsync<Tenant>(query);
                 return result;
@@ -56,7 +57,7 @@ namespace Infrastructure.Repositories
                 WHERE [Id] = @Id
             ";
 
-            await using (var connecion = new SqlConnection(_connectionString))
+            await using (var connecion = _dbConnectionFactory.GetDbConnection())
             {
                 var result = await connecion.QuerySingleOrDefaultAsync<Tenant>(query, new { @Id = id });
                 return result;
@@ -70,7 +71,7 @@ namespace Infrastructure.Repositories
                 VALUES (@Id, @Name)
             ";
             
-            await using (var connecion = new SqlConnection(_connectionString))
+            await using (var connecion = _dbConnectionFactory.GetDbConnection())
             {
                 var result = await connecion.ExecuteAsync(query, createTenantDto);
                 var createdTenant = result == 0 ? null : _mapper.Map<Tenant>(createTenantDto);
@@ -86,7 +87,7 @@ namespace Infrastructure.Repositories
                 WHERE [Id] = @Id
             ";
             
-            await using (var connecion = new SqlConnection(_connectionString))
+            await using (var connecion = _dbConnectionFactory.GetDbConnection())
             {
                 var result = await connecion.ExecuteAsync(query, updateTenantDto);
                 return result;
@@ -100,7 +101,7 @@ namespace Infrastructure.Repositories
                 WHERE [Id] = @Id
             ";
             
-            await using (var connecion = new SqlConnection(_connectionString))
+            await using (var connecion = _dbConnectionFactory.GetDbConnection())
             {
                 var result = await connecion.ExecuteAsync(query, deleteTenantDto);
                 return result;

@@ -8,16 +8,24 @@
     <ItemGroup>
       <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
       <PackageReference Include="Dapper" Version="2.0.90" />
+      <PackageReference Include="dbup-sqlite" Version="4.5.0" />
       <PackageReference Include="dbup-sqlserver" Version="4.5.0" />
       <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     </ItemGroup>
 
     <ItemGroup>
+      <None Include="Migrations\MSSQL\202106291030-create_table_tenants.sql" />
+      <None Include="Migrations\MSSQL\Development\202106291031-update-table-tenants-seed-dev-data.sql" />
       <None Remove="Migrations\202106291030-create_table_tenants.sql" />
-      <EmbeddedResource Include="Migrations\202106291030-create_table_tenants.sql" />
       <None Remove="Migrations\Development\202106291031-update-table-tenants-seed-dev-data.sql" />
-      <EmbeddedResource Include="Migrations\Development\202106291031-update-table-tenants-seed-dev-data.sql" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Migrations\SQLite\Development\202106291031-update-table-tenants-seed-dev-data.sql" />
+      <EmbeddedResource Include="Migrations\SQLite\Development\202106291031-update-table-tenants-seed-dev-data.sql" />
+      <None Remove="Migrations\SQLite\202106291030-create_table_tenants.sql" />
+      <EmbeddedResource Include="Migrations\SQLite\202106291030-create_table_tenants.sql" />
     </ItemGroup>
 
 </Project>

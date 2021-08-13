@@ -330,8 +330,8 @@ namespace Dka.Net5.IdentityWithDapper.Logic
             var createUserTokenDto = new CreateOrUpdateUserTokenDto
             {
                 UserId = user.Id,
-                LoginProvider = SystemConstants.LoginProviderName,
-                Name = SystemConstants.TwoFA.AuthenticatorKeyTokenName,
+                LoginProvider = ApplicationConstants.LoginProviderName,
+                Name = ApplicationConstants.TwoFA.AuthenticatorKeyTokenName,
                 Value = key
             };
             
@@ -345,8 +345,8 @@ namespace Dka.Net5.IdentityWithDapper.Logic
             var getUserTokenDto = new GetUserTokenDto
             {
                 UserId = user.Id,
-                LoginProvider = SystemConstants.LoginProviderName,
-                Name = SystemConstants.TwoFA.AuthenticatorKeyTokenName
+                LoginProvider = ApplicationConstants.LoginProviderName,
+                Name = ApplicationConstants.TwoFA.AuthenticatorKeyTokenName
             };
 
             var userTokenDto = await _userTokenRepository.Get(getUserTokenDto);
@@ -363,8 +363,8 @@ namespace Dka.Net5.IdentityWithDapper.Logic
             var createUserTokenDto = new CreateOrUpdateUserTokenDto
             {
                 UserId = user.Id,
-                LoginProvider = SystemConstants.LoginProviderName,
-                Name = SystemConstants.TwoFA.RecoveryCodeTokenName,
+                LoginProvider = ApplicationConstants.LoginProviderName,
+                Name = ApplicationConstants.TwoFA.RecoveryCodeTokenName,
                 Value = mergedCodes
             };
 
@@ -378,8 +378,8 @@ namespace Dka.Net5.IdentityWithDapper.Logic
             var getUserTokenDto = new GetUserTokenDto
             {
                 UserId = user.Id,
-                LoginProvider = SystemConstants.LoginProviderName,
-                Name = SystemConstants.TwoFA.RecoveryCodeTokenName
+                LoginProvider = ApplicationConstants.LoginProviderName,
+                Name = ApplicationConstants.TwoFA.RecoveryCodeTokenName
             };
             
             var recoveryCodes = await _userTokenRepository.Get(getUserTokenDto);
@@ -405,8 +405,8 @@ namespace Dka.Net5.IdentityWithDapper.Logic
             var getUserTokenDto = new GetUserTokenDto
             {
                 UserId = user.Id,
-                LoginProvider = SystemConstants.LoginProviderName,
-                Name = SystemConstants.TwoFA.RecoveryCodeTokenName
+                LoginProvider = ApplicationConstants.LoginProviderName,
+                Name = ApplicationConstants.TwoFA.RecoveryCodeTokenName
             };
             
             var recoveryCodes = await _userTokenRepository.Get(getUserTokenDto);

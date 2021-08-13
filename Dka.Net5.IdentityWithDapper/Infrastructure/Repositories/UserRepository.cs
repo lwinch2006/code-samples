@@ -6,6 +6,8 @@ using AutoMapper;
 using Dapper;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.DTO.User;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.Entities;
+using Dka.Net5.IdentityWithDapper.Infrastructure.Utils;
+using Dka.Net5.IdentityWithDapper.Infrastructure.Utils.Constants;
 using Dka.Net5.IdentityWithDapper.Utils.Constants;
 using Microsoft.Extensions.Configuration;
 
@@ -31,14 +33,14 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
     
     public class UserRepository : IUserRepository
     {
-        private readonly string _connectionString;
+        private readonly IDbConnectionFactory _dbConnectionFactory;
         private readonly IMapper _mapper;
 
         public UserRepository(
-            IConfiguration configuration,
+            IDbConnectionFactory dbConnectionFactory,
             IMapper mapper)
         {
-            _connectionString = configuration[SystemConstants.DbConnectionConfigParamName];
+            _dbConnectionFactory = dbConnectionFactory;
             _mapper = mapper;
         }
         
@@ -79,7 +81,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                     ,@AccessFailedCount);
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var insertedRowsNum = await connection.ExecuteAsync(query, createUserDto);
 
@@ -116,7 +118,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 WHERE [Id] = @Id;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var updatedRowsNum = await connection.ExecuteAsync(query, updateUserDto);
 
@@ -132,7 +134,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 WHERE [Id] = @Id;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var deletedRowsNum = await connection.ExecuteAsync(query, new {@Id = userId});
 
@@ -148,7 +150,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 WHERE [Id] = @Id;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var user = await connection.QuerySingleOrDefaultAsync<User>(query, new {@Id = userId});
 
@@ -166,7 +168,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 WHERE [NormalizedUserName] = @NormalizedUserName;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var user = await connection.QuerySingleOrDefaultAsync<User>(query, new {@NormalizedUserName = normalizedUserName});
 
@@ -184,7 +186,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 WHERE [NormalizedEmail] = @NormalizedEmail;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var user = await connection.QuerySingleOrDefaultAsync<User>(query, new {@NormalizedEmail = normalizedEmail});
                 var userDto = _mapper.Map<UserDto>(user);
@@ -201,7 +203,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 AND [ul].[ProviderKey] = @ProviderKey;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var user = await connection.QuerySingleOrDefaultAsync<User>(query, new { @LoginProvider = loginProvider, @ProviderKey = providerKey });
                 var userDto = _mapper.Map<UserDto>(user);
@@ -225,7 +227,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 END;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var user = _mapper.Map<User>(userDto);
 
@@ -250,7 +252,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 END;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var user = _mapper.Map<User>(userDto);
 
@@ -266,7 +268,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 WHERE [ur].[UserId] = @UserId;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var user = _mapper.Map<User>(userDto);
                 var rolesNames = await connection.QueryAsync<string>(query, new {@UserId = user.Id});
@@ -283,7 +285,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 AND [r].[Name] = @RoleName;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var user = _mapper.Map<User>(userDto);
                 
@@ -301,7 +303,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 WHERE [ur].[RoleId] IN (SELECT [r].[Id] FROM [Roles] [r] WHERE [r].[Name] = @RoleName);
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var users = await connection.QueryAsync<User>(query, new {@RoleName = roleName});
                 var usersDto = _mapper.Map<IList<UserDto>>(users);
@@ -318,7 +320,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 AND [uc].[ClaimValue] = @ClaimValue
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var users = await connection.QueryAsync<User>(query, getUsersForClaimDto);
                 var usersDto = _mapper.Map<IList<UserDto>>(users);
@@ -333,7 +335,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 FROM [Users]
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var users = await connection.QueryAsync<User>(query);
                 var usersDto = _mapper.Map<IEnumerable<UserDto>>(users);

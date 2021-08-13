@@ -6,6 +6,7 @@ using AutoMapper;
 using Dapper;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.DTO.UserLogin;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.Entities;
+using Dka.Net5.IdentityWithDapper.Infrastructure.Utils;
 using Dka.Net5.IdentityWithDapper.Utils.Constants;
 using Microsoft.Extensions.Configuration;
 
@@ -20,12 +21,12 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
     
     public class UserLoginRepository : IUserLoginRepository
     {
-        private readonly string _connectionString;
+        private readonly IDbConnectionFactory _dbConnectionFactory;
         private readonly IMapper _mapper;
         
-        public UserLoginRepository(IConfiguration configuration, IMapper mapper)
+        public UserLoginRepository(IDbConnectionFactory dbConnectionFactory, IMapper mapper)
         {
-            _connectionString = configuration[SystemConstants.DbConnectionConfigParamName];
+            _dbConnectionFactory = dbConnectionFactory;
             _mapper = mapper;
         }
         
@@ -36,7 +37,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                     VALUES (@LoginProvider, @ProviderKey, @ProviderDisplayName, @UserId);
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var insertedRowsNum = await connection.ExecuteAsync(query, createUserLoginDto);
 
@@ -60,7 +61,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 AND [ProviderKey] = @ProviderKey;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var deletedRowsNum = await connection.ExecuteAsync(query, deleteUserLoginDto);
                 return deletedRowsNum;
@@ -75,7 +76,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 WHERE [UserId] = @UserId;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var userLogins = await connection.QueryAsync<UserLogin>(query, new { @UserId = userId });
                 var userLoginsDto = _mapper.Map<IEnumerable<UserLoginDto>>(userLogins);

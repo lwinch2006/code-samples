@@ -7,6 +7,7 @@
     <ItemGroup>
       <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
       <PackageReference Include="Dapper" Version="2.0.90" />
+      <PackageReference Include="dbup-sqlite" Version="4.5.0" />
       <PackageReference Include="dbup-sqlserver" Version="4.5.0" />
       <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
       <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.8" />
@@ -16,6 +17,7 @@
       <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="5.0.8" />
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
       <PackageReference Include="Scrutor" Version="3.3.0" />
+      <PackageReference Include="System.Data.SQLite" Version="1.0.114.4" />
     </ItemGroup>
 
     <ItemGroup>
@@ -23,19 +25,30 @@
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Include="Infrastructure\Migrations\202107291317-create_table_users.sql" />
-      <EmbeddedResource Include="Infrastructure\Migrations\202108090830-create_table_usertokens.sql" />
-      <EmbeddedResource Include="Infrastructure\Migrations\202108091039-create_table_roleclaims.sql" />
-      <EmbeddedResource Include="Infrastructure\Migrations\202108091040-create_table_userclaims.sql" />
-      <EmbeddedResource Include="Infrastructure\Migrations\202108091041-create_table_userlogins.sql" />
+      <None Include="Infrastructure\Migrations\MSSQL\202107291317-create_table_users.sql" />
+      <None Include="Infrastructure\Migrations\MSSQL\202107291318-create_table_roles.sql" />
+      <None Include="Infrastructure\Migrations\MSSQL\202107291348-create_table_userroles.sql" />
+      <None Include="Infrastructure\Migrations\MSSQL\202108090830-create_table_usertokens.sql" />
+      <None Include="Infrastructure\Migrations\MSSQL\202108091039-create_table_roleclaims.sql" />
+      <None Include="Infrastructure\Migrations\MSSQL\202108091040-create_table_userclaims.sql" />
+      <None Include="Infrastructure\Migrations\MSSQL\202108091041-create_table_userlogins.sql" />
+      <EmbeddedResource Include="Infrastructure\Migrations\SQLite\202107291317-create_table_users.sql" />
+      <EmbeddedResource Include="Infrastructure\Migrations\SQLite\202107291318-create_table_roles.sql" />
+      <EmbeddedResource Include="Infrastructure\Migrations\SQLite\202107291348-create_table_userroles.sql" />
+      <EmbeddedResource Include="Infrastructure\Migrations\SQLite\202108090830-create_table_usertokens.sql" />
+      <EmbeddedResource Include="Infrastructure\Migrations\SQLite\202108091039-create_table_roleclaims.sql" />
+      <EmbeddedResource Include="Infrastructure\Migrations\SQLite\202108091040-create_table_userclaims.sql" />
+      <EmbeddedResource Include="Infrastructure\Migrations\SQLite\202108091041-create_table_userlogins.sql" />
       <None Remove="Infrastructure\Migrations\202107291318-create_table_roles.sql" />
-      <EmbeddedResource Include="Infrastructure\Migrations\202107291318-create_table_roles.sql" />
       <None Remove="Infrastructure\Migrations\202107291348-create_table_userroles.sql" />
-      <EmbeddedResource Include="Infrastructure\Migrations\202107291348-create_table_userroles.sql" />
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Infrastructure\Models" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Infrastructure\Migrations\SQLite\database.sqlite" />
     </ItemGroup>
 
 </Project>

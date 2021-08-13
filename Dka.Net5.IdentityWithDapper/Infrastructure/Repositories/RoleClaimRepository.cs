@@ -6,6 +6,7 @@ using AutoMapper;
 using Dapper;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.DTO.RoleClaim;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.Entities;
+using Dka.Net5.IdentityWithDapper.Infrastructure.Utils;
 using Dka.Net5.IdentityWithDapper.Utils.Constants;
 using Microsoft.Extensions.Configuration;
 
@@ -20,12 +21,12 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
     
     public class RoleClaimRepository : IRoleClaimRepository
     {
-        private readonly string _connectionString;
+        private readonly IDbConnectionFactory _dbConnectionFactory;
         private readonly IMapper _mapper;
 
-        public RoleClaimRepository(IConfiguration configuration, IMapper mapper)
+        public RoleClaimRepository(IDbConnectionFactory dbConnectionFactory, IMapper mapper)
         {
-            _connectionString = configuration[SystemConstants.DbConnectionConfigParamName];
+            _dbConnectionFactory = dbConnectionFactory;
             _mapper = mapper;
         }
 
@@ -37,7 +38,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 WHERE [RoleId] = @RoleId;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var roleClaims = await connection.QueryAsync<RoleClaim>(query, new { @RoleId = roleId });
                 var roleClaimsDto = _mapper.Map<IEnumerable<RoleClaimDto>>(roleClaims);
@@ -54,7 +55,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 SELECT SCOPE_IDENTITY();
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var insertedId = await connection.QuerySingleAsync<int>(query, createRoleClaimDto);
 
@@ -79,7 +80,7 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
                 AND [ClaimValue] = @ClaimValue;
             ";
 
-            await using (var connection = new SqlConnection(_connectionString))
+            using (var connection = _dbConnectionFactory.GetDbConnection())
             {
                 var deletedRowsNum = await connection.ExecuteAsync(query, deleteRoleClaimDto);
 
