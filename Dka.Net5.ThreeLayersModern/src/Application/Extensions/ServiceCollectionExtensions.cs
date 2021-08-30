@@ -4,6 +4,7 @@ using Infrastructure;
 using Infrastructure.Mapping;
 using Infrastructure.Repositories;
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Scrutor;
 
@@ -20,6 +21,15 @@ namespace Application.Extensions
             services.AddMediatR(Assembly.GetExecutingAssembly());
         }
 
+        public static void AddMicrosoftAuthentication(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddAuthentication().AddMicrosoftAccount(microsoftOptions =>
+            {
+                microsoftOptions.ClientId = configuration["threelayersmodern-app-client-id"];
+                microsoftOptions.ClientSecret = configuration["threelayersmodern-app-client-secret"];
+            });                        
+        }
+        
         private static void AddInfrastructure(this IServiceCollection services)
         {
             services.AddAutoMapper(typeof(InfrastructureProfile));

@@ -14,16 +14,22 @@ namespace WebUI
 {
     public class Startup
     {
+        private readonly IConfiguration _configuration;
+        
         public Startup(IConfiguration configuration)
         {
-            
+            _configuration = configuration;
         }        
         
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAutoMapper(typeof(WebUIProfile));
             services.AddApplication();
-            services.AddFullIdentityWithDapper();
+            
+            services
+                .AddFullIdentityWithDapper()
+                .AddMicrosoftAuthentication(_configuration);
+            
             services
                 .AddMvc()
                 .AddRazorRuntimeCompilation()

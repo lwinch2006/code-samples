@@ -12,7 +12,7 @@ namespace Dka.Net5.IdentityWithDapper.Utils.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static void AddMinIdentityWithDapper(this IServiceCollection services)
+        public static IServiceCollection AddMinIdentityWithDapper(this IServiceCollection services)
         {
             services.AddInfrastructure();
             services.SetupInfrastructure();
@@ -28,9 +28,11 @@ namespace Dka.Net5.IdentityWithDapper.Utils.Extensions
             services.AddTransient<IUserStore<ApplicationUser>, ApplicationUserStoreMin>();
             services.AddTransient<IRoleStore<ApplicationRole>, ApplicationRoleStoreMin>();
             services.AddAutoMapper(typeof(IdentityWithDapperProfile));
+
+            return services;
         }
 
-        public static void AddFullIdentityWithDapper(this IServiceCollection services)
+        public static IServiceCollection AddFullIdentityWithDapper(this IServiceCollection services)
         {
             services.AddInfrastructure();
             services.SetupInfrastructure();
@@ -46,6 +48,8 @@ namespace Dka.Net5.IdentityWithDapper.Utils.Extensions
             services.AddTransient<IUserStore<ApplicationUser>, ApplicationUserStoreFull>();
             services.AddTransient<IRoleStore<ApplicationRole>, ApplicationRoleStoreFull>();
             services.AddAutoMapper(typeof(IdentityWithDapperProfile));
+
+            return services;
         }
 
         private static void AddInfrastructure(this IServiceCollection services)
