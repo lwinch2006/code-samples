@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS [Users]
      [NormalizedEmail] NVARCHAR(256) NOT NULL CONSTRAINT [IX_Users_NormalizedEmail] UNIQUE,
      [EmailConfirmed] BIT NOT NULL,
 
-     [PasswordHash] NVARCHAR(4000) NOT NULL,
+     [PasswordHash] NVARCHAR(4000) NULL,
      [SecurityStamp] NVARCHAR(4000) NULL,
      [ConcurrencyStamp] NVARCHAR(4000) NOT NULL,
 

@@ -550,7 +550,7 @@ namespace Dka.Net5.IdentityWithDapper.Logic
             cancellationToken.ThrowIfCancellationRequested();
 
             var userLoginsDto = await _userLoginRepository.Get(user.Id);
-            var userLoginInfoList = _mapper.Map<IList<UserLoginInfo>>(userLoginsDto);
+            var userLoginInfoList = userLoginsDto.Select(t => new UserLoginInfo(t.LoginProvider, t.ProviderKey, t.ProviderDisplayName)).ToList();
             return userLoginInfoList;
         }
 

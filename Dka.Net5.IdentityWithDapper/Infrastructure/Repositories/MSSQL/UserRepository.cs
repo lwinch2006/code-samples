@@ -1,36 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
 using AutoMapper;
 using Dapper;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.DTO.User;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.Entities;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Utils;
-using Dka.Net5.IdentityWithDapper.Infrastructure.Utils.Constants;
-using Dka.Net5.IdentityWithDapper.Utils.Constants;
-using Microsoft.Extensions.Configuration;
 
-namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
+namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories.MSSQL
 {
-    public interface IUserRepository
-    {
-        Task<UserDto> CreateAsync(CreateUserDto createUserDto);
-        Task<int> UpdateAsync(UpdateUserDto updateUserDto);
-        Task<int> DeleteAsync(Guid userId);
-        Task<UserDto> FindByIdAsync(Guid userId);
-        Task<UserDto> FindByNameAsync(string normalizedUserName);
-        Task<UserDto> FindByEmailAsync(string normalizedEmail);
-        Task<UserDto> FindByLogin(string loginProvider, string providerKey);
-        Task AddToRoleAsync(UserDto userDto, string roleName);
-        Task RemoveFromRoleAsync(UserDto userDto, string roleName);
-        Task<IList<string>> GetRolesAsync(UserDto userDto);
-        Task<bool> IsInRoleAsync(UserDto userDto, string roleName);
-        Task<IList<UserDto>> GetUsersInRoleAsync(string roleName);
-        Task<IList<UserDto>> GetUsersForClaim(GetUsersForClaimDto getUsersForClaimDto);
-        Task<IEnumerable<UserDto>> Get();
-    }
-    
     public class UserRepository : IUserRepository
     {
         private readonly IDbConnectionFactory _dbConnectionFactory;

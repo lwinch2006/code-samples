@@ -1,25 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
 using AutoMapper;
 using Dapper;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.DTO.UserClaim;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.Entities;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Utils;
-using Dka.Net5.IdentityWithDapper.Utils.Constants;
-using Microsoft.Extensions.Configuration;
 
-namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
+namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories.MSSQL
 {
-    public interface IUserClaimRepository
-    {
-        Task<IEnumerable<UserClaimDto>> Get(Guid userId);
-        Task<int> Create(IEnumerable<CreateUserClaimDto> createUserClaimsDto);
-        Task<int> Update(UpdateUserClaimDto updateUserClaimDto);
-        Task<int> Delete(IEnumerable<DeleteUserClaimDto> deleteUserClaimsDto);
-    }
-    
     public class UserClaimRepository : IUserClaimRepository
     {
         private readonly IDbConnectionFactory _dbConnectionFactory;

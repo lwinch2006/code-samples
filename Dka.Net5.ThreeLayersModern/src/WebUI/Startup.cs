@@ -27,7 +27,7 @@ namespace WebUI
             services.AddApplication();
             
             services
-                .AddFullIdentityWithDapper()
+                .AddFullIdentityWithDapper(_configuration)
                 .AddMicrosoftAuthentication(_configuration);
             
             services

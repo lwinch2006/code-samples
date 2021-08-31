@@ -33,8 +33,6 @@ namespace Dka.Net5.IdentityWithDapper.Mapping
             CreateMap<UserClaimDto, Claim>()
                 .ForMember(dst => dst.Type, opt => opt.MapFrom(src => src.ClaimType))
                 .ForMember(dst => dst.Value, opt => opt.MapFrom(src => src.ClaimValue));
-
-            CreateMap<UserLoginDto, UserLoginInfo>();
         }
     }
 }

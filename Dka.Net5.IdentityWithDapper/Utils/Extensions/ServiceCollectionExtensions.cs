@@ -1,20 +1,23 @@
-﻿using Dka.Net5.IdentityWithDapper.Infrastructure;
+﻿using System;
+using Dka.Net5.IdentityWithDapper.Infrastructure;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Mapping;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Repositories;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Utils;
+using Dka.Net5.IdentityWithDapper.Infrastructure.Utils.Constants;
 using Dka.Net5.IdentityWithDapper.Logic;
 using Dka.Net5.IdentityWithDapper.Mapping;
 using Dka.Net5.IdentityWithDapper.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dka.Net5.IdentityWithDapper.Utils.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddMinIdentityWithDapper(this IServiceCollection services)
+        public static IServiceCollection AddMinIdentityWithDapper(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddInfrastructure();
+            services.AddInfrastructure(configuration);
             services.SetupInfrastructure();
             
             services
@@ -32,9 +35,9 @@ namespace Dka.Net5.IdentityWithDapper.Utils.Extensions
             return services;
         }
 
-        public static IServiceCollection AddFullIdentityWithDapper(this IServiceCollection services)
+        public static IServiceCollection AddFullIdentityWithDapper(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddInfrastructure();
+            services.AddInfrastructure(configuration);
             services.SetupInfrastructure();
             
             services
@@ -52,14 +55,32 @@ namespace Dka.Net5.IdentityWithDapper.Utils.Extensions
             return services;
         }
 
-        private static void AddInfrastructure(this IServiceCollection services)
+        private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IRoleRepository, RoleRepository>();
-            services.AddScoped<IUserTokenRepository, UserTokenRepository>();
-            services.AddScoped<IUserClaimRepository, UserClaimRepository>();
-            services.AddScoped<IUserLoginRepository, UserLoginRepository>();
-            services.AddScoped<IRoleClaimRepository, RoleClaimRepository>();
+            var dbType = Enum.Parse<InfrastructureConstants.DbTypes>(configuration[InfrastructureConstants.DbTypeConfigParamName]);
+            
+            switch (dbType)
+            {
+                case InfrastructureConstants.DbTypes.Sqlite:
+                    services.AddScoped<IUserRepository, Infrastructure.Repositories.SQLite.UserRepository>();
+                    services.AddScoped<IRoleRepository, Infrastructure.Repositories.SQLite.RoleRepository>();
+                    services.AddScoped<IUserTokenRepository, Infrastructure.Repositories.SQLite.UserTokenRepository>();
+                    services.AddScoped<IUserClaimRepository, Infrastructure.Repositories.SQLite.UserClaimRepository>();
+                    services.AddScoped<IUserLoginRepository, Infrastructure.Repositories.SQLite.UserLoginRepository>();
+                    services.AddScoped<IRoleClaimRepository, Infrastructure.Repositories.SQLite.RoleClaimRepository>();
+                    break;
+                
+                case InfrastructureConstants.DbTypes.Mssql:
+                default:
+                    services.AddScoped<IUserRepository, Infrastructure.Repositories.MSSQL.UserRepository>();
+                    services.AddScoped<IRoleRepository, Infrastructure.Repositories.MSSQL.RoleRepository>();
+                    services.AddScoped<IUserTokenRepository, Infrastructure.Repositories.MSSQL.UserTokenRepository>();
+                    services.AddScoped<IUserClaimRepository, Infrastructure.Repositories.MSSQL.UserClaimRepository>();
+                    services.AddScoped<IUserLoginRepository, Infrastructure.Repositories.MSSQL.UserLoginRepository>();
+                    services.AddScoped<IRoleClaimRepository, Infrastructure.Repositories.MSSQL.RoleClaimRepository>();
+                    break;                    
+            }            
+            
             services.AddScoped<IDbConnectionFactory, DbConnectionFactory>();
             services.AddScoped<IInfrastructure, Infrastructure.Infrastructure>();            
             services.AddAutoMapper(typeof(InfrastructureProfile));

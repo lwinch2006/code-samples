@@ -1,24 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
 using AutoMapper;
 using Dapper;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.DTO.UserLogin;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Models.Entities;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Utils;
-using Dka.Net5.IdentityWithDapper.Utils.Constants;
-using Microsoft.Extensions.Configuration;
 
-namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories
+namespace Dka.Net5.IdentityWithDapper.Infrastructure.Repositories.SQLite
 {
-    public interface IUserLoginRepository
-    {
-        Task<UserLoginDto> Create(CreateUserLoginDto createUserLoginDto);
-        Task<int> Delete(DeleteUserLoginDto deleteUserLoginDto);
-        Task<IEnumerable<UserLoginDto>> Get(Guid userId);
-    }
-    
     public class UserLoginRepository : IUserLoginRepository
     {
         private readonly IDbConnectionFactory _dbConnectionFactory;
