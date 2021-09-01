@@ -25,9 +25,9 @@ namespace Application.Extensions
         {
             services.AddAuthentication().AddMicrosoftAccount(microsoftOptions =>
             {
-                microsoftOptions.ClientId = configuration["threelayersmodern-app-client-id"];
-                microsoftOptions.ClientSecret = configuration["threelayersmodern-app-client-secret"];
-            });                        
+                microsoftOptions.ClientId = configuration["THREELAYERSMODERN_APP_CLIENT_ID"];
+                microsoftOptions.ClientSecret = configuration["THREELAYERSMODERN_APP_CLIENT_SECRET"];
+            });
         }
         
         private static void AddInfrastructure(this IServiceCollection services)
