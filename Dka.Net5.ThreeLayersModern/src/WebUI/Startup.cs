@@ -25,15 +25,17 @@ namespace WebUI
         {
             services.AddAutoMapper(typeof(WebUIProfile));
             services.AddApplication();
-            
+
             services
                 .AddFullIdentityWithDapper(_configuration)
-                .AddMicrosoftAuthentication(_configuration);
+                .AddMicrosoftAuthentication(_configuration)
+                .AddAzureAd(_configuration);
             
             services
                 .AddMvc()
                 .AddRazorRuntimeCompilation()
-                .AddFluentValidation(config => config.RegisterValidatorsFromAssemblyContaining<CreateTenantCommandValidator>());
+                .AddFluentValidation(config => config.RegisterValidatorsFromAssemblyContaining<CreateTenantCommandValidator>())
+                .AddAzureAdUi();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

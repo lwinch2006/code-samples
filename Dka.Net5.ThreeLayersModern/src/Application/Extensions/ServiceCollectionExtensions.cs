@@ -4,32 +4,59 @@ using Infrastructure;
 using Infrastructure.Mapping;
 using Infrastructure.Repositories;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.UI;
 using Scrutor;
 
 namespace Application.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static void AddApplication(this IServiceCollection services)
+        public static IServiceCollection AddApplication(this IServiceCollection services)
         {
             services.AddInfrastructure();
             services.SetupInfrastructure();
             
             services.AddAutoMapper(typeof(ApplicationProfile));
             services.AddMediatR(Assembly.GetExecutingAssembly());
+
+            return services;
         }
 
-        public static void AddMicrosoftAuthentication(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddMicrosoftAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddAuthentication().AddMicrosoftAccount(microsoftOptions =>
             {
                 microsoftOptions.ClientId = configuration["THREELAYERSMODERN_APP_CLIENT_ID"];
                 microsoftOptions.ClientSecret = configuration["THREELAYERSMODERN_APP_CLIENT_SECRET"];
             });
+
+            return services;
         }
-        
+
+        public static IServiceCollection AddAzureAd(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddMicrosoftIdentityWebAppAuthentication(configuration, "AzureAd", displayName: "Azure AD", subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: true);
+
+            services.Configure<OpenIdConnectOptions>(OpenIdConnectDefaults.AuthenticationScheme, options =>
+            {
+                options.SignInScheme = IdentityConstants.ExternalScheme;
+            });
+            
+            return services;
+        }
+
+        public static IMvcBuilder AddAzureAdUi(this IMvcBuilder builder)
+        {
+            builder.AddMicrosoftIdentityUI();
+
+            return builder;
+        }
+
         private static void AddInfrastructure(this IServiceCollection services)
         {
             services.AddAutoMapper(typeof(InfrastructureProfile));
