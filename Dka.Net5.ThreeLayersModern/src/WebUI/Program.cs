@@ -1,13 +1,15 @@
 using System;
 using System.IO;
 using System.Linq;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using Serilog.Events;
 using Serilog.Exceptions;
 using WebUI.Utils.Extensions;
 
@@ -35,6 +37,18 @@ namespace WebUI
             BuildLogger();
 
             var webHost = Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((builderContext, configBuilder) =>
+                {
+                    if (builderContext.HostingEnvironment.IsProduction())
+                    {
+                        var config = configBuilder.Build();
+                        var secretClient = new SecretClient(
+                            new Uri($"https://{config["KeyVault:Name"]}.vault.azure.net/"),
+                            new DefaultAzureCredential());
+
+                        configBuilder.AddAzureKeyVault(secretClient, new KeyVaultSecretManager());
+                    }
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseEnvironment(_environmentName);

@@ -31,8 +31,8 @@ namespace Application.Extensions
         {
             services.AddAuthentication().AddMicrosoftAccount(microsoftOptions =>
             {
-                microsoftOptions.ClientId = configuration["THREELAYERSMODERN_APP_CLIENT_ID"];
-                microsoftOptions.ClientSecret = configuration["THREELAYERSMODERN_APP_CLIENT_SECRET"];
+                microsoftOptions.ClientId = configuration["MicrosoftAuthentication:ClientId"];
+                microsoftOptions.ClientSecret = configuration["MicrosoftAuthentication:ClientSecret"];
             });
 
             return services;
