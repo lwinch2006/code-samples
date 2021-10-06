@@ -2,6 +2,7 @@ using Application.Extensions;
 using Application.Logic.Tenants.Commands;
 using Dka.Net5.IdentityWithDapper.Utils.Extensions;
 using FluentValidation.AspNetCore;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -30,6 +31,8 @@ namespace WebUI
                 .AddFullIdentityWithDapper(_configuration)
                 .AddMicrosoftAuthentication(_configuration)
                 .AddAzureAd(_configuration);
+
+            services.AddApplicationInsightsTelemetry();
             
             services
                 .AddMvc()
@@ -38,12 +41,13 @@ namespace WebUI
                 .AddAzureAdUi();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, TelemetryConfiguration telemetryConfiguration)
         {
             if (env.IsDevelopment())
             {
                 //app.UseDeveloperExceptionPage();
                 app.UseExceptionHandler("/Error/500");
+                telemetryConfiguration.DisableTelemetry = true;
             }
             else
             {
