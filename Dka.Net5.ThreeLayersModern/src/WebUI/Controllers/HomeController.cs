@@ -57,16 +57,36 @@ namespace WebUI.Controllers
             else
             {
                 scheme ??= OpenIdConnectDefaults.AuthenticationScheme;
-                var callbackUrl = Url.Page("/MicrosoftIdentity/Account/SignedOut", pageHandler: null, values: null, protocol: Request.Scheme);
+                //var callbackUrl = Url.Page("/MicrosoftIdentity/Account/SignedOut", pageHandler: null, values: null, protocol: Request.Scheme);
+
+                var baseUrl = new Uri($"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}");
+                var callbackUrl = new Uri(baseUrl, "MicrosoftIdentity/Account/SignedOut");
+                
                 return SignOut(
                     new AuthenticationProperties
                     {
-                        RedirectUri = callbackUrl,
+                        RedirectUri = callbackUrl.ToString(),
                     },
-                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    IdentityConstants.ExternalScheme,
                     scheme);
             }
         }
+
+        public async Task Logout3(string returnUrl = null)
+        {
+            var baseUrl = new Uri($"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}");
+            var callbackUrl = new Uri(baseUrl, "MicrosoftIdentity/Account/SignedOut");
+            var options = new AuthenticationProperties
+            {
+                RedirectUri = callbackUrl.ToString(),
+            };
+            
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+            await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, options);
+        }
+
+
+
 
         public IActionResult GetError()
         {

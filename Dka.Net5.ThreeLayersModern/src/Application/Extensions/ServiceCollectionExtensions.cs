@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Threading.Tasks;
 using Application.Mapping;
 using Infrastructure;
 using Infrastructure.Mapping;
@@ -45,6 +46,15 @@ namespace Application.Extensions
             services.Configure<OpenIdConnectOptions>(OpenIdConnectDefaults.AuthenticationScheme, options =>
             {
                 options.SignInScheme = IdentityConstants.ExternalScheme;
+                
+                options.Events.OnSignedOutCallbackRedirect += context =>
+                {
+                    context.Response.Redirect(context.Options.SignedOutRedirectUri);
+                    context.HandleResponse();
+
+                    return Task.CompletedTask;
+                };                
+                
             });
             
             return services;
