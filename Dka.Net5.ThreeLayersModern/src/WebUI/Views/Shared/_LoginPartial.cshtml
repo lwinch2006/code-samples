@@ -13,11 +13,6 @@
             <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new {area = ""})">
                 <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
             </form>
-            
-            <a asp-area="MicrosoftIdentity" asp-controller="Account" asp-action="SignOut">Logout 2</a>
-            
-            
-            
         </li>
     }
     else
