@@ -7,6 +7,8 @@ using Dka.Net5.IdentityWithDapper.Infrastructure.Utils.Constants;
 using Dka.Net5.IdentityWithDapper.Logic;
 using Dka.Net5.IdentityWithDapper.Mapping;
 using Dka.Net5.IdentityWithDapper.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -55,6 +57,16 @@ namespace Dka.Net5.IdentityWithDapper.Utils.Extensions
             return services;
         }
 
+        public static IServiceCollection ConfigureAuthenticationCookies(this IServiceCollection services)
+        {
+            services.Configure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme, o =>
+            {
+                o.LogoutPath = new PathString("/Identity/Account/SignOut");
+            });
+
+            return services;
+        }
+        
         private static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             var dbType = Enum.Parse<InfrastructureConstants.DbTypes>(configuration[InfrastructureConstants.DbTypeConfigParamName]);

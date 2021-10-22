@@ -39,6 +39,18 @@ namespace Application.Extensions
             return services;
         }
 
+        public static IServiceCollection AddTwitterAuthentication(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddAuthentication().AddTwitter(twitterOptions =>
+            {
+                twitterOptions.ConsumerKey = configuration["TwitterAuthentication:ClientId"];
+                twitterOptions.ConsumerSecret = configuration["TwitterAuthentication:ClientSecret"];
+                twitterOptions.RetrieveUserDetails = true;
+            });
+
+            return services;
+        }
+
         public static IServiceCollection AddAzureAd(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddMicrosoftIdentityWebAppAuthentication(configuration, "AzureAd", displayName: "Azure AD", subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: true);
@@ -49,12 +61,13 @@ namespace Application.Extensions
                 
                 options.Events.OnSignedOutCallbackRedirect += context =>
                 {
-                    context.Response.Redirect(context.Options.SignedOutRedirectUri);
-                    context.HandleResponse();
-
                     return Task.CompletedTask;
-                };                
-                
+                };
+
+                options.Events.OnRemoteSignOut += context =>
+                {
+                    return Task.CompletedTask;
+                };
             });
             
             return services;

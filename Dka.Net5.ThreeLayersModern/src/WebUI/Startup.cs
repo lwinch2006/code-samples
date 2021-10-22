@@ -3,11 +3,15 @@ using Application.Logic.Tenants.Commands;
 using Dka.Net5.IdentityWithDapper.Utils.Extensions;
 using FluentValidation.AspNetCore;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using WebUI.Mapping;
 using WebUI.Middleware;
 
@@ -30,8 +34,13 @@ namespace WebUI
             services
                 .AddFullIdentityWithDapper(_configuration)
                 .AddMicrosoftAuthentication(_configuration)
-                .AddAzureAd(_configuration);
+                .AddAzureAd(_configuration)
+                .AddTwitterAuthentication(_configuration);
 
+            services.ConfigureAuthenticationCookies();
+            
+            //CheckDebugInfo(services);
+            
             services.AddApplicationInsightsTelemetry();
             
             services
@@ -68,8 +77,28 @@ namespace WebUI
             {
                 endpoints.MapControllerRoute("areas", "{area:exists}/{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
-                endpoints.MapRazorPages();                
+                endpoints.MapRazorPages();
             });
+        }
+
+        private void CheckDebugInfo(IServiceCollection services)
+        {
+            var sp = services.BuildServiceProvider();
+            
+            var schemeProvider = sp.GetRequiredService<IAuthenticationSchemeProvider>();
+            var handlerProvider = sp.GetRequiredService<IAuthenticationHandlerProvider>();
+            var authService = sp.GetRequiredService<IAuthenticationService>();
+
+            var optionsMonitor = sp.GetRequiredService<IOptionsMonitor<CookieAuthenticationOptions>>();
+            
+            var schemes = schemeProvider.GetAllSchemesAsync().GetAwaiter().GetResult();
+
+            var requestHandlerSchemes = schemeProvider.GetRequestHandlerSchemesAsync().GetAwaiter().GetResult();
+
+            var cookieOptions1 = optionsMonitor.Get(IdentityConstants.ApplicationScheme);
+            var cookieOptions2 = optionsMonitor.Get(IdentityConstants.ExternalScheme);
+            
+            var test = 0;
         }
     }
 }

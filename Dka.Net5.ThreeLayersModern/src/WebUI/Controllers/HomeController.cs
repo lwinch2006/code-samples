@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Web;
 using Dka.Net5.IdentityWithDapper.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -7,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using WebUI.Utils.Extensions;
 
 namespace WebUI.Controllers
 {
@@ -85,8 +88,59 @@ namespace WebUI.Controllers
             await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, options);
         }
 
+        public async Task<IActionResult> Logout5()
+        {
+            await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+            await HttpContext.SignOutAsync(IdentityConstants.TwoFactorUserIdScheme);
+            
+            return Redirect($"https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri={HttpUtility.UrlEncode("https://localhost:5556")}");
+        }
+        
+        public IActionResult Logout4()
+        {
+            var redirectUrl = "/";
 
+            var signOutSchemes = new[]
+            {
+                IdentityConstants.ApplicationScheme,
+                IdentityConstants.ExternalScheme,
+                IdentityConstants.TwoFactorUserIdScheme,
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                OpenIdConnectDefaults.AuthenticationScheme
+            };
+            
+            return SignOut(
+                new AuthenticationProperties
+                {
+                    RedirectUri = redirectUrl
+                },
+                signOutSchemes);
+        }        
+        
+        public IActionResult Logout6()
+        {
+            var redirectUrl = "/";
+            
+            var signOutSchemes = new List<string>
+            {
+                IdentityConstants.ApplicationScheme,
+                IdentityConstants.ExternalScheme,
+                IdentityConstants.TwoFactorUserIdScheme
+            };
 
+            if (HttpContext.IsMicrosoftAccountLogin() || HttpContext.IsAzureAdLogin())
+            {
+                signOutSchemes.AddRange(new[] {CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme});
+            }
+
+            return SignOut(
+                new AuthenticationProperties
+                {
+                    RedirectUri = redirectUrl
+                },
+                signOutSchemes.ToArray());
+        }
 
         public IActionResult GetError()
         {
