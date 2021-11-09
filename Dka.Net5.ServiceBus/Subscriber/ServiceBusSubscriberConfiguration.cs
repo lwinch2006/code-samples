@@ -5,6 +5,6 @@ namespace ServiceBusSubscriber
 {
     public class ServiceBusSubscriberConfiguration
     {
-        public Dictionary<string, Type> DeserializationDictionary { get; set; }
+        public Dictionary<(int, string), Type> DeserializationDictionary { get; set; }
     }
 }

@@ -161,12 +161,19 @@ namespace ServiceBusSubscriber
 
         private async Task<object> GetPayload(ServiceBusReceiver receiver, ServiceBusReceivedMessage serviceBusReceivedMessage, CancellationToken cancellationToken)
         {
-            if (!serviceBusReceivedMessage.ApplicationProperties.TryGetValue(nameof(Metadata.PayloadType), out var payloadTypeAsString) 
-                || string.IsNullOrWhiteSpace((string)payloadTypeAsString)
-                || !_serviceBusSubscriberConfiguration.DeserializationDictionary.TryGetValue((string)payloadTypeAsString, out var payloadType)
+            if (!serviceBusReceivedMessage.ApplicationProperties.TryGetValue(nameof(Metadata.PayloadType), out var payloadTypeAsObject) 
+                || !serviceBusReceivedMessage.ApplicationProperties.TryGetValue(nameof(Metadata.Version), out var versionAsObject)) 
+            {
+                return await GetPayload<object>(receiver, serviceBusReceivedMessage, cancellationToken);
+            }
+
+            var payloadTypeAsString = (string) payloadTypeAsObject;
+            var version = (int)versionAsObject;
+            
+            if (!_serviceBusSubscriberConfiguration.DeserializationDictionary.TryGetValue((version, payloadTypeAsString), out var payloadType)
                 || payloadType == null)
             {
-                return null;
+                return await GetPayload<object>(receiver, serviceBusReceivedMessage, cancellationToken);
             }
             
             try

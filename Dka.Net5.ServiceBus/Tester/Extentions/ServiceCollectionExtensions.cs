@@ -23,10 +23,10 @@ namespace ServiceBusTester.Extentions
             services.AddSingleton(
                 new ServiceBusSubscriberConfiguration
                 {
-                    DeserializationDictionary = new Dictionary<string, Type>
+                    DeserializationDictionary = new Dictionary<(int, string), Type>
                     {
-                        { nameof(TenantUpdated), typeof(ServiceBusMessage<TenantUpdated>) },
-                        { nameof(UserUpdated), typeof(ServiceBusMessage<UserUpdated>) }
+                        { (1, nameof(TenantUpdated)), typeof(ServiceBusMessage<TenantUpdated>) },
+                        { (1, nameof(UserUpdated)), typeof(ServiceBusMessage<UserUpdated>) }
                     }
                 });
 
