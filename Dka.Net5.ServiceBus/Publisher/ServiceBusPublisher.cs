@@ -25,7 +25,6 @@ namespace ServiceBusPublisher
         public async Task SendMessage<T>(string queueOrTopicName, ServiceBusMessage<T> message, CancellationToken cancellationToken) 
             where T : class
         {
-            message.Metadata.PayloadType = typeof(T).Name;
             var publisher = _client.CreateSender(queueOrTopicName);
             var messageAsJson = JsonConvert.SerializeObject(message);
             var serviceBusMessage = new ServiceBusMessage(messageAsJson).EnrichWithMetadata(message);
@@ -41,7 +40,6 @@ namespace ServiceBusPublisher
 
             foreach (var message in messages)
             {
-                message.Metadata.PayloadType = typeof(T).Name;
                 var messageAsJson = JsonConvert.SerializeObject(message);
                 var serviceBusMessage = new ServiceBusMessage(messageAsJson).EnrichWithMetadata(message);
                 

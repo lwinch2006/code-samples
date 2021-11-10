@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using ServiceBusMessages;
 using ServiceBusPublisher;
 using ServiceBusSubscriber;
+using ServiceBusTester.Models;
 using ServiceBusTester.Models.Events.V1.Tenant;
 using ServiceBusTester.Models.Events.V1.User;
 
@@ -102,8 +103,8 @@ namespace ServiceBusTester.Logic
             {
                 Metadata = new Metadata
                 {
-                    EventType = "TenantEvents",
-                    EventName = nameof(TenantUpdated),
+                    EventType = AppConstants.Events.TenantEvents.Type,
+                    EventName = AppConstants.Events.TenantEvents.TenantUpdated.Name,
                     Version = 1,
                     Timestamp = DateTime.UtcNow
                 },
@@ -113,7 +114,6 @@ namespace ServiceBusTester.Logic
                     NewName = "SampleTenantName"
                 }
             };
-
 
             try
             {
@@ -130,8 +130,8 @@ namespace ServiceBusTester.Logic
             {
                 Metadata = new Metadata
                 {
-                    EventType = "UserEvents",
-                    EventName = nameof(UserUpdated),
+                    EventType = AppConstants.Events.UserEvents.Type,
+                    EventName = AppConstants.Events.UserEvents.UserUpdated.Name,
                     Version = 1,
                     Timestamp = DateTime.UtcNow
                 },

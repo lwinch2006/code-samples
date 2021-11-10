@@ -9,6 +9,7 @@ using ServiceBusMessages;
 using ServiceBusPublisher;
 using ServiceBusSubscriber;
 using ServiceBusTester.Logic;
+using ServiceBusTester.Models;
 using ServiceBusTester.Models.Events.V1.Tenant;
 using ServiceBusTester.Models.Events.V1.User;
 
@@ -25,8 +26,8 @@ namespace ServiceBusTester.Extentions
                 {
                     DeserializationDictionary = new Dictionary<(int, string), Type>
                     {
-                        { (1, nameof(TenantUpdated)), typeof(ServiceBusMessage<TenantUpdated>) },
-                        { (1, nameof(UserUpdated)), typeof(ServiceBusMessage<UserUpdated>) }
+                        { (1, AppConstants.Events.TenantEvents.TenantUpdated.FullName), typeof(ServiceBusMessage<TenantUpdated>) },
+                        { (1, AppConstants.Events.UserEvents.UserUpdated.FullName), typeof(ServiceBusMessage<UserUpdated>) }
                     }
                 });
 
