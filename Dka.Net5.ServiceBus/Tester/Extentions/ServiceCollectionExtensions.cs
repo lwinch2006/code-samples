@@ -34,14 +34,36 @@ namespace ServiceBusTester.Extentions
             services.AddScoped<IServiceBusPublisher, ServiceBusPublisher.ServiceBusPublisher>();
             services.AddScoped<IServiceBusSubscriber, ServiceBusSubscriber.ServiceBusSubscriber>();
 
-            services.AddScoped<ITalentechAdminServiceBusClient, TalentechAdminServiceBusClient>();
-            
             var sp = services.BuildServiceProvider();
             var serviceBusPublisher = sp.GetRequiredService<IServiceBusPublisher>();
             var serviceBusSubscriber = sp.GetRequiredService<IServiceBusSubscriber>();
 
-            serviceBusPublisher.EnsureTopic(configuration["ServiceBus:Topic"], CancellationToken.None);
-            serviceBusSubscriber.EnsureTopicSubscription(configuration["ServiceBus:Topic"], configuration["ServiceBus:Subscription"], CancellationToken.None);
+            foreach (var topic in AppConstants.ServiceBus.Publish.Queues)
+            {
+                serviceBusPublisher.EnsureTopic(topic, CancellationToken.None);
+            }
+            
+            foreach (var topic in AppConstants.ServiceBus.Receive.Queues)
+            {
+                serviceBusPublisher.EnsureTopic(topic, CancellationToken.None);
+            }
+            
+            foreach (var topic in AppConstants.ServiceBus.Publish.Topics)
+            {
+                serviceBusPublisher.EnsureTopic(topic, CancellationToken.None);
+            }
+            
+            foreach (var topic in AppConstants.ServiceBus.Receive.Topics)
+            {
+                serviceBusPublisher.EnsureTopic(topic, CancellationToken.None);
+            }
+
+            foreach (var (topic, subscription) in AppConstants.ServiceBus.Receive.TopicSubscriptions)
+            {
+                serviceBusSubscriber.EnsureTopicSubscription(topic, subscription, CancellationToken.None);
+            }            
+            
+            services.AddScoped<ITalentechAdminServiceBusClient, TalentechAdminServiceBusClient>();
             
             return services;
         }
