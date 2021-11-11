@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace ServiceBusTester.Logic
 {
@@ -11,5 +12,10 @@ namespace ServiceBusTester.Logic
         Task ReceiveEventsFromQueue(string queue);
 
         Task ReceiveEventsFromTopicSubscription(string topic, string subscription);
+
+        Task StartReceiveMessagesFromTopicSubscription(string topic, string subscription,
+            CancellationToken cancellationToken);
+
+        Task StopReceiveMessagesFromTopicSubscription(CancellationToken cancellationToken);
     }
 }

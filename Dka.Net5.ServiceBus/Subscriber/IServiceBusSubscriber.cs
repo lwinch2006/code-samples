@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,5 +28,14 @@ namespace ServiceBusSubscriber
         IAsyncEnumerable<object> ReceiveMessagesFromTopicSubscription(string topic, string subscription, CancellationToken cancellationToken);
         
         Task EnsureTopicSubscription(string topicName, string subscriptionName, CancellationToken cancellationToken, string sqlFilterRule = "1=1");
+
+        Task StartReceiveMessagesFromTopicSubscription(
+            string topic,
+            string subscription,
+            Func<object, Task> processMessageFunc,
+            Func<Exception, Task> processErrorFunc,
+            CancellationToken cancellationToken);
+
+        Task StopReceiveMessagesFromTopicSubscription(CancellationToken cancellationToken);
     }
 }

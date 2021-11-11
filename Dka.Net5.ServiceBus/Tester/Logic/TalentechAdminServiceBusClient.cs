@@ -48,11 +48,11 @@ namespace ServiceBusTester.Logic
                     switch (receivedEvent)
                     {
                         case TenantUpdated tenantUpdatedEvent:
-                            _logger.LogInformation("Received queue {Event} event - tenant with Id {TenantId} changed name to {NewName}", $"{nameof(TenantUpdated)}",  tenantUpdatedEvent.Id, tenantUpdatedEvent.NewName);
+                            _logger.LogInformation("Received queue {Event} event - tenant with Id {TenantId} changed name to {NewName}", nameof(TenantUpdated),  tenantUpdatedEvent.Id, tenantUpdatedEvent.NewName);
                             break;
                     
                         case UserUpdated userUpdatedEvent:
-                            _logger.LogInformation("Received queue {Event} event - tenant with Id {TenantId} changed name to {NewName}", $"{nameof(UserUpdated)}",  userUpdatedEvent.Id, userUpdatedEvent.NewName);
+                            _logger.LogInformation("Received queue {Event} event - tenant with Id {TenantId} changed name to {NewName}", nameof(UserUpdated),  userUpdatedEvent.Id, userUpdatedEvent.NewName);
                             break;                    
                     
                         default:
@@ -78,11 +78,11 @@ namespace ServiceBusTester.Logic
                     switch (receivedEvent)
                     {
                         case TenantUpdated tenantUpdatedEvent:
-                            _logger.LogInformation("Received topic/subscription {Event} event - tenant with Id {TenantId} changed name to {NewName}", $"{nameof(TenantUpdated)}",  tenantUpdatedEvent.Id, tenantUpdatedEvent.NewName);
+                            _logger.LogInformation("Received topic/subscription {Event} event - tenant with Id {TenantId} changed name to {NewName}", nameof(TenantUpdated),  tenantUpdatedEvent.Id, tenantUpdatedEvent.NewName);
                             break;
                     
                         case UserUpdated userUpdatedEvent:
-                            _logger.LogInformation("Received topic/subscription {Event} event - tenant with Id {TenantId} changed name to {NewName}", $"{nameof(UserUpdated)}",  userUpdatedEvent.Id, userUpdatedEvent.NewName);
+                            _logger.LogInformation("Received topic/subscription {Event} event - tenant with Id {TenantId} changed name to {NewName}", nameof(UserUpdated),  userUpdatedEvent.Id, userUpdatedEvent.NewName);
                             break;                    
                     
                         default:
@@ -95,7 +95,23 @@ namespace ServiceBusTester.Logic
             }
             catch (Exception ex)
             { }
-        }        
+        }
+
+        public async Task StartReceiveMessagesFromTopicSubscription(string topic, string subscription, CancellationToken cancellationToken)
+        {
+            await _serviceBusSubscriber.StartReceiveMessagesFromTopicSubscription(
+                topic,
+                subscription,
+                ProcessMessagesInternal,
+                ProcessErrorsInternal,
+                cancellationToken
+            );
+        }
+
+        public async Task StopReceiveMessagesFromTopicSubscription(CancellationToken cancellationToken)
+        {
+            await _serviceBusSubscriber.StopReceiveMessagesFromTopicSubscription(cancellationToken);
+        }
         
         private async Task SendSampleTenantEvent(string queueOrTopic)
         {
@@ -148,6 +164,32 @@ namespace ServiceBusTester.Logic
             }
             catch (Exception ex)
             { }
+        }
+
+        private Task ProcessMessagesInternal(object payload)
+        {
+            switch (payload)
+            {
+                case TenantUpdated tenantUpdatedEvent:
+                    _logger.LogInformation("Received topic/subscription {Event} event - tenant with Id {TenantId} changed name to {NewName}", nameof(TenantUpdated),  tenantUpdatedEvent.Id, tenantUpdatedEvent.NewName);
+                    break;
+                    
+                case UserUpdated userUpdatedEvent:
+                    _logger.LogInformation("Received topic/subscription {Event} event - tenant with Id {TenantId} changed name to {NewName}", nameof(UserUpdated),  userUpdatedEvent.Id, userUpdatedEvent.NewName);
+                    break;                    
+                    
+                default:
+                    _logger.LogInformation("Received topic/subscription {Event} event - raw data {RawData}", "unknown", payload?.ToString()?.Replace(Environment.NewLine, string.Empty));
+                    break;
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private Task ProcessErrorsInternal(Exception exception)
+        {
+            _logger.LogError(exception, "Service Bus receive message error");
+            return Task.CompletedTask;
         }
     }
 }

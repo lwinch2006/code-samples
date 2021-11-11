@@ -64,8 +64,12 @@ namespace ServiceBusTester.Services
         {
             var receiveEventsFromQueue = _talentechAdminServiceBusClient.ReceiveEventsFromQueue("tenantevents");
             var receiveEventsFromTopicSubscription1 = _talentechAdminServiceBusClient.ReceiveEventsFromTopicSubscription("events", "servicebustester");
-            var receiveEventsFromTopicSubscription2 = _talentechAdminServiceBusClient.ReceiveEventsFromTopicSubscription("events", "servicebustester2");
+            //var receiveEventsFromTopicSubscription2 = _talentechAdminServiceBusClient.ReceiveEventsFromTopicSubscription("events", "servicebustester2");
 
+            var receiveEventsFromTopicSubscription2 =
+                _talentechAdminServiceBusClient.StartReceiveMessagesFromTopicSubscription("events", "servicebustester2",
+                    CancellationToken.None);
+            
             await Task.WhenAll(
                 receiveEventsFromQueue,
                 receiveEventsFromTopicSubscription1,
