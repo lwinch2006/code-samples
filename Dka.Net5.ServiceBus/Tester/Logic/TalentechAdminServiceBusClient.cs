@@ -120,7 +120,7 @@ namespace ServiceBusTester.Logic
                 Metadata = new Metadata
                 {
                     EventType = AppConstants.Events.TenantEvents.Type,
-                    EventName = AppConstants.Events.TenantEvents.TenantUpdated.Name,
+                    EventName = AppConstants.Events.TenantEvents.TenantUpdated.FullName,
                     Version = 1,
                     Timestamp = DateTime.UtcNow
                 },
@@ -147,7 +147,7 @@ namespace ServiceBusTester.Logic
                 Metadata = new Metadata
                 {
                     EventType = AppConstants.Events.UserEvents.Type,
-                    EventName = AppConstants.Events.UserEvents.UserUpdated.Name,
+                    EventName = AppConstants.Events.UserEvents.UserUpdated.FullName,
                     Version = 1,
                     Timestamp = DateTime.UtcNow
                 },
