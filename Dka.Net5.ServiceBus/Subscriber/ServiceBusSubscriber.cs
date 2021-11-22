@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using ServiceBusMessages;
 
@@ -14,6 +15,7 @@ namespace ServiceBusSubscriber
         private readonly ServiceBusClient _client;
         private readonly ServiceBusAdministrationClient _administrationClient;
         private readonly ServiceBusSubscriberConfiguration _serviceBusSubscriberConfiguration;
+        private readonly ILogger<ServiceBusSubscriber> _logger;
 
         private ServiceBusProcessor _serviceBusProcessor;
         private Func<object, Task> _clientProcessMessageFunc;
@@ -22,11 +24,13 @@ namespace ServiceBusSubscriber
         public ServiceBusSubscriber(
             ServiceBusClient client,
             ServiceBusAdministrationClient administrationClient,
-            ServiceBusSubscriberConfiguration serviceBusSubscriberConfiguration)
+            ServiceBusSubscriberConfiguration serviceBusSubscriberConfiguration,
+            ILogger<ServiceBusSubscriber> logger)
         {
             _client = client;
             _administrationClient = administrationClient;
             _serviceBusSubscriberConfiguration = serviceBusSubscriberConfiguration;
+            _logger = logger;
         }        
         
         public async Task<T> ReceiveMessageFromQueue<T>(string queueName, CancellationToken cancellationToken) 
@@ -142,78 +146,97 @@ namespace ServiceBusSubscriber
         }
 
         public async Task StartReceiveMessagesFromTopicSubscription(
-            string topic, 
-            string subscription, 
+            string topic,
+            string subscription,
             Func<object, Task> processMessageFunc,
             Func<Exception, Task> processErrorFunc,
             CancellationToken cancellationToken)
         {
             if (_serviceBusProcessor != null)
             {
+                _logger.LogError("Service Bus processor already initialized. Stop it first");
                 throw new ServiceBusSubscriberOperationException(
                     "Service Bus processor already initialized. Stop it first.");
             }
 
-            _serviceBusProcessor = _client.CreateProcessor(topic, subscription);
-            _serviceBusProcessor.ProcessMessageAsync += ProcessMessageInternal;
-            _serviceBusProcessor.ProcessErrorAsync += ProcessErrorInternal;
+            try
+            {
+                _serviceBusProcessor = _client.CreateProcessor(topic, subscription);
+                _serviceBusProcessor.ProcessMessageAsync += ProcessMessageInternal;
+                _serviceBusProcessor.ProcessErrorAsync += ProcessErrorInternal;
 
-            _clientProcessMessageFunc = processMessageFunc;
-            _clientProcessErrorFunc = processErrorFunc;
-            
-            await _serviceBusProcessor.StartProcessingAsync(cancellationToken);
+                _clientProcessMessageFunc = processMessageFunc;
+                _clientProcessErrorFunc = processErrorFunc;
+
+                await _serviceBusProcessor.StartProcessingAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                await StopReceiveMessagesFromTopicSubscriptionInternal(cancellationToken);
+                
+                _logger.LogError(ex, "Service Bus start receive messages from topic subscription failure");
+                
+                throw new ServiceBusSubscriberOperationException(
+                    "Service Bus start receive messages from topic subscription failure", ex);
+            }
         }
 
         public async Task StopReceiveMessagesFromTopicSubscription(CancellationToken cancellationToken)
         {
             if (_serviceBusProcessor == null)
             {
+                _logger.LogError("Service Bus processor not initialized");
                 throw new ServiceBusSubscriberOperationException("Service Bus processor not initialized");
             }
 
-            await _serviceBusProcessor.CloseAsync(cancellationToken);
-            await _serviceBusProcessor.DisposeAsync();
-
-            _clientProcessMessageFunc = null;
-            _clientProcessErrorFunc = null;
+            await StopReceiveMessagesFromTopicSubscriptionInternal(cancellationToken);
         }
 
         public async Task EnsureTopicSubscription(string topicName, string subscriptionName, CancellationToken cancellationToken, string sqlFilterRule = "1=1")
         {
-            if (!await _administrationClient.SubscriptionExistsAsync(topicName, subscriptionName, cancellationToken))
+            try
             {
-                var subscriptionOptions = new CreateSubscriptionOptions(topicName, subscriptionName)
+                if (!await _administrationClient.SubscriptionExistsAsync(topicName, subscriptionName, cancellationToken))
                 {
-                    Status = EntityStatus.Active,
-                    MaxDeliveryCount = 10,
-                    DefaultMessageTimeToLive = TimeSpan.FromDays(10000),
-                    LockDuration = TimeSpan.FromSeconds(30),
-                };
+                    const string defaultRuleName = "$Default";
+                
+                    var subscriptionOptions = new CreateSubscriptionOptions(topicName, subscriptionName)
+                    {
+                        Status = EntityStatus.Active,
+                        MaxDeliveryCount = 10,
+                        LockDuration = TimeSpan.FromSeconds(60)
+                    };
 
-                var filterOptions = new CreateRuleOptions
-                {
-                    Name = "Default",
-                    Filter = new SqlRuleFilter(string.IsNullOrWhiteSpace(sqlFilterRule) ? "1=1" : sqlFilterRule)
-                };
+                    var filterOptions = new CreateRuleOptions
+                    {
+                        Name = defaultRuleName,
+                        Filter = new SqlRuleFilter(string.IsNullOrWhiteSpace(sqlFilterRule) ? "1=1" : sqlFilterRule)
+                    };
 
-                await _administrationClient.CreateSubscriptionAsync(subscriptionOptions, cancellationToken);
-                await _administrationClient.CreateRuleAsync(topicName, subscriptionName, filterOptions, cancellationToken);
+                    await _administrationClient.CreateSubscriptionAsync(subscriptionOptions, filterOptions, cancellationToken);
+                }
             }
-        }        
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Service Bus ensure topic subscription operation failure");
+                
+                throw new ServiceBusSubscriberOperationException(
+                    "Service Bus ensure topic subscription operation failure", ex);
+            }
+        }     
         
         private object GetPayload(ServiceBusReceivedMessage serviceBusReceivedMessage, CancellationToken cancellationToken)
         {
-            if (!serviceBusReceivedMessage.ApplicationProperties.TryGetValue(nameof(Metadata.EventType), out var eventTypeAsObject)
-                || !serviceBusReceivedMessage.ApplicationProperties.TryGetValue(nameof(Metadata.EventName), out var eventNameAsObject)
+            if (!serviceBusReceivedMessage.ApplicationProperties.TryGetValue(nameof(Metadata.EventName), out var eventNameAsObject)
                 || !serviceBusReceivedMessage.ApplicationProperties.TryGetValue(nameof(Metadata.Version), out var versionAsObject)) 
             {
                 return GetPayload<object>(serviceBusReceivedMessage, cancellationToken);
             }
 
-            var eventFullName = $"{eventTypeAsObject}.{eventNameAsObject}";
+            var eventName = (string)eventNameAsObject;
             var version = (int)versionAsObject;
             
-            if (!_serviceBusSubscriberConfiguration.DeserializationDictionary.TryGetValue((version, eventFullName), out var payloadType)
+            if (!_serviceBusSubscriberConfiguration.DeserializationDictionary.TryGetValue((version, eventName), out var payloadType)
                 || payloadType == null)
             {
                 return GetPayload<object>(serviceBusReceivedMessage, cancellationToken);
@@ -226,9 +249,10 @@ namespace ServiceBusSubscriber
             }
             catch (Exception ex)
             {
-                throw new ServiceBusSubscriberOperationException(ex.Message, ex);
+                _logger.LogError(ex, "Service Bus received message get payload failure");
+                throw new ServiceBusSubscriberOperationException("Service Bus received message get payload failure", ex);
             }
-        }        
+        }
         
         private T GetPayload<T>(ServiceBusReceivedMessage serviceBusReceivedMessage, CancellationToken cancellationToken)
             where T : class
@@ -240,9 +264,10 @@ namespace ServiceBusSubscriber
             }
             catch (Exception ex)
             {
-                throw new ServiceBusSubscriberOperationException(ex.Message, ex);
+                _logger.LogError(ex, "Service Bus received message get payload failure");
+                throw new ServiceBusSubscriberOperationException("Service Bus received message get payload failure", ex);
             }
-        }        
+        }       
         
         private async Task ProcessMessageInternal(ProcessMessageEventArgs args)
         {
@@ -250,25 +275,62 @@ namespace ServiceBusSubscriber
             {
                 return;
             }
-            
+
             if (args.Message == null)
             {
                 await _clientProcessMessageFunc(null);
+                return;
             }
-            
-            var payload = GetPayload(args.Message, CancellationToken.None);
-            await _clientProcessMessageFunc(payload);
-            await args.CompleteMessageAsync(args.Message, CancellationToken.None);
+
+            try
+            {
+                var payload = GetPayload(args.Message, CancellationToken.None);
+                await _clientProcessMessageFunc(payload);
+                await args.CompleteMessageAsync(args.Message, CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Service Bus received message processing failure");
+                await ProcessErrorInternal(new ServiceBusSubscriberOperationException("Service Bus received message processing failure", ex));
+            }
         }
 
         private async Task ProcessErrorInternal(ProcessErrorEventArgs args)
+        {
+            await ProcessErrorInternal(args.Exception);
+        }
+        
+        private async Task ProcessErrorInternal(Exception ex)
         {
             if (_clientProcessErrorFunc == null)
             {
                 return;
             }
 
-            await _clientProcessErrorFunc(args.Exception);
+            await _clientProcessErrorFunc(ex);
+        }   
+        
+        private async Task StopReceiveMessagesFromTopicSubscriptionInternal(CancellationToken cancellationToken)
+        {
+            if (_serviceBusProcessor != null)
+            {
+                try
+                {
+                    await _serviceBusProcessor.CloseAsync(cancellationToken);
+                    await _serviceBusProcessor.DisposeAsync();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Service Bus receive messages stopping failure");
+                }
+                finally
+                {
+                    _serviceBusProcessor = null;
+                }                
+            }
+            
+            _clientProcessMessageFunc = null;
+            _clientProcessErrorFunc = null;
         }
     }
 }

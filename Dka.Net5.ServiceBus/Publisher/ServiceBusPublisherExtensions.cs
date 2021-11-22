@@ -31,5 +31,17 @@ namespace ServiceBusPublisher
             
             return serviceBusMessage;
         }
+        
+        public static ServiceBusMessage SetCorrelationId<T>(this ServiceBusMessage serviceBusMessage, ServiceBusMessage<T> message)
+            where T : class
+        {
+            if (message.CorrelationId == null)
+            {
+                return serviceBusMessage;
+            }
+            
+            serviceBusMessage.CorrelationId = message.CorrelationId?.ToString();
+            return serviceBusMessage;
+        }        
     }
 }

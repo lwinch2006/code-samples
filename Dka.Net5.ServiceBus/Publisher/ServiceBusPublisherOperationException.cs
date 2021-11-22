@@ -8,5 +8,10 @@ namespace ServiceBusPublisher
         : base(message)
         {
         }
+        
+        public ServiceBusPublisherOperationException(string? message, Exception? ex)
+            : base(message, ex)
+        {
+        }        
     }
 }
