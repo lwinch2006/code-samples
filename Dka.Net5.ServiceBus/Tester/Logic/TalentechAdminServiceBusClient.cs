@@ -144,7 +144,7 @@ namespace ServiceBusTester.Logic
                     cancellationToken: CancellationToken.None);
                 
                 var response = (ServiceBusMessage<Response>)responseAsObject;
-                _logger.LogInformation("Received response {EventFullName} for request with status {StatusCode} and message {Message}", response.Metadata.EventName, response.Payload.StatusCode, response.Payload.Message);
+                _logger.LogInformation("Received response for request on event {EventFullName} with status {StatusCode} and message {Message}", response.Payload.EventName, response.Payload.StatusCode, response.Payload.Message);
             }
             catch (Exception ex)
             { }
@@ -164,17 +164,17 @@ namespace ServiceBusTester.Logic
                     switch (receivedRequest)
                     {
                         case ServiceBusMessage<TenantUpdated> tenantUpdatedEvent:
-                            _logger.LogInformation("Received queue {Event} request - tenant with Id {TenantId} changed name to {NewName}", nameof(TenantUpdated),  tenantUpdatedEvent.Payload.Id, tenantUpdatedEvent.Payload.NewName);
+                            _logger.LogInformation("Received request on event {Event} - tenant with Id {TenantId} changed name to {NewName}", tenantUpdatedEvent.Metadata.EventName,  tenantUpdatedEvent.Payload.Id, tenantUpdatedEvent.Payload.NewName);
                             await SendResponse(responseQueue, tenantUpdatedEvent);
                             break;
                     
                         case ServiceBusMessage<UserUpdated> userUpdatedEvent:
-                            _logger.LogInformation("Received queue {Event} request - tenant with Id {TenantId} changed name to {NewName}", nameof(UserUpdated),  userUpdatedEvent.Payload.Id, userUpdatedEvent.Payload.NewName);
+                            _logger.LogInformation("Received request on event {Event} - tenant with Id {TenantId} changed name to {NewName}", userUpdatedEvent.Metadata.EventName,  userUpdatedEvent.Payload.Id, userUpdatedEvent.Payload.NewName);
                             await SendResponse(responseQueue, userUpdatedEvent);
                             break;                    
                     
                         default:
-                            _logger.LogInformation("Received queue {Event} request - raw data {RawData}", "unknown", receivedRequest?.ToString()?.Replace(Environment.NewLine, string.Empty));
+                            _logger.LogInformation("Received request on event {Event} - raw data {RawData}", "unknown", receivedRequest?.ToString()?.Replace(Environment.NewLine, string.Empty));
                             break;
                     }
                 
@@ -276,13 +276,14 @@ namespace ServiceBusTester.Logic
             {
                 Metadata = new Metadata
                 {
-                    EventType = AppConstants.Events.TenantEvents.Type,
-                    EventName = AppConstants.Events.TenantEvents.TenantUpdatedResponse.FullName,
+                    EventType = AppConstants.Events.Responses.Type,
+                    EventName = AppConstants.Events.Responses.GeneralResponse.FullName,
                     Version = 1,
                     Timestamp = DateTime.UtcNow
                 },
                 Payload = new Response
                 {
+                    EventName = message.Metadata.EventName,
                     StatusCode = 200,
                     Message = "OK"
                 },

@@ -10,15 +10,9 @@
 
                 public static class TenantUpdated
                 {
-                    public const string Name = "UserUpdated";
+                    public const string Name = "TenantUpdated";
                     public static readonly string FullName = $"{Type}.{Name}";
                 }
-                
-                public static class TenantUpdatedResponse
-                {
-                    public const string Name = "UserUpdated.Response";
-                    public static readonly string FullName = $"{Type}.{Name}";
-                }                
             }
 
             public static class UserEvents
@@ -28,6 +22,17 @@
                 public static class UserUpdated
                 {
                     public const string Name = "UserUpdated";
+                    public static readonly string FullName = $"{Type}.{Name}";
+                }
+            }
+
+            public static class Responses
+            {
+                public const string Type = "Responses";
+                
+                public static class GeneralResponse
+                {
+                    public const string Name = "GeneralResponse";
                     public static readonly string FullName = $"{Type}.{Name}";
                 }
             }

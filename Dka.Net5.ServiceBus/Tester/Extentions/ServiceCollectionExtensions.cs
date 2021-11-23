@@ -28,7 +28,7 @@ namespace ServiceBusTester.Extentions
                     DeserializationDictionary = new Dictionary<(int, string), Type>
                     {
                         { (1, AppConstants.Events.TenantEvents.TenantUpdated.FullName), typeof(ServiceBusMessage<TenantUpdated>) },
-                        { (1, AppConstants.Events.TenantEvents.TenantUpdatedResponse.FullName), typeof(ServiceBusMessage<Response>) },
+                        { (1, AppConstants.Events.Responses.GeneralResponse.FullName), typeof(ServiceBusMessage<Response>) },
                         { (1, AppConstants.Events.UserEvents.UserUpdated.FullName), typeof(ServiceBusMessage<UserUpdated>) }
                     }
                 });
