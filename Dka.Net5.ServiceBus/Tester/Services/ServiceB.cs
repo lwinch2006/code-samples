@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ServiceBusTester.Logic;
+using ServiceBusTester.Models;
 
 namespace ServiceBusTester.Services
 {
@@ -62,18 +63,18 @@ namespace ServiceBusTester.Services
 
         private async Task DoWork()
         {
-            var receiveEventsFromQueue = _talentechAdminServiceBusClient.ReceiveEventsFromQueue("tenantevents");
-            var receiveEventsFromTopicSubscription1 = _talentechAdminServiceBusClient.ReceiveEventsFromTopicSubscription("events", "servicebustester");
-            //var receiveEventsFromTopicSubscription2 = _talentechAdminServiceBusClient.ReceiveEventsFromTopicSubscription("events", "servicebustester2");
+            // var receiveEventsFromQueue = _talentechAdminServiceBusClient.ReceiveEventsFromQueue("tenantevents");
+            // var receiveEventsFromTopicSubscription1 = _talentechAdminServiceBusClient.ReceiveEventsFromTopicSubscription("events", "servicebustester");
+            // var receiveEventsFromTopicSubscription2 = _talentechAdminServiceBusClient.ReceiveEventsFromTopicSubscription("events", "servicebustester2");
+            // var receiveEventsFromTopicSubscription2 = _talentechAdminServiceBusClient.StartReceiveMessagesFromTopicSubscription("events", "servicebustester2", CancellationToken.None);
+            var receiveRequestAndSendResponse = _talentechAdminServiceBusClient.ReceiveRequestsAndSendResponses(AppConstants.ServiceBus.Publish.RequestQueue1, AppConstants.ServiceBus.Receive.ResponseQueue1);
 
-            var receiveEventsFromTopicSubscription2 =
-                _talentechAdminServiceBusClient.StartReceiveMessagesFromTopicSubscription("events", "servicebustester2",
-                    CancellationToken.None);
             
             await Task.WhenAll(
-                receiveEventsFromQueue,
+                /*receiveEventsFromQueue,
                 receiveEventsFromTopicSubscription1,
-                receiveEventsFromTopicSubscription2
+                receiveEventsFromTopicSubscription2*/
+                receiveRequestAndSendResponse
             );
 
             _logger.LogInformation("{ServiceName} finished work", nameof(ServiceB));

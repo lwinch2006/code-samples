@@ -17,7 +17,7 @@ namespace ServiceBusSubscriber
         private readonly ServiceBusSubscriberConfiguration _serviceBusSubscriberConfiguration;
         private readonly ILogger<ServiceBusSubscriber> _logger;
 
-        private ServiceBusProcessor _serviceBusProcessor;
+        private ServiceBusSubscriberProcessor _serviceBusSubscriberProcessor;
         private Func<object, Task> _clientProcessMessageFunc;
         private Func<Exception, Task> _clientProcessErrorFunc;
         
@@ -31,128 +31,91 @@ namespace ServiceBusSubscriber
             _administrationClient = administrationClient;
             _serviceBusSubscriberConfiguration = serviceBusSubscriberConfiguration;
             _logger = logger;
-        }        
-        
-        public async Task<T> ReceiveMessageFromQueue<T>(string queueName, CancellationToken cancellationToken) 
-            where T : class
-        {
-            await using var receiver = _client.CreateReceiver(queueName);
-            var serviceBusMessage = await receiver.ReceiveMessageAsync(cancellationToken: cancellationToken);
-
-            if (serviceBusMessage == null)
-            {
-                return null;
-            }
-
-            var payload = GetPayload<T>(serviceBusMessage, cancellationToken);
-            await receiver.CompleteMessageAsync(serviceBusMessage, cancellationToken);
-            return payload;
-        }
-        
-        public async IAsyncEnumerable<T> ReceiveMessagesFromQueue<T>(string queueName, CancellationToken cancellationToken) 
-            where T : class
-        {
-            await using var receiver = _client.CreateReceiver(queueName);
-
-            await foreach (var serviceBusMessage in receiver.ReceiveMessagesAsync(cancellationToken))
-            {
-                 var payload = GetPayload<T>(serviceBusMessage, cancellationToken);
-                 await receiver.CompleteMessageAsync(serviceBusMessage, cancellationToken);
-                 yield return payload;
-            }
         }
 
-        public async Task<object> ReceiveMessageFromQueue(string queueName, CancellationToken cancellationToken)
+        public async Task<T> ReceiveMessage<T>(
+            string queueOrTopicName, 
+            string subscriptionName = default,
+            ServiceBusSubscriberReceiveOptions options = default, 
+            CancellationToken cancellationToken = default)
+            where T : class
         {
-            await using var receiver = _client.CreateReceiver(queueName);
+            await using var receiver = await GetServiceBusReceiver(queueOrTopicName, subscriptionName, options, cancellationToken);
             var serviceBusMessage = await receiver.ReceiveMessageAsync(cancellationToken: cancellationToken);
-
             if (serviceBusMessage == null)
             {
                 return null;
             }
             
-            var payload = GetPayload(serviceBusMessage, cancellationToken);
+            var returnFullMessage = options?.ReturnFullMessage ?? false;
+            var payload = GetPayload<T>(serviceBusMessage, returnFullMessage, cancellationToken);
             await receiver.CompleteMessageAsync(serviceBusMessage, cancellationToken);
             return payload;
         }
 
-        public async IAsyncEnumerable<object> ReceiveMessagesFromQueue(string queueName, CancellationToken cancellationToken)
+        public async Task<object> ReceiveMessage(
+            string queueOrTopicName,
+            string subscriptionName = default,
+            ServiceBusSubscriberReceiveOptions options = default,
+            CancellationToken cancellationToken = default)
         {
-            await using var receiver = _client.CreateReceiver(queueName);
-            
+            await using var receiver = await GetServiceBusReceiver(queueOrTopicName, subscriptionName, options, cancellationToken);
+            var serviceBusMessage = await receiver.ReceiveMessageAsync(cancellationToken: cancellationToken);
+            if (serviceBusMessage == null)
+            {
+                return null;
+            }
+
+            var returnFullMessage = options?.ReturnFullMessage ?? false;
+            var payload = GetPayload(serviceBusMessage, returnFullMessage, cancellationToken);
+            await receiver.CompleteMessageAsync(serviceBusMessage, cancellationToken);
+            return payload;
+        }
+
+        public async IAsyncEnumerable<T> ReceiveMessages<T>(
+            string queueOrTopicName, 
+            string subscriptionName = default,
+            ServiceBusSubscriberReceiveOptions options = default, 
+            CancellationToken cancellationToken = default)
+            where T : class
+        {
+            var returnFullMessage = options?.ReturnFullMessage ?? false;
+            await using var receiver = await GetServiceBusReceiver(queueOrTopicName, subscriptionName, options, cancellationToken);
+
             await foreach (var serviceBusMessage in receiver.ReceiveMessagesAsync(cancellationToken))
             {
-                var payload = GetPayload(serviceBusMessage, cancellationToken);
+                var payload = GetPayload<T>(serviceBusMessage, returnFullMessage, cancellationToken);
                 await receiver.CompleteMessageAsync(serviceBusMessage, cancellationToken);
                 yield return payload;
             }
         }
 
-        public async Task<T> ReceiveMessageFromTopicSubscription<T>(string topic, string subscription, CancellationToken cancellationToken) 
-            where T : class
+        public async IAsyncEnumerable<object> ReceiveMessages(
+            string queueOrTopicName,
+            string subscriptionName = default, 
+            ServiceBusSubscriberReceiveOptions options = default,
+            CancellationToken cancellationToken = default)
         {
-            await using var receiver = _client.CreateReceiver(topic, subscription);
-            var serviceBusMessage = await receiver.ReceiveMessageAsync(cancellationToken: cancellationToken);
-            
-            if (serviceBusMessage == null)
-            {
-                return null;
-            }
-            
-            var payload = GetPayload<T>(serviceBusMessage, cancellationToken);
-            await receiver.CompleteMessageAsync(serviceBusMessage, cancellationToken);
-            return payload;
-        }
-
-        public async Task<object> ReceiveMessageFromTopicSubscription(string topic, string subscription, CancellationToken cancellationToken)
-        {
-            await using var receiver = _client.CreateReceiver(topic, subscription);
-            var serviceBusMessage = await receiver.ReceiveMessageAsync(cancellationToken: cancellationToken);
-            
-            if (serviceBusMessage == null)
-            {
-                return null;
-            }
-            
-            var payload = GetPayload(serviceBusMessage, cancellationToken);
-            await receiver.CompleteMessageAsync(serviceBusMessage, cancellationToken);
-            return payload;
-        }        
-        
-        public async IAsyncEnumerable<T> ReceiveMessagesFromTopicSubscription<T>(string topic, string subscription, CancellationToken cancellationToken) 
-            where T : class
-        {
-            await using var receiver = _client.CreateReceiver(topic, subscription);
+            var returnFullMessage = options?.ReturnFullMessage ?? false;
+            await using var receiver = await GetServiceBusReceiver(queueOrTopicName, subscriptionName, options, cancellationToken);
 
             await foreach (var serviceBusMessage in receiver.ReceiveMessagesAsync(cancellationToken))
             {
-                 var payload = GetPayload<T>(serviceBusMessage, cancellationToken);
-                 await receiver.CompleteMessageAsync(serviceBusMessage, cancellationToken);
-                 yield return payload;
-            }
-        }
-
-        public async IAsyncEnumerable<object> ReceiveMessagesFromTopicSubscription(string topic, string subscription, CancellationToken cancellationToken)
-        {
-            await using var receiver = _client.CreateReceiver(topic, subscription);
-
-            await foreach (var serviceBusMessage in receiver.ReceiveMessagesAsync(cancellationToken))
-            {
-                var payload = GetPayload(serviceBusMessage, cancellationToken);
+                var payload = GetPayload(serviceBusMessage, returnFullMessage, cancellationToken);
                 await receiver.CompleteMessageAsync(serviceBusMessage, cancellationToken);
                 yield return payload;
             }
         }
 
-        public async Task StartReceiveMessagesFromTopicSubscription(
-            string topic,
-            string subscription,
-            Func<object, Task> processMessageFunc,
-            Func<Exception, Task> processErrorFunc,
-            CancellationToken cancellationToken)
+        public async Task StartReceiveMessages(
+            string queueOrTopicName,
+            string subscriptionName = default,
+            Func<object, Task> processMessageFunc = default,
+            Func<Exception, Task> processErrorFunc = default,
+            ServiceBusSubscriberReceiveOptions options = default,
+            CancellationToken cancellationToken = default)
         {
-            if (_serviceBusProcessor != null)
+            if (_serviceBusSubscriberProcessor != null)
             {
                 _logger.LogError("Service Bus processor already initialized. Stop it first");
                 throw new ServiceBusSubscriberOperationException(
@@ -161,14 +124,15 @@ namespace ServiceBusSubscriber
 
             try
             {
-                _serviceBusProcessor = _client.CreateProcessor(topic, subscription);
-                _serviceBusProcessor.ProcessMessageAsync += ProcessMessageInternal;
-                _serviceBusProcessor.ProcessErrorAsync += ProcessErrorInternal;
+                _serviceBusSubscriberProcessor = new ServiceBusSubscriberProcessor(_client, queueOrTopicName, subscriptionName, options);
+                
+                _serviceBusSubscriberProcessor.ProcessMessageAsync += ProcessMessageInternal;
+                _serviceBusSubscriberProcessor.ProcessErrorAsync += ProcessErrorInternal;
 
                 _clientProcessMessageFunc = processMessageFunc;
                 _clientProcessErrorFunc = processErrorFunc;
 
-                await _serviceBusProcessor.StartProcessingAsync(cancellationToken);
+                await _serviceBusSubscriberProcessor.StartProcessingAsync(cancellationToken);
             }
             catch (Exception ex)
             {
@@ -183,7 +147,7 @@ namespace ServiceBusSubscriber
 
         public async Task StopReceiveMessagesFromTopicSubscription(CancellationToken cancellationToken)
         {
-            if (_serviceBusProcessor == null)
+            if (_serviceBusSubscriberProcessor == null)
             {
                 _logger.LogError("Service Bus processor not initialized");
                 throw new ServiceBusSubscriberOperationException("Service Bus processor not initialized");
@@ -192,7 +156,11 @@ namespace ServiceBusSubscriber
             await StopReceiveMessagesFromTopicSubscriptionInternal(cancellationToken);
         }
 
-        public async Task EnsureTopicSubscription(string topicName, string subscriptionName, CancellationToken cancellationToken, string sqlFilterRule = "1=1")
+        public async Task EnsureTopicSubscription(
+            string topicName, 
+            string subscriptionName, 
+            CancellationToken cancellationToken, 
+            string sqlFilterRule = "1=1")
         {
             try
             {
@@ -225,12 +193,12 @@ namespace ServiceBusSubscriber
             }
         }     
         
-        private object GetPayload(ServiceBusReceivedMessage serviceBusReceivedMessage, CancellationToken cancellationToken)
+        private object GetPayload(ServiceBusReceivedMessage serviceBusReceivedMessage, bool returnFullMessage, CancellationToken cancellationToken)
         {
             if (!serviceBusReceivedMessage.ApplicationProperties.TryGetValue(nameof(Metadata.EventName), out var eventNameAsObject)
                 || !serviceBusReceivedMessage.ApplicationProperties.TryGetValue(nameof(Metadata.Version), out var versionAsObject)) 
             {
-                return GetPayload<object>(serviceBusReceivedMessage, cancellationToken);
+                return GetPayload<object>(serviceBusReceivedMessage, returnFullMessage, cancellationToken);
             }
 
             var eventName = (string)eventNameAsObject;
@@ -239,13 +207,15 @@ namespace ServiceBusSubscriber
             if (!_serviceBusSubscriberConfiguration.DeserializationDictionary.TryGetValue((version, eventName), out var payloadType)
                 || payloadType == null)
             {
-                return GetPayload<object>(serviceBusReceivedMessage, cancellationToken);
+                return GetPayload<object>(serviceBusReceivedMessage, returnFullMessage, cancellationToken);
             }
             
             try
             {
                 var message = JsonConvert.DeserializeObject(serviceBusReceivedMessage.Body.ToString(), payloadType);
-                return message.GetType().GetProperty(nameof(ServiceBusMessage<object>.Payload)).GetValue(message, null);
+                return returnFullMessage
+                    ? message
+                    : message.GetType().GetProperty(nameof(ServiceBusMessage<object>.Payload)).GetValue(message, null);
             }
             catch (Exception ex)
             {
@@ -254,13 +224,15 @@ namespace ServiceBusSubscriber
             }
         }
         
-        private T GetPayload<T>(ServiceBusReceivedMessage serviceBusReceivedMessage, CancellationToken cancellationToken)
+        private T GetPayload<T>(ServiceBusReceivedMessage serviceBusReceivedMessage, bool returnFullMessage, CancellationToken cancellationToken)
             where T : class
         {
             try
             {
-                var message = JsonConvert.DeserializeObject<ServiceBusMessage<T>>(serviceBusReceivedMessage.Body.ToString());
-                return message?.Payload;
+                var message = JsonConvert.DeserializeObject(serviceBusReceivedMessage.Body.ToString(), typeof(ServiceBusMessage<T>));
+                return returnFullMessage
+                ? (T) message
+                : ((ServiceBusMessage<T>)message)?.Payload;
             }
             catch (Exception ex)
             {
@@ -269,14 +241,16 @@ namespace ServiceBusSubscriber
             }
         }       
         
-        private async Task ProcessMessageInternal(ProcessMessageEventArgs args)
+        private async Task ProcessMessageInternal(object argsAsObject)
         {
             if (_clientProcessMessageFunc == null)
             {
                 return;
             }
 
-            if (args.Message == null)
+            var message = _serviceBusSubscriberProcessor.GetReceivedMessageFromArgs(argsAsObject);
+
+            if (message == null)
             {
                 await _clientProcessMessageFunc(null);
                 return;
@@ -284,9 +258,9 @@ namespace ServiceBusSubscriber
 
             try
             {
-                var payload = GetPayload(args.Message, CancellationToken.None);
+                var payload = GetPayload(message, false, CancellationToken.None);
                 await _clientProcessMessageFunc(payload);
-                await args.CompleteMessageAsync(args.Message, CancellationToken.None);
+                await _serviceBusSubscriberProcessor.CompleteMessageAsync(argsAsObject, message, CancellationToken.None);
             }
             catch (Exception ex)
             {
@@ -308,16 +282,16 @@ namespace ServiceBusSubscriber
             }
 
             await _clientProcessErrorFunc(ex);
-        }   
+        }
         
         private async Task StopReceiveMessagesFromTopicSubscriptionInternal(CancellationToken cancellationToken)
         {
-            if (_serviceBusProcessor != null)
+            if (_serviceBusSubscriberProcessor != null)
             {
                 try
                 {
-                    await _serviceBusProcessor.CloseAsync(cancellationToken);
-                    await _serviceBusProcessor.DisposeAsync();
+                    await _serviceBusSubscriberProcessor.CloseAsync(cancellationToken);
+                    await _serviceBusSubscriberProcessor.DisposeAsync();
                 }
                 catch (Exception ex)
                 {
@@ -325,12 +299,80 @@ namespace ServiceBusSubscriber
                 }
                 finally
                 {
-                    _serviceBusProcessor = null;
+                    _serviceBusSubscriberProcessor = null;
                 }                
             }
             
             _clientProcessMessageFunc = null;
             _clientProcessErrorFunc = null;
+        }
+
+        private async Task<ServiceBusReceiver> GetServiceBusReceiver(
+            string queueOrTopicName, 
+            string subscriptionName = default,
+            ServiceBusSubscriberReceiveOptions options = default,
+            CancellationToken cancellationToken = default)
+        {
+            var (sessionId, _) = (options?.SessionId, options?.ReturnFullMessage ?? false);
+
+            if (string.IsNullOrWhiteSpace(subscriptionName))
+            {
+                if (string.IsNullOrWhiteSpace(sessionId))
+                {
+                    return _client.CreateReceiver(queueOrTopicName);
+                }
+
+                return await _client.AcceptSessionAsync(queueOrTopicName, sessionId, cancellationToken: cancellationToken);
+            }
+            
+            if (string.IsNullOrWhiteSpace(sessionId))
+            {
+                return _client.CreateReceiver(queueOrTopicName, subscriptionName);
+            }
+            
+            return await _client.AcceptSessionAsync(queueOrTopicName, subscriptionName, sessionId, cancellationToken: cancellationToken);
+        }
+        
+        private object GetServiceBusProcessor(
+            string queueOrTopicName,
+            string subscriptionName = default,
+            ServiceBusSubscriberReceiveOptions options = default)
+        {
+            var (sessionId, _) = (options?.SessionId, options?.ReturnFullMessage ?? false);
+
+            if (string.IsNullOrWhiteSpace(subscriptionName))
+            {
+                if (string.IsNullOrWhiteSpace(sessionId))
+                {
+                    return _client.CreateProcessor(queueOrTopicName);
+                }
+
+                return _client.CreateSessionProcessor(
+                    queueOrTopicName, 
+                    new ServiceBusSessionProcessorOptions
+                    {
+                        AutoCompleteMessages = false,
+                        MaxConcurrentSessions = 5,
+                        MaxConcurrentCallsPerSession = 2,
+                        SessionIds = { sessionId }
+                    });
+            }
+            
+            if (string.IsNullOrWhiteSpace(sessionId))
+            {
+                return _client.CreateProcessor(queueOrTopicName, subscriptionName);
+            }
+            
+            return _client.CreateSessionProcessor(
+                queueOrTopicName, 
+                subscriptionName, 
+                new ServiceBusSessionProcessorOptions
+                {
+                    AutoCompleteMessages = false,
+                    MaxConcurrentSessions = 5,
+                    MaxConcurrentCallsPerSession = 2,                    
+                    SessionIds = { sessionId }
+                });
         }
     }
 }

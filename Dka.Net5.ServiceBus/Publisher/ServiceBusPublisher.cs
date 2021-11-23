@@ -37,7 +37,8 @@ namespace ServiceBusPublisher
                 var messageAsJson = JsonConvert.SerializeObject(message);
                 var serviceBusMessage = new ServiceBusMessage(messageAsJson)
                     .EnrichWithMetadata(message)
-                    .SetCorrelationId(message);
+                    .SetCorrelationId(message)
+                    .SetSessionId(message);
                 
                 await publisher.SendMessageAsync(serviceBusMessage, cancellationToken);
             }
@@ -64,7 +65,10 @@ namespace ServiceBusPublisher
             foreach (var message in messages)
             {
                 var messageAsJson = JsonConvert.SerializeObject(message);
-                var serviceBusMessage = new ServiceBusMessage(messageAsJson).EnrichWithMetadata(message);
+                var serviceBusMessage = new ServiceBusMessage(messageAsJson)
+                    .EnrichWithMetadata(message)
+                    .SetCorrelationId(message)
+                    .SetSessionId(message);
                 
                 if (!serviceBusMessages.TryAddMessage(serviceBusMessage))
                 {
@@ -85,8 +89,8 @@ namespace ServiceBusPublisher
                     var options = new CreateTopicOptions(topicName)
                     {
                         Status = EntityStatus.Active,
-                        MaxSizeInMegabytes = 5120,
-                        EnablePartitioning = true
+                        MaxSizeInMegabytes = 1024,
+                        DefaultMessageTimeToLive = TimeSpan.FromDays(10000)
                     };
 
                     await _administrationClient.CreateTopicAsync(options, cancellationToken);
@@ -107,7 +111,8 @@ namespace ServiceBusPublisher
                 {
                     Status = EntityStatus.Active,
                     MaxSizeInMegabytes = 1024,
-                    DefaultMessageTimeToLive = TimeSpan.FromDays(10000)
+                    DefaultMessageTimeToLive = TimeSpan.FromDays(10000),
+                    RequiresSession = queueName.Contains("response", StringComparison.OrdinalIgnoreCase)
                 };
 
                 await _administrationClient.CreateQueueAsync(options, cancellationToken);

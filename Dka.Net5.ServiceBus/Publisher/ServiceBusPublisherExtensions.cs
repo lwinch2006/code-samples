@@ -42,6 +42,18 @@ namespace ServiceBusPublisher
             
             serviceBusMessage.CorrelationId = message.CorrelationId?.ToString();
             return serviceBusMessage;
-        }        
+        }
+
+        public static ServiceBusMessage SetSessionId<T>(this ServiceBusMessage serviceBusMessage, ServiceBusMessage<T> message)
+            where T : class
+        {
+            if (string.IsNullOrWhiteSpace(message.SessionId))
+            {
+                return serviceBusMessage;
+            }
+            
+            serviceBusMessage.SessionId = message.SessionId;
+            return serviceBusMessage;
+        }
     }
 }

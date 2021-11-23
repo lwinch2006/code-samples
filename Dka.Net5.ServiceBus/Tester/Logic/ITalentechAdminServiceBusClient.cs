@@ -17,5 +17,9 @@ namespace ServiceBusTester.Logic
             CancellationToken cancellationToken);
 
         Task StopReceiveMessagesFromTopicSubscription(CancellationToken cancellationToken);
+
+        Task SendRequestAndWaitForResponse(string requestQueue, string responseQueue);
+
+        Task ReceiveRequestsAndSendResponses(string requestQueue, string responseQueue);
     }
 }

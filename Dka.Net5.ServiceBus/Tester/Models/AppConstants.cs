@@ -13,6 +13,12 @@
                     public const string Name = "UserUpdated";
                     public static readonly string FullName = $"{Type}.{Name}";
                 }
+                
+                public static class TenantUpdatedResponse
+                {
+                    public const string Name = "UserUpdated.Response";
+                    public static readonly string FullName = $"{Type}.{Name}";
+                }                
             }
 
             public static class UserEvents
@@ -32,21 +38,25 @@
             public static class Publish
             {
                 public const string Queue1 = "tenantevents";
-                public static readonly string Topic1 = "events";
+                public const string RequestQueue1 = "request-queue1";
                 
-                public static readonly string[] Queues = { Queue1 };
+                public static readonly string Topic1 = "events";
+
+                public static readonly string[] Queues = { Queue1, RequestQueue1 };
                 public static readonly string[] Topics = { Topic1 };
             }
             
             public static class Receive
             {
                 public const string Queue1 = "tenantevents";
+
+                public const string ResponseQueue1 = "response-queue1"; 
                 
                 public const string Topic1 = "events";
                 public const string TopicSubscription1 = "servicebustester";
                 public const string TopicSubscription2 = "servicebustester2";
                 
-                public static readonly string[] Queues = { Queue1 };
+                public static readonly string[] Queues = { Queue1, ResponseQueue1 };
                 public static readonly string[] Topics = { Topic1 };
                 public static readonly (string, string)[] TopicSubscriptions = 
                 {

@@ -1,8 +1,10 @@
-﻿using System.Threading;
+﻿using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ServiceBusTester.Logic;
+using ServiceBusTester.Models;
 
 namespace ServiceBusTester.Services
 {
@@ -62,20 +64,37 @@ namespace ServiceBusTester.Services
 
         private async Task DoWork()
         {
-            var sendTenantEventsToQueueTask = _talentechAdminServiceBusClient.SendTenantChangedEvent("tenantevents");
-            var sendUserEventsToQueueTask = _talentechAdminServiceBusClient.SendUserChangedEvent("tenantevents");
-            var sendTenantEventsToTopicTask = _talentechAdminServiceBusClient.SendTenantChangedEvent("events");
-            var sendUserEventsToTopicTask = _talentechAdminServiceBusClient.SendUserChangedEvent("events");
+            //var sendTenantEventsToQueueTask = _talentechAdminServiceBusClient.SendTenantChangedEvent("tenantevents");
+            //var sendUserEventsToQueueTask = _talentechAdminServiceBusClient.SendUserChangedEvent("tenantevents");
+            //var sendTenantEventsToTopicTask = _talentechAdminServiceBusClient.SendTenantChangedEvent("events");
+            //var sendUserEventsToTopicTask = _talentechAdminServiceBusClient.SendUserChangedEvent("events");
+            var sendRequestAndWaitForResponse = ServiceBusRequestResponseTest();
+            
 
             await Task.WhenAll(
-                sendTenantEventsToQueueTask, 
+                /*sendTenantEventsToQueueTask, 
                 sendUserEventsToQueueTask,
                 sendTenantEventsToTopicTask,
-                sendUserEventsToTopicTask
+                sendUserEventsToTopicTask,*/
+                sendRequestAndWaitForResponse
             );
 
             _logger.LogInformation("{ServiceName} finished work", nameof(ServiceA));
             _cancellationTokenSource.Cancel();
+        }
+
+        private async Task ServiceBusRequestResponseTest()
+        {
+            var test = new Stopwatch();
+            test.Start();
+            
+            for (var i = 0; i < 1; i++)
+            {
+                await _talentechAdminServiceBusClient.SendRequestAndWaitForResponse(AppConstants.ServiceBus.Publish.RequestQueue1, AppConstants.ServiceBus.Receive.ResponseQueue1);
+            }
+            
+            test.Stop();
+            _logger.LogInformation("{Function} run time is {Time} seconds", nameof(ServiceBusRequestResponseTest), test.Elapsed.TotalSeconds / 10.0);
         }
     }
 }

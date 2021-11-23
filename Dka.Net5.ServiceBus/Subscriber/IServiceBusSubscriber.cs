@@ -7,35 +7,46 @@ namespace ServiceBusSubscriber
 {
     public interface IServiceBusSubscriber
     {
-        Task<T> ReceiveMessageFromQueue<T>(string queueName, CancellationToken cancellationToken)
-            where T : class;
-        
-        IAsyncEnumerable<T> ReceiveMessagesFromQueue<T>(string queueName, CancellationToken cancellationToken)
-            where T : class;
-
-        Task<object> ReceiveMessageFromQueue(string queueName, CancellationToken cancellationToken);
-
-        IAsyncEnumerable<object> ReceiveMessagesFromQueue(string queueName, CancellationToken cancellationToken);
-        
-        Task<T> ReceiveMessageFromTopicSubscription<T>(string topic, string subscription, CancellationToken cancellationToken)
+        Task<T> ReceiveMessage<T>(
+            string queueOrTopicName, 
+            string subscriptionName = default, 
+            ServiceBusSubscriberReceiveOptions options = default, 
+            CancellationToken cancellationToken = default)
             where T : class;
 
-        Task<object> ReceiveMessageFromTopicSubscription(string topic, string subscription, CancellationToken cancellationToken);        
-        
-        IAsyncEnumerable<T> ReceiveMessagesFromTopicSubscription<T>(string topic, string subscription, CancellationToken cancellationToken)
+        Task<object> ReceiveMessage(
+            string queueOrTopicName, 
+            string subscriptionName = default, 
+            ServiceBusSubscriberReceiveOptions options = default, 
+            CancellationToken cancellationToken = default);
+
+        IAsyncEnumerable<T> ReceiveMessages<T>(
+            string queueOrTopicName, 
+            string subscriptionName = default, 
+            ServiceBusSubscriberReceiveOptions options = default, 
+            CancellationToken cancellationToken = default)
             where T : class;
-
-        IAsyncEnumerable<object> ReceiveMessagesFromTopicSubscription(string topic, string subscription, CancellationToken cancellationToken);
         
-        Task EnsureTopicSubscription(string topicName, string subscriptionName, CancellationToken cancellationToken, string sqlFilterRule = "1=1");
+        IAsyncEnumerable<object> ReceiveMessages(
+            string queueOrTopicName, 
+            string subscriptionName = default, 
+            ServiceBusSubscriberReceiveOptions options = default, 
+            CancellationToken cancellationToken = default);
 
-        Task StartReceiveMessagesFromTopicSubscription(
-            string topic,
-            string subscription,
-            Func<object, Task> processMessageFunc,
-            Func<Exception, Task> processErrorFunc,
-            CancellationToken cancellationToken);
+        Task StartReceiveMessages(
+            string queueOrTopicName,
+            string subscriptionName = default,
+            Func<object, Task> processMessageFunc = default,
+            Func<Exception, Task> processErrorFunc = default,
+            ServiceBusSubscriberReceiveOptions options = default,
+            CancellationToken cancellationToken = default);
 
         Task StopReceiveMessagesFromTopicSubscription(CancellationToken cancellationToken);
+        
+        Task EnsureTopicSubscription(
+            string topicName, 
+            string subscriptionName, 
+            CancellationToken cancellationToken, 
+            string sqlFilterRule = "1=1");
     }
 }

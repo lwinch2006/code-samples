@@ -12,6 +12,7 @@ using ServiceBusTester.Logic;
 using ServiceBusTester.Models;
 using ServiceBusTester.Models.Events.V1.Tenant;
 using ServiceBusTester.Models.Events.V1.User;
+using ServiceBusTester.Models.Responses;
 
 namespace ServiceBusTester.Extentions
 {
@@ -27,6 +28,7 @@ namespace ServiceBusTester.Extentions
                     DeserializationDictionary = new Dictionary<(int, string), Type>
                     {
                         { (1, AppConstants.Events.TenantEvents.TenantUpdated.FullName), typeof(ServiceBusMessage<TenantUpdated>) },
+                        { (1, AppConstants.Events.TenantEvents.TenantUpdatedResponse.FullName), typeof(ServiceBusMessage<Response>) },
                         { (1, AppConstants.Events.UserEvents.UserUpdated.FullName), typeof(ServiceBusMessage<UserUpdated>) }
                     }
                 });
@@ -40,12 +42,12 @@ namespace ServiceBusTester.Extentions
 
             foreach (var topic in AppConstants.ServiceBus.Publish.Queues)
             {
-                serviceBusPublisher.EnsureTopic(topic, CancellationToken.None);
+                serviceBusPublisher.EnsureQueue(topic, CancellationToken.None);
             }
             
             foreach (var topic in AppConstants.ServiceBus.Receive.Queues)
             {
-                serviceBusPublisher.EnsureTopic(topic, CancellationToken.None);
+                serviceBusPublisher.EnsureQueue(topic, CancellationToken.None);
             }
             
             foreach (var topic in AppConstants.ServiceBus.Publish.Topics)
