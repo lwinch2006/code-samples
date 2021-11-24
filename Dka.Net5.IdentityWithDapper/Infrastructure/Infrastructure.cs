@@ -3,6 +3,7 @@ using System.Reflection;
 using DbUp;
 using DbUp.Builder;
 using Dka.Net5.IdentityWithDapper.Infrastructure.Utils.Constants;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -16,12 +17,12 @@ namespace Dka.Net5.IdentityWithDapper.Infrastructure
     
     public class Infrastructure : IInfrastructure
     {
-        private readonly IHostEnvironment _environment;
+        private readonly IWebHostEnvironment _environment;
         private readonly ILogger<Infrastructure> _logger;
         private readonly string _connectionString;
         private readonly InfrastructureConstants.DbTypes _dbType;
         
-        public Infrastructure(IHostEnvironment environment, IConfiguration configuration, ILogger<Infrastructure> logger)
+        public Infrastructure(IWebHostEnvironment environment, IConfiguration configuration, ILogger<Infrastructure> logger)
         {
             _environment = environment;
             _logger = logger;

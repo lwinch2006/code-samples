@@ -1,23 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
+        <LangVersion>10</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
-      <PackageReference Include="Dapper" Version="2.0.90" />
+      <PackageReference Include="Dapper" Version="2.0.123" />
       <PackageReference Include="dbup-sqlite" Version="4.5.0" />
       <PackageReference Include="dbup-sqlserver" Version="4.5.0" />
       <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
-      <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.8" />
-      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
-      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
-      <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="5.0.8" />
-      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="6.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
       <PackageReference Include="Scrutor" Version="3.3.0" />
-      <PackageReference Include="System.Data.SQLite" Version="1.0.114.4" />
+      <PackageReference Include="System.Data.SQLite" Version="1.0.115.5" />
     </ItemGroup>
 
     <ItemGroup>

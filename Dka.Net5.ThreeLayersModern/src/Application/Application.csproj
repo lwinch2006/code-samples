@@ -1,18 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <AssemblyName>Dka.Net5.ThreeLayersModern.Application</AssemblyName>
+        <LangVersion>10</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="FluentValidation.AspNetCore" Version="10.2.3" />
+      <PackageReference Include="FluentValidation.AspNetCore" Version="10.3.4" />
       <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
-      <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="5.0.9" />
-      <PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="5.0.11" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
-      <PackageReference Include="Microsoft.Identity.Web" Version="1.16.0" />
-      <PackageReference Include="Microsoft.Identity.Web.UI" Version="1.16.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="6.0.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="6.0.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+      <PackageReference Include="Microsoft.Identity.Web" Version="1.21.0" />
+      <PackageReference Include="Microsoft.Identity.Web.UI" Version="1.21.0" />
       <PackageReference Include="Scrutor" Version="3.3.0" />
     </ItemGroup>
 
