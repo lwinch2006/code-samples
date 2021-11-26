@@ -35,6 +35,7 @@ namespace ServiceBusTester.Extentions
 
             services.AddScoped<IServiceBusPublisher, ServiceBusPublisher.ServiceBusPublisher>();
             services.AddScoped<IServiceBusSubscriber, ServiceBusSubscriber.ServiceBusSubscriber>();
+            services.AddScoped<IServiceBusSubscriberForDeadLetter, ServiceBusSubscriber.ServiceBusSubscriber>();
 
             var sp = services.BuildServiceProvider();
             var serviceBusPublisher = sp.GetRequiredService<IServiceBusPublisher>();

@@ -9,18 +9,35 @@ namespace ServiceBusSubscriber
     {
         private readonly object _serviceBusProcessorAsObject;
 
+        public string QueueOrTopicName { get; set; }
+        public string SubscriptionName { get; set; }
+        public ServiceBusSubscriberReceiveOptions ServiceBusSubscriberReceiveOptions { get; set; }
+        public Func<string, string, object, Task> ClientProcessMessageFunc { get; set; }
+        public Func<string, string, Exception, Task> ClientProcessErrorFunc { get; set; }
+
         public ServiceBusSubscriberProcessor(ServiceBusClient client,
             string queueOrTopicName, 
             string subscriptionName = default,
             ServiceBusSubscriberReceiveOptions options = default)
         {
-            var (sessionId, _) = (options?.SessionId, options?.ReturnFullMessage ?? false);
+            QueueOrTopicName = queueOrTopicName;
+            SubscriptionName = subscriptionName;
+            ServiceBusSubscriberReceiveOptions = options ?? new ServiceBusSubscriberReceiveOptions();
+            
+            var (sessionId, _, connectToDeadLetterQueue) = (options?.SessionId, ServiceBusSubscriberReceiveMessageTypes.Payload, options?.ConnectToDeadLetterQueue ?? false);
 
             if (string.IsNullOrWhiteSpace(subscriptionName))
             {
                 if (string.IsNullOrWhiteSpace(sessionId))
                 {
-                    _serviceBusProcessorAsObject = client.CreateProcessor(queueOrTopicName);
+                    _serviceBusProcessorAsObject = client.CreateProcessor(
+                        queueOrTopicName,
+                        new ServiceBusProcessorOptions
+                        {
+                            AutoCompleteMessages = false,
+                            SubQueue = connectToDeadLetterQueue ? SubQueue.DeadLetter : SubQueue.None
+                        });
+                    
                     return;
                 }
 
@@ -39,7 +56,15 @@ namespace ServiceBusSubscriber
             
             if (string.IsNullOrWhiteSpace(sessionId))
             {
-                _serviceBusProcessorAsObject = client.CreateProcessor(queueOrTopicName, subscriptionName);
+                _serviceBusProcessorAsObject = client.CreateProcessor(
+                    queueOrTopicName, 
+                    subscriptionName,
+                    new ServiceBusProcessorOptions
+                    {
+                        AutoCompleteMessages = false,
+                        SubQueue = connectToDeadLetterQueue ? SubQueue.DeadLetter : SubQueue.None
+                    });
+                
                 return;
             }
             
@@ -117,7 +142,7 @@ namespace ServiceBusSubscriber
             }
         }        
 
-        public Task StartProcessingAsync(CancellationToken cancellationToken)
+        public Task StartProcessingAsync(CancellationToken cancellationToken = default)
         {
             switch (_serviceBusProcessorAsObject)
             {
@@ -132,7 +157,7 @@ namespace ServiceBusSubscriber
             }
         }
         
-        public Task CloseAsync(CancellationToken cancellationToken)
+        public Task CloseAsync(CancellationToken cancellationToken = default)
         {
             return _serviceBusProcessorAsObject switch
             {
@@ -164,20 +189,30 @@ namespace ServiceBusSubscriber
             return message;
         }
 
-        public Task CompleteMessageAsync(object args, ServiceBusReceivedMessage message, CancellationToken cancellationToken)
+        public Task CompleteMessageAsync(object argsAsObject, CancellationToken cancellationToken = default)
         {
-            switch (args)
+            return argsAsObject switch
             {
-                case ServiceBusProcessor:
-                    return ((ProcessMessageEventArgs)args).CompleteMessageAsync(message, cancellationToken);
-                
-                case ServiceBusSessionProcessor:
-                    return ((ProcessSessionMessageEventArgs)args).CompleteMessageAsync(message, cancellationToken);
-                
-                default:
-                    return Task.CompletedTask;
-            }
+                ProcessMessageEventArgs args => args.CompleteMessageAsync(args.Message, cancellationToken),
+                ProcessSessionMessageEventArgs args => args.CompleteMessageAsync(args.Message, cancellationToken),
+                _ => Task.CompletedTask
+            };
         }
-        
+
+        public Task DeadLetterMessageAsync(
+            object argsAsObject, 
+            string deadLetterReason,
+            string deadLetterErrorDescription = default, 
+            CancellationToken cancellationToken = default)
+        {
+            return argsAsObject switch
+            {
+                ProcessMessageEventArgs args => args.DeadLetterMessageAsync(args.Message, deadLetterReason, deadLetterErrorDescription,
+                    cancellationToken),
+                ProcessSessionMessageEventArgs args => args.DeadLetterMessageAsync(args.Message, deadLetterReason, deadLetterErrorDescription,
+                    cancellationToken),
+                _ => Task.CompletedTask
+            };
+        }
     }
 }

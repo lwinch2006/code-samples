@@ -36,8 +36,8 @@ namespace ServiceBusSubscriber
         Task StartReceiveMessages(
             string queueOrTopicName,
             string subscriptionName = default,
-            Func<object, Task> processMessageFunc = default,
-            Func<Exception, Task> processErrorFunc = default,
+            Func<string, string, object, Task> processMessageFunc = default,
+            Func<string, string, Exception, Task> processErrorFunc = default,
             ServiceBusSubscriberReceiveOptions options = default,
             CancellationToken cancellationToken = default);
 

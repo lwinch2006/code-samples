@@ -66,17 +66,13 @@ namespace ServiceBusTester.Services
         {
             //var sendTenantEventsToQueueTask = _talentechAdminServiceBusClient.SendTenantChangedEvent("tenantevents");
             //var sendUserEventsToQueueTask = _talentechAdminServiceBusClient.SendUserChangedEvent("tenantevents");
-            //var sendTenantEventsToTopicTask = _talentechAdminServiceBusClient.SendTenantChangedEvent("events");
+            var sendTenantEventsToTopicTask = _talentechAdminServiceBusClient.SendTenantChangedEvent("events");
             //var sendUserEventsToTopicTask = _talentechAdminServiceBusClient.SendUserChangedEvent("events");
-            var sendRequestAndWaitForResponse = ServiceBusRequestResponseTest();
+            //var sendRequestAndWaitForResponse = ServiceBusRequestResponseTest();
             
 
             await Task.WhenAll(
-                /*sendTenantEventsToQueueTask, 
-                sendUserEventsToQueueTask,
-                sendTenantEventsToTopicTask,
-                sendUserEventsToTopicTask,*/
-                sendRequestAndWaitForResponse
+                sendTenantEventsToTopicTask
             );
 
             _logger.LogInformation("{ServiceName} finished work", nameof(ServiceA));

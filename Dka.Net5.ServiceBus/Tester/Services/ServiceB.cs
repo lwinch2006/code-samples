@@ -63,18 +63,19 @@ namespace ServiceBusTester.Services
 
         private async Task DoWork()
         {
-            // var receiveEventsFromQueue = _talentechAdminServiceBusClient.ReceiveEventsFromQueue("tenantevents");
+            var receiveEventsFromQueue = _talentechAdminServiceBusClient.ReceiveEventsFromQueue("tenantevents");
             // var receiveEventsFromTopicSubscription1 = _talentechAdminServiceBusClient.ReceiveEventsFromTopicSubscription("events", "servicebustester");
             // var receiveEventsFromTopicSubscription2 = _talentechAdminServiceBusClient.ReceiveEventsFromTopicSubscription("events", "servicebustester2");
-            // var receiveEventsFromTopicSubscription2 = _talentechAdminServiceBusClient.StartReceiveMessagesFromTopicSubscription("events", "servicebustester2", CancellationToken.None);
-            var receiveRequestAndSendResponse = _talentechAdminServiceBusClient.ReceiveRequestsAndSendResponses(AppConstants.ServiceBus.Publish.RequestQueue1, AppConstants.ServiceBus.Receive.ResponseQueue1);
-
             
+            var startReceiveMessages = _talentechAdminServiceBusClient.StartReceiveMessages("events", "servicebustester2", CancellationToken.None);
+            var startReceiveMessagesFromDeadLetterQueue = _talentechAdminServiceBusClient.StartReceiveMessagesFromDeadLetterQueue("events", "servicebustester2", CancellationToken.None);
+            
+            //var receiveRequestAndSendResponse = _talentechAdminServiceBusClient.ReceiveRequestsAndSendResponses(AppConstants.ServiceBus.Publish.RequestQueue1, AppConstants.ServiceBus.Receive.ResponseQueue1);
+
             await Task.WhenAll(
-                /*receiveEventsFromQueue,
-                receiveEventsFromTopicSubscription1,
-                receiveEventsFromTopicSubscription2*/
-                receiveRequestAndSendResponse
+                receiveEventsFromQueue,
+                startReceiveMessages,
+                startReceiveMessagesFromDeadLetterQueue
             );
 
             _logger.LogInformation("{ServiceName} finished work", nameof(ServiceB));

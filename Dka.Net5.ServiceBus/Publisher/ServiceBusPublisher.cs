@@ -25,6 +25,30 @@ namespace ServiceBusPublisher
             _administrationClient = administrationClient;
             _logger = logger;
         }
+
+        public async Task SendMessage(string queueOrTopicName, ServiceBusReceivedMessage message, CancellationToken cancellationToken)
+        {
+            ServiceBusSender publisher = null;
+            
+            try
+            {
+                publisher = _client.CreateSender(queueOrTopicName);
+                var serviceBusMessage = new ServiceBusMessage(message);
+                await publisher.SendMessageAsync(serviceBusMessage, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Service Bus message sending error");
+                throw new ServiceBusPublisherOperationException("Service Bus message sending error", ex);
+            }
+            finally
+            {
+                if (publisher != null)
+                {
+                    await publisher.DisposeAsync();
+                }
+            }
+        }
         
         public async Task SendMessage<T>(string queueOrTopicName, ServiceBusMessage<T> message, CancellationToken cancellationToken) 
             where T : class

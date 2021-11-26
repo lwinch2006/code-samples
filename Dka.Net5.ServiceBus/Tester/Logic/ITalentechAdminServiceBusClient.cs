@@ -13,13 +13,17 @@ namespace ServiceBusTester.Logic
 
         Task ReceiveEventsFromTopicSubscription(string topic, string subscription);
 
-        Task StartReceiveMessagesFromTopicSubscription(string topic, string subscription,
-            CancellationToken cancellationToken);
+        Task StartReceiveMessages(string topic, string subscription, CancellationToken cancellationToken);
 
-        Task StopReceiveMessagesFromTopicSubscription(CancellationToken cancellationToken);
+        Task StopReceiveMessages(CancellationToken cancellationToken);
 
         Task SendRequestAndWaitForResponse(string requestQueue, string responseQueue);
 
         Task ReceiveRequestsAndSendResponses(string requestQueue, string responseQueue);
+        
+        Task StartReceiveMessagesFromDeadLetterQueue(string topic, string subscription,
+            CancellationToken cancellationToken);
+        
+        Task StopReceiveMessagesFromDeadLetterQueue(CancellationToken cancellationToken);
     }
 }
