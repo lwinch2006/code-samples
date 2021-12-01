@@ -115,7 +115,7 @@ namespace ServiceBusTester.Logic
 
         public async Task StopReceiveMessages(CancellationToken cancellationToken)
         {
-            await _serviceBusSubscriber.StopReceiveMessagesFromTopicSubscription(cancellationToken);
+            await _serviceBusSubscriber.StopReceiveMessages(cancellationToken);
         }
 
         public async Task StartReceiveMessagesFromDeadLetterQueue(string topic, string subscription, CancellationToken cancellationToken)
@@ -136,7 +136,7 @@ namespace ServiceBusTester.Logic
         
         public async Task StopReceiveMessagesFromDeadLetterQueue(CancellationToken cancellationToken)
         {
-            await _serviceBusSubscriberForDeadLetter.StopReceiveMessagesFromTopicSubscription(cancellationToken);
+            await _serviceBusSubscriberForDeadLetter.StopReceiveMessages(cancellationToken);
         }
         
         public async Task SendRequestAndWaitForResponse(string requestQueue, string responseQueue)

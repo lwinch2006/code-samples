@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
@@ -144,17 +145,12 @@ namespace ServiceBusSubscriber
 
         public Task StartProcessingAsync(CancellationToken cancellationToken = default)
         {
-            switch (_serviceBusProcessorAsObject)
+            return _serviceBusProcessorAsObject switch
             {
-                case ServiceBusProcessor serviceBusProcessor:
-                    return serviceBusProcessor.StartProcessingAsync(cancellationToken);
-                
-                case ServiceBusSessionProcessor serviceBusSessionProcessor:
-                    return serviceBusSessionProcessor.StartProcessingAsync(cancellationToken);
-                
-                default:
-                    return Task.CompletedTask;
-            }
+                ServiceBusProcessor serviceBusProcessor => serviceBusProcessor.StartProcessingAsync(cancellationToken),
+                ServiceBusSessionProcessor serviceBusSessionProcessor => serviceBusSessionProcessor.StartProcessingAsync(cancellationToken),
+                _ => Task.CompletedTask
+            };
         }
         
         public Task CloseAsync(CancellationToken cancellationToken = default)
@@ -166,27 +162,15 @@ namespace ServiceBusSubscriber
                 _ => Task.CompletedTask
             };
         }
-        
-        public ValueTask DisposeAsync()
-        {
-            return _serviceBusProcessorAsObject switch
-            {
-                ServiceBusProcessor serviceBusProcessor => serviceBusProcessor.DisposeAsync(),
-                ServiceBusSessionProcessor serviceBusSessionProcessor => serviceBusSessionProcessor.DisposeAsync(),
-                _ => ValueTask.CompletedTask
-            };
-        }
 
-        public ServiceBusReceivedMessage GetReceivedMessageFromArgs(object args)
+        public ServiceBusReceivedMessage GetReceivedMessageFromArgs(object argsAsObject)
         {
-            var message = _serviceBusProcessorAsObject switch
+            return argsAsObject switch
             {
-                ServiceBusProcessor => ((ProcessMessageEventArgs)args).Message,
-                ServiceBusSessionProcessor => ((ProcessSessionMessageEventArgs)args).Message,
+                ProcessMessageEventArgs args => args.Message,
+                ProcessSessionMessageEventArgs args => args.Message,
                 _ => null
             };
-
-            return message;
         }
 
         public Task CompleteMessageAsync(object argsAsObject, CancellationToken cancellationToken = default)
@@ -199,6 +183,19 @@ namespace ServiceBusSubscriber
             };
         }
 
+        public Task AbandonMessageAsync(
+            object argsAsObject, 
+            IDictionary<string, object> propertiesToModify = default,
+            CancellationToken cancellationToken = default)
+        {
+            return argsAsObject switch
+            {
+                ProcessMessageEventArgs args => args.AbandonMessageAsync(args.Message, propertiesToModify, cancellationToken),
+                ProcessSessionMessageEventArgs args => args.AbandonMessageAsync(args.Message, propertiesToModify, cancellationToken),
+                _ => Task.CompletedTask
+            };
+        }        
+        
         public Task DeadLetterMessageAsync(
             object argsAsObject, 
             string deadLetterReason,
@@ -214,5 +211,15 @@ namespace ServiceBusSubscriber
                 _ => Task.CompletedTask
             };
         }
+        
+        public ValueTask DisposeAsync()
+        {
+            return _serviceBusProcessorAsObject switch
+            {
+                ServiceBusProcessor serviceBusProcessor => serviceBusProcessor.DisposeAsync(),
+                ServiceBusSessionProcessor serviceBusSessionProcessor => serviceBusSessionProcessor.DisposeAsync(),
+                _ => ValueTask.CompletedTask
+            };
+        }        
     }
 }

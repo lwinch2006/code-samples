@@ -41,7 +41,7 @@ namespace ServiceBusSubscriber
             ServiceBusSubscriberReceiveOptions options = default,
             CancellationToken cancellationToken = default);
 
-        Task StopReceiveMessagesFromTopicSubscription(CancellationToken cancellationToken);
+        Task StopReceiveMessages(CancellationToken cancellationToken);
         
         Task EnsureTopicSubscription(
             string topicName, 
