@@ -296,6 +296,8 @@ namespace ServiceBusSubscriber
         
         private async Task ProcessErrorInternal(Exception ex)
         {
+            _logger.LogError(ex, "Service Bus processor error");
+            
             var (queueOrTopicName, subscriptionName, clientProcessErrorFunc) = (
                 _serviceBusSubscriberProcessor.QueueOrTopicName, 
                 _serviceBusSubscriberProcessor.SubscriptionName,
@@ -306,7 +308,14 @@ namespace ServiceBusSubscriber
                 return;
             }
 
-            await clientProcessErrorFunc(queueOrTopicName, subscriptionName, ex);
+            try
+            {
+                await clientProcessErrorFunc(queueOrTopicName, subscriptionName, ex);
+            }
+            catch
+            {
+                _logger.LogError(ex, "Service Bus processor error processing failure");
+            }
         }
         
         private async Task StopReceiveMessagesInternal(CancellationToken cancellationToken)
