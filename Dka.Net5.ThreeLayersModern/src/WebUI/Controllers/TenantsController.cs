@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Application.Logic.Tenants.Commands;
-using Application.Logic.Tenants.Queries;
+﻿using Application.Logic.Tenants.Queries;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebUI.Controllers

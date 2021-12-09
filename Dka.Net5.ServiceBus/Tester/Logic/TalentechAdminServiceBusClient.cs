@@ -150,7 +150,7 @@ namespace ServiceBusTester.Logic
                     EventType = AppConstants.Events.TenantEvents.Type,
                     EventName = AppConstants.Events.TenantEvents.TenantUpdated.FullName,
                     Version = 1,
-                    Timestamp = DateTime.UtcNow
+                    CreatedOnUtc = DateTime.UtcNow
                 },
                 Payload = new TenantUpdated
                 {
@@ -219,7 +219,7 @@ namespace ServiceBusTester.Logic
                     EventType = AppConstants.Events.TenantEvents.Type,
                     EventName = AppConstants.Events.TenantEvents.TenantUpdated.FullName,
                     Version = 1,
-                    Timestamp = DateTime.UtcNow
+                    CreatedOnUtc = DateTime.UtcNow
                 },
                 Payload = new TenantUpdated
                 {
@@ -246,7 +246,7 @@ namespace ServiceBusTester.Logic
                     EventType = AppConstants.Events.UserEvents.Type,
                     EventName = AppConstants.Events.UserEvents.UserUpdated.FullName,
                     Version = 1,
-                    Timestamp = DateTime.UtcNow
+                    CreatedOnUtc = DateTime.UtcNow
                 },
                 Payload = new UserUpdated
                 {
@@ -340,7 +340,7 @@ namespace ServiceBusTester.Logic
                     EventType = AppConstants.Events.Responses.Type,
                     EventName = AppConstants.Events.Responses.GeneralResponse.FullName,
                     Version = 1,
-                    Timestamp = DateTime.UtcNow
+                    CreatedOnUtc = DateTime.UtcNow
                 },
                 Payload = new Response
                 {

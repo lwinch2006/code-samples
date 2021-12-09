@@ -1,6 +1,11 @@
-﻿using System.Reflection;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Reflection;
+using System.Threading;
+using Application.Logic.ServiceBus;
 using Application.Mapping;
+using Application.Models;
+using Azure.Messaging.ServiceBus;
+using Azure.Messaging.ServiceBus.Administration;
 using Infrastructure;
 using Infrastructure.Mapping;
 using Infrastructure.Repositories;
@@ -12,6 +17,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 using Scrutor;
+using ServiceBusPublisher;
+using ServiceBusSubscriber;
 
 namespace Application.Extensions
 {
@@ -80,6 +87,56 @@ namespace Application.Extensions
             return builder;
         }
 
+        public static IServiceCollection AddServiceBus(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddSingleton(new ServiceBusClient(configuration[ApplicationConstants.ServiceBus.Configuration.ConnnectionStringPath]));
+            services.AddSingleton(new ServiceBusAdministrationClient(configuration[ApplicationConstants.ServiceBus.Configuration.ConnnectionStringPath]));
+            services.AddSingleton(
+                new ServiceBusSubscriberConfiguration
+                {
+                    DeserializationDictionary = new Dictionary<(int, string), Type>
+                    {
+                    }
+                });
+
+            services.AddScoped<IServiceBusPublisher, ServiceBusPublisher.ServiceBusPublisher>();
+            services.AddScoped<IServiceBusSubscriber, ServiceBusSubscriber.ServiceBusSubscriber>();
+            services.AddScoped<IServiceBusSubscriberForDeadLetter, ServiceBusSubscriber.ServiceBusSubscriber>();
+
+            var sp = services.BuildServiceProvider();
+            var serviceBusPublisher = sp.GetRequiredService<IServiceBusPublisher>();
+            var serviceBusSubscriber = sp.GetRequiredService<IServiceBusSubscriber>();
+            
+            foreach (var topic in ApplicationConstants.ServiceBus.Publish.Queues)
+            {
+                serviceBusPublisher.EnsureQueue(topic).GetAwaiter().GetResult();
+            }
+            
+            foreach (var topic in ApplicationConstants.ServiceBus.Receive.Queues)
+            {
+                serviceBusPublisher.EnsureQueue(topic).GetAwaiter().GetResult();
+            }
+            
+            foreach (var topic in ApplicationConstants.ServiceBus.Publish.Topics)
+            {
+                serviceBusPublisher.EnsureTopic(topic).GetAwaiter().GetResult();
+            }
+            
+            foreach (var topic in ApplicationConstants.ServiceBus.Receive.Topics)
+            {
+                serviceBusPublisher.EnsureTopic(topic).GetAwaiter().GetResult();
+            }
+
+            foreach (var (topic, subscription) in ApplicationConstants.ServiceBus.Receive.TopicSubscriptions)
+            {
+                serviceBusSubscriber.EnsureTopicSubscription(topic, subscription, CancellationToken.None).GetAwaiter().GetResult();;
+            }            
+            
+            services.AddScoped<IApplicationServiceBusClient, ApplicationServiceBusClient>();
+            
+            return services;
+        }         
+        
         private static void AddInfrastructure(this IServiceCollection services)
         {
             services.AddAutoMapper(typeof(InfrastructureProfile));

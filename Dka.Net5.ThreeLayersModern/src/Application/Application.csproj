@@ -18,6 +18,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\Dka.Net5.ServiceBus\Publisher\ServiceBusPublisher.csproj" />
+      <ProjectReference Include="..\..\..\Dka.Net5.ServiceBus\Subscriber\ServiceBusSubscriber.csproj" />
       <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     </ItemGroup>
 

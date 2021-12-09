@@ -38,6 +38,7 @@ public static class WebApplicationBuilderExtensions
             .AddMicrosoftAuthentication(builder.Configuration)
             .AddAzureAd(builder.Configuration)
             .AddTwitterAuthentication(builder.Configuration)
+            .AddServiceBus(builder.Configuration)
             .ConfigureAuthenticationCookies()
             .AddApplicationInsightsTelemetry()        
             .AddMvc()

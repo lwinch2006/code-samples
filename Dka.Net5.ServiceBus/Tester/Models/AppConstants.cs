@@ -44,8 +44,8 @@
             {
                 public const string Queue1 = "tenantevents";
                 public const string RequestQueue1 = "request-queue1";
-                
-                public static readonly string Topic1 = "events";
+
+                public const string Topic1 = "events";
 
                 public static readonly string[] Queues = { Queue1, RequestQueue1 };
                 public static readonly string[] Topics = { Topic1 };

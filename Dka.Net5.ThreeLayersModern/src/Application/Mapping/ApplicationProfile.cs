@@ -1,5 +1,5 @@
-﻿using System;
-using Application.Logic.Tenants.Commands;
+﻿using Application.Logic.Tenants.Commands;
+using Application.Models.ServiceBus.Tenants.V1;
 using Application.Models.Tenants;
 using Application.ViewModels.Tenants;
 using AutoMapper;
@@ -18,6 +18,7 @@ namespace Application.Mapping
 
             CreateMap<DeleteTenantCommand, DeleteTenantDto>();
             CreateMap<UpdateTenantCommand, UpdateTenantDto>();
+            CreateMap<UpdateTenantDto, TenantUpdatedEvent>();
         }        
     }
 }
