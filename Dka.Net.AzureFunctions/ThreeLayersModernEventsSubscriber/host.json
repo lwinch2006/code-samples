@@ -41,7 +41,7 @@
         }
     },
     "logging": {
-        "fileLoggingMode": "never",
+        "fileLoggingMode": "always",
         "logLevel": {
             "Host.Results": "Information",
             "default": "Information"
@@ -94,7 +94,7 @@
             }
         },
         "console": {
-            "isEnabled": false,
+            "isEnabled": true,
             "DisableColors": true
         }
     },
