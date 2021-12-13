@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+﻿using System;
+using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using ThreeLayersModernEventsSubscriber.Extentions;
 
@@ -22,7 +23,12 @@ public class Startup : FunctionsStartup
         var context = builder.GetContext();
         ServiceCollectionExtentions.FixDependencies();
         _environmentName = context.EnvironmentName;
-        builder.ConfigurationBuilder.AddUserSecrets<Startup>();
+
+        if (_environmentName.Equals("Development", StringComparison.OrdinalIgnoreCase))
+        {
+            builder.ConfigurationBuilder.AddUserSecrets<Startup>();
+        }
+        
         _configuration = builder.ConfigurationBuilder.Build();
     }
 }

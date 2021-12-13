@@ -55,7 +55,11 @@ namespace ServiceBusTester
             configurationBuilder.AddEnvironmentVariables();
             configurationBuilder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             configurationBuilder.AddJsonFile($"appsettings.{hostBuilderContext.HostingEnvironment}.json", optional: true, reloadOnChange: true);
-            configurationBuilder.AddUserSecrets<Program>();
+
+            if (hostBuilderContext.HostingEnvironment.IsDevelopment())
+            {
+                configurationBuilder.AddUserSecrets<Program>();
+            }
 
             _configuration = configurationBuilder.Build();
         }
