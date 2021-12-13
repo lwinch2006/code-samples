@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace ThreeLayersModernEventsSubscriber;
 
@@ -16,10 +17,13 @@ public class ThreeLayersModernEventsSubscriber
     
     [FunctionName("ThreeLayersModernEventsSubscriber")]
     public async Task RunAsync(
-        [ServiceBusTrigger("events", "threelayersmoderneventssubscriber", Connection = "ServiceBus:ConnectionString")] string messageAsJson)
+        [ServiceBusTrigger("events", "threelayersmoderneventssubscriber", Connection = "ServiceBus:ConnectionString")] string messageAsJson, 
+        Microsoft.Extensions.Logging.ILogger log)
     {
         // TODO: Processing logic goes here...
         
-        _logger.LogInformation("Received topic/subscription {Event} event - raw data {RawData}", "unknown", messageAsJson.Replace(Environment.NewLine, string.Empty));
+        _logger.LogInformation("(1) Received topic/subscription {Event} event - raw data {RawData}", "unknown", messageAsJson.Replace(Environment.NewLine, string.Empty));
+        log.LogInformation("(2) Received topic/subscription {Event} event - raw data {RawData}", "unknown", messageAsJson.Replace(Environment.NewLine, string.Empty));
+        Log.Information("(3) Received topic/subscription {Event} event - raw data {RawData}", "unknown", messageAsJson.Replace(Environment.NewLine, string.Empty));
     }
 }
