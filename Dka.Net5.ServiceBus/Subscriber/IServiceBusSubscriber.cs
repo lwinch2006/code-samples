@@ -41,12 +41,12 @@ namespace ServiceBusSubscriber
             ServiceBusSubscriberReceiveOptions options = default,
             CancellationToken cancellationToken = default);
 
-        Task StopReceiveMessages(CancellationToken cancellationToken);
+        Task StopReceiveMessages(CancellationToken cancellationToken = default);
         
         Task EnsureTopicSubscription(
             string topicName, 
             string subscriptionName, 
-            CancellationToken cancellationToken, 
+            CancellationToken cancellationToken = default,
             string sqlFilterRule = "1=1");
     }
 }

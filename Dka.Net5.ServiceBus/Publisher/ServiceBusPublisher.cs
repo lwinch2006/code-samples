@@ -104,7 +104,7 @@ namespace ServiceBusPublisher
             await publisher.DisposeAsync();
         }
 
-        public async Task EnsureTopic(string topicName, CancellationToken cancellationToken)
+        public async Task EnsureTopic(string topicName, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -127,7 +127,7 @@ namespace ServiceBusPublisher
             }
         }
 
-        public async Task EnsureQueue(string queueName, CancellationToken cancellationToken)
+        public async Task EnsureQueue(string queueName, CancellationToken cancellationToken = default)
         {
             if (!await _administrationClient.QueueExistsAsync(queueName, cancellationToken))
             {

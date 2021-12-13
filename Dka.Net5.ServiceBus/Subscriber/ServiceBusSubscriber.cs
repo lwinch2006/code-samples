@@ -147,7 +147,7 @@ namespace ServiceBusSubscriber
             }
         }
 
-        public async Task StopReceiveMessages(CancellationToken cancellationToken)
+        public async Task StopReceiveMessages(CancellationToken cancellationToken = default)
         {
             if (_serviceBusSubscriberProcessor == null)
             {
@@ -161,7 +161,7 @@ namespace ServiceBusSubscriber
         public async Task EnsureTopicSubscription(
             string topicName, 
             string subscriptionName, 
-            CancellationToken cancellationToken, 
+            CancellationToken cancellationToken = default,
             string sqlFilterRule = "1=1")
         {
             try
@@ -195,7 +195,7 @@ namespace ServiceBusSubscriber
             }
         }     
         
-        private object GetPayload(ServiceBusReceivedMessage serviceBusReceivedMessage, ServiceBusSubscriberReceiveMessageTypes receiveMessageType, CancellationToken cancellationToken)
+        private object GetPayload(ServiceBusReceivedMessage serviceBusReceivedMessage, ServiceBusSubscriberReceiveMessageTypes receiveMessageType, CancellationToken cancellationToken = default)
         {
             if (receiveMessageType == ServiceBusSubscriberReceiveMessageTypes.FullMessage)
             {
@@ -231,7 +231,7 @@ namespace ServiceBusSubscriber
             }
         }
         
-        private T GetPayload<T>(ServiceBusReceivedMessage serviceBusReceivedMessage, ServiceBusSubscriberReceiveMessageTypes receiveMessageType, CancellationToken cancellationToken)
+        private T GetPayload<T>(ServiceBusReceivedMessage serviceBusReceivedMessage, ServiceBusSubscriberReceiveMessageTypes receiveMessageType, CancellationToken cancellationToken = default)
             where T : class
         {
             if (receiveMessageType == ServiceBusSubscriberReceiveMessageTypes.FullMessage)
@@ -318,7 +318,7 @@ namespace ServiceBusSubscriber
             }
         }
         
-        private async Task StopReceiveMessagesInternal(CancellationToken cancellationToken)
+        private async Task StopReceiveMessagesInternal(CancellationToken cancellationToken = default)
         {
             if (_serviceBusSubscriberProcessor != null)
             {
