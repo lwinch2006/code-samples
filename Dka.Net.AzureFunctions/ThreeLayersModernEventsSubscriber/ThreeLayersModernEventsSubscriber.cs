@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
@@ -21,6 +22,8 @@ public class ThreeLayersModernEventsSubscriber
         Microsoft.Extensions.Logging.ILogger log)
     {
         // TODO: Processing logic goes here...
+
+        File.Create($"test-{DateTime.Now.Ticks}.txt");
         
         _logger.LogInformation("(1) Received topic/subscription {Event} event - raw data {RawData}", "unknown", messageAsJson.Replace(Environment.NewLine, string.Empty));
         log.LogInformation("(2) Received topic/subscription {Event} event - raw data {RawData}", "unknown", messageAsJson.Replace(Environment.NewLine, string.Empty));
