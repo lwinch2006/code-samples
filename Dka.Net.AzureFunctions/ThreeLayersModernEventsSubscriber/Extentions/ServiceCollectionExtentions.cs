@@ -99,7 +99,7 @@ public static class ServiceCollectionExtentions
             .Enrich.WithExceptionDetails()
             .CreateLogger();
         
-        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(Log.Logger));
+        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(Log.Logger, true));
 
         return services;
     }

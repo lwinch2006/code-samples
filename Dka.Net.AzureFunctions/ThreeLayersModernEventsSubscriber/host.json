@@ -44,7 +44,7 @@
         "fileLoggingMode": "always",
         "logLevel": {
             "Host.Results": "Information",
-            "default": "Information"
+            "default": "None"
         },
         "applicationInsights": {
             "samplingSettings": {
@@ -73,7 +73,7 @@
             }
         },
         "console": {
-            "isEnabled": true,
+            "isEnabled": false,
             "DisableColors": true
         }
     },
