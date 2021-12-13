@@ -21,7 +21,6 @@ public class Startup : FunctionsStartup
     public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
     {
         var context = builder.GetContext();
-        ServiceCollectionExtentions.FixDependencies();
         _environmentName = context.EnvironmentName;
 
         if (_environmentName.Equals("Development", StringComparison.OrdinalIgnoreCase))

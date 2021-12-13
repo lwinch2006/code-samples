@@ -103,23 +103,4 @@ public static class ServiceCollectionExtentions
 
         return services;
     }
-
-    public static void FixDependencies()
-    {
-        var files = new[]
-        {
-            "Microsoft.Extensions.DependencyModel.dll"
-        };
-
-        foreach (var file in files)
-        {
-            var sourceFile = $"bin\\ExtraDlls\\{file}";
-            var targetFile = $"bin\\{file}";
-
-            if (File.Exists(sourceFile) && !File.Exists(targetFile))
-            {
-                File.Copy(sourceFile, targetFile);
-            }
-        }
-    }
 }
