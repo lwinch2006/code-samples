@@ -40,6 +40,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dka.Net.AzureFunctions", "D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThreeLayersModernEventsSubscriber", "Dka.Net.AzureFunctions\ThreeLayersModernEventsSubscriber\ThreeLayersModernEventsSubscriber.csproj", "{D3D27586-6213-4CA8-8F82-1BF3EA19C7DD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThreeLayersModernApi", "Dka.Net.AzureFunctions\ThreeLayersModernApi\ThreeLayersModernApi.csproj", "{D0A74C13-D189-44E4-BBCF-4AD6B718D436}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -106,6 +108,10 @@ Global
 		{D3D27586-6213-4CA8-8F82-1BF3EA19C7DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3D27586-6213-4CA8-8F82-1BF3EA19C7DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3D27586-6213-4CA8-8F82-1BF3EA19C7DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0A74C13-D189-44E4-BBCF-4AD6B718D436}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0A74C13-D189-44E4-BBCF-4AD6B718D436}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0A74C13-D189-44E4-BBCF-4AD6B718D436}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0A74C13-D189-44E4-BBCF-4AD6B718D436}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FB9C823D-22B8-4E6E-AFB9-E4A03414CAEC} = {256FBC5B-3340-4A41-8668-C51830F107FD}
@@ -120,5 +126,6 @@ Global
 		{5BA93AA8-B549-4F91-ACAA-46467A56FB65} = {45180037-A8CB-494B-AB31-F04E66A3D0BE}
 		{194371F5-B44C-4E9C-89E1-D8573AA1CC9D} = {45180037-A8CB-494B-AB31-F04E66A3D0BE}
 		{D3D27586-6213-4CA8-8F82-1BF3EA19C7DD} = {80A2F739-CC16-44EE-AF0F-33C09C16339F}
+		{D0A74C13-D189-44E4-BBCF-4AD6B718D436} = {80A2F739-CC16-44EE-AF0F-33C09C16339F}
 	EndGlobalSection
 EndGlobal

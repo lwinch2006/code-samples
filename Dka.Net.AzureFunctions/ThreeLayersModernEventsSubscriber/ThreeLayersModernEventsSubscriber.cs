@@ -7,13 +7,19 @@ namespace ThreeLayersModernEventsSubscriber;
 
 public class ThreeLayersModernEventsSubscriber
 {
+    private readonly ILogger<ThreeLayersModernEventsSubscriber> _logger;
+    
+    public ThreeLayersModernEventsSubscriber(ILogger<ThreeLayersModernEventsSubscriber> logger)
+    {
+        _logger = logger;
+    }
+    
     [FunctionName("ThreeLayersModernEventsSubscriber")]
     public async Task RunAsync(
-        [ServiceBusTrigger("events", "threelayersmoderneventssubscriber", Connection = "ServiceBus:ConnectionString")] string messageAsJson,
-        ILogger log)
+        [ServiceBusTrigger("events", "threelayersmoderneventssubscriber", Connection = "ServiceBus:ConnectionString")] string messageAsJson)
     {
         // TODO: Processing logic goes here...
         
-        log.LogInformation("Received topic/subscription {Event} event - raw data {RawData}", "unknown", messageAsJson.Replace(Environment.NewLine, string.Empty));
+        _logger.LogInformation("Received topic/subscription {Event} event - raw data {RawData}", "unknown", messageAsJson.Replace(Environment.NewLine, string.Empty));
     }
 }
