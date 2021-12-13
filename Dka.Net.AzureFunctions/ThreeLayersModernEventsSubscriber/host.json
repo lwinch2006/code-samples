@@ -73,7 +73,7 @@
                 "captureSnapshotMemoryWeight": 0.5,
                 "failedRequestLimit": 3,
                 "handleUntrackedExceptions": true,
-                "isEnabled": true,
+                "isEnabled": false,
                 "isEnabledInDeveloperMode": false,
                 "isEnabledWhenProfiling": true,
                 "isExceptionSnappointsEnabled": false,
