@@ -5,8 +5,8 @@
         <LangVersion>default</LangVersion>
         <UserSecretsId>47c9d0e7-23c5-40b8-83eb-73c07afee15f</UserSecretsId>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-        <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>        
-  </PropertyGroup>
+        <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
         <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.ServiceBus" Version="5.2.0" />
@@ -31,5 +31,10 @@
     <ItemGroup>
       <ProjectReference Include="..\..\Dka.Net5.ServiceBus\Publisher\ServiceBusPublisher.csproj" />
       <ProjectReference Include="..\..\Dka.Net5.ServiceBus\Subscriber\ServiceBusSubscriber.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Include="ExtraDlls\Microsoft.Extensions.DependencyModel.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 </Project>

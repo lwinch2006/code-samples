@@ -113,11 +113,12 @@ public static class ServiceCollectionExtentions
 
         foreach (var file in files)
         {
+            var sourceFile = $"ExtraDlls\\{file}";
             var targetFile = $"bin\\{file}";
 
-            if (!File.Exists(targetFile))
+            if (File.Exists(sourceFile) && !File.Exists(targetFile))
             {
-                File.Copy(file, $"bin\\{file}");
+                File.Copy(sourceFile, targetFile);
             }
         }
     }
