@@ -43,6 +43,7 @@
     "logging": {
         "fileLoggingMode": "never",
         "logLevel": {
+            "Host.Results": "Information",
             "default": "None"
         },
         "applicationInsights": {

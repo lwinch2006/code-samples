@@ -4,10 +4,26 @@
     "functionTimeout": "00:05:00",
     "healthMonitor": {
         "enabled": false
+    },
+    "extensions": {
+        "http": {
+            "routePrefix": "api",
+            "maxOutstandingRequests": 200,
+            "maxConcurrentRequests": 100,
+            "dynamicThrottlesEnabled": true,
+            "hsts": {
+                "isEnabled": true,
+                "maxAge": "10"
+            },
+            "customHeaders": {
+                "X-Content-Type-Options": "nosniff"
+            }
+        }
     },    
     "logging": {
         "fileLoggingMode": "never",
         "logLevel": {
+            "Host.Results": "Information",
             "default": "None"
         },
         "applicationInsights": {

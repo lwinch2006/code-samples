@@ -16,7 +16,7 @@ public class GetTenants
 {
     [FunctionName("GetTenants")]
     public IActionResult RunAsync(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req, 
+        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "tenants")] HttpRequest req, 
         ILogger log)
     {
         log.LogInformation("Incoming request to get tenants");
