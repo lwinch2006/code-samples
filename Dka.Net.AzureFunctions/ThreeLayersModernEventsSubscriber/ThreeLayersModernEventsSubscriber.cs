@@ -29,7 +29,17 @@ public class ThreeLayersModernEventsSubscriber
         
         
         
-        _logger.LogInformation("Current directory: {Directory}", _executionContextOptions.AppDirectory);
+        _logger.LogInformation("Directory (AppDirectory): {Directory}", _executionContextOptions.AppDirectory);
+        
+        _logger.LogInformation("Directory (Current): {Directory}", Directory.GetCurrentDirectory());
+        
+        
+        
+        
+        
+        
+        
+        
         _logger.LogInformation("Check first file exists: {IsExists}", File.Exists(fileName).ToString());
 
         if (!File.Exists(fileName))
