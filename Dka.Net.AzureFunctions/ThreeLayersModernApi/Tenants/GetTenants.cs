@@ -21,7 +21,7 @@ public class GetTenants
     public IActionResult RunAsync(
         [HttpTrigger(AuthorizationLevel.Function, "get", Route = "tenants")] HttpRequest req)
     {
-        _logger.LogInformation("Incoming request to get tenants");
+        _logger.LogWarning("Incoming request to get tenants");
 
         var tenants = new[]
         {
