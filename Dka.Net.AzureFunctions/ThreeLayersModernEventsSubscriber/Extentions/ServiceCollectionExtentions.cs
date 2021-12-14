@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
@@ -99,7 +98,7 @@ public static class ServiceCollectionExtentions
             .Enrich.WithExceptionDetails()
             .CreateLogger();
         
-        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(Log.Logger, true));
+        services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog());
 
         return services;
     }

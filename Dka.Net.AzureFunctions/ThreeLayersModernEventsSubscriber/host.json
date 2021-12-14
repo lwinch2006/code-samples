@@ -44,7 +44,7 @@
         "fileLoggingMode": "always",
         "logLevel": {
             "Host.Results": "Information",
-            "ThreeLayersModernEventsSubscriber.ThreeLayersModernEventsSubscriber": "Information",
+            "ThreeLayersModernEventsSubscriber.ThreeLayersModernEventsSubscriber": "Warning",
             "default": "Information"
         },
         "applicationInsights": {
