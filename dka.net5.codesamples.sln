@@ -42,6 +42,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThreeLayersModernEventsSubs
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThreeLayersModernApi", "Dka.Net.AzureFunctions\ThreeLayersModernApi\ThreeLayersModernApi.csproj", "{D0A74C13-D189-44E4-BBCF-4AD6B718D436}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dka.Net.GetMsAuthToken", "Dka.Net.GetMsAuthToken\Dka.Net.GetMsAuthToken.csproj", "{3AF9EC44-C7B9-4572-B9E1-A708CD9D9595}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dka.Net.ApimBackupRestore", "Dka.Net.ApimBackupRestore\Dka.Net.ApimBackupRestore.csproj", "{EB20BB8A-2033-4B11-A92E-97FB354AF436}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -112,6 +116,14 @@ Global
 		{D0A74C13-D189-44E4-BBCF-4AD6B718D436}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0A74C13-D189-44E4-BBCF-4AD6B718D436}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0A74C13-D189-44E4-BBCF-4AD6B718D436}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AF9EC44-C7B9-4572-B9E1-A708CD9D9595}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AF9EC44-C7B9-4572-B9E1-A708CD9D9595}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AF9EC44-C7B9-4572-B9E1-A708CD9D9595}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AF9EC44-C7B9-4572-B9E1-A708CD9D9595}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB20BB8A-2033-4B11-A92E-97FB354AF436}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB20BB8A-2033-4B11-A92E-97FB354AF436}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB20BB8A-2033-4B11-A92E-97FB354AF436}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB20BB8A-2033-4B11-A92E-97FB354AF436}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FB9C823D-22B8-4E6E-AFB9-E4A03414CAEC} = {256FBC5B-3340-4A41-8668-C51830F107FD}
