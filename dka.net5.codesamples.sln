@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dka.net5.codesamples.librar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dka.net5.codesamples.web", "dka.net5.codesamples.web\dka.net5.codesamples.web.csproj", "{0EA55F13-5D42-4689-9BDE-7167D38DE51B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dka.Net5.ThreeLayersModern", "Dka.Net5.ThreeLayersModern", "{256FBC5B-3340-4A41-8668-C51830F107FD}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ThreeLayersModern", "ThreeLayersModern", "{256FBC5B-3340-4A41-8668-C51830F107FD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Dka.Net5.ThreeLayersModern\src\Infrastructure\Infrastructure.csproj", "{FB9C823D-22B8-4E6E-AFB9-E4A03414CAEC}"
 EndProject
@@ -14,7 +14,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Dka.Net5.Thr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebUI", "Dka.Net5.ThreeLayersModern\src\WebUI\WebUI.csproj", "{9A590C96-EAE0-42A9-B99B-4549E1BDC554}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dka.Net5.ThreeLayersClassic", "Dka.Net5.ThreeLayersClassic", "{1FE7F590-3598-41FC-BE15-69B6179B20E2}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ThreeLayersClassic", "ThreeLayersClassic", "{1FE7F590-3598-41FC-BE15-69B6179B20E2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess", "Dka.Net5.ThreeLayersClassic\DataAccess\DataAccess.csproj", "{418EDAA5-8744-4152-B1CB-3D8488DD7D20}"
 EndProject
@@ -22,11 +22,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLogic", "Dka.Net5.T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web", "Dka.Net5.ThreeLayersClassic\Web\Web.csproj", "{AB726F8A-33A1-4CC9-8F96-A26AC4349C83}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dka.Net5.IdentityWithDapper", "Dka.Net5.IdentityWithDapper", "{528BF12F-E9A3-430C-8458-7E14348D5316}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IdentityWithDapper", "IdentityWithDapper", "{528BF12F-E9A3-430C-8458-7E14348D5316}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dka.Net5.IdentityWithDapper", "Dka.Net5.IdentityWithDapper\Dka.Net5.IdentityWithDapper.csproj", "{27E5DBB9-FAC6-4768-9655-843664455162}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dka.Net5.ServiceBus", "Dka.Net5.ServiceBus", "{45180037-A8CB-494B-AB31-F04E66A3D0BE}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServiceBus", "ServiceBus", "{45180037-A8CB-494B-AB31-F04E66A3D0BE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusMessages", "Dka.Net5.ServiceBus\Messages\ServiceBusMessages.csproj", "{6B0042CB-DEFC-4FAE-98A4-AFA4F0482D75}"
 EndProject
@@ -36,7 +36,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusSubscriber", "Dka
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusTester", "Dka.Net5.ServiceBus\Tester\ServiceBusTester.csproj", "{194371F5-B44C-4E9C-89E1-D8573AA1CC9D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dka.Net.AzureFunctions", "Dka.Net.AzureFunctions", "{80A2F739-CC16-44EE-AF0F-33C09C16339F}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AzureFunctions", "AzureFunctions", "{80A2F739-CC16-44EE-AF0F-33C09C16339F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThreeLayersModernEventsSubscriber", "Dka.Net.AzureFunctions\ThreeLayersModernEventsSubscriber\ThreeLayersModernEventsSubscriber.csproj", "{D3D27586-6213-4CA8-8F82-1BF3EA19C7DD}"
 EndProject
@@ -45,6 +45,16 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dka.Net.GetMsAuthToken", "Dka.Net.GetMsAuthToken\Dka.Net.GetMsAuthToken.csproj", "{3AF9EC44-C7B9-4572-B9E1-A708CD9D9595}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dka.Net.ApimBackupRestore", "Dka.Net.ApimBackupRestore\Dka.Net.ApimBackupRestore.csproj", "{EB20BB8A-2033-4B11-A92E-97FB354AF436}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OAuth", "OAuth", "{943625B5-08F8-4D67-9BA8-33FB94F47751}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ListGithubReposWebApp", "ListGithubReposWebApp", "{CB744CA9-F8A5-41C7-8076-D4BB341B1ED6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebUI", "OAuth\ListGithubReposWebApp\WebUI\WebUI.csproj", "{586260FD-1916-46BF-8989-EA5A9EF7B8FF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "OAuth\ListGithubReposWebApp\Application\Application.csproj", "{28A6673E-5926-4008-A680-E6BBD970C382}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastucture", "OAuth\ListGithubReposWebApp\Infrastucture\Infrastucture.csproj", "{E3C917E7-05E0-4EFF-9FB0-1D0FBFFDA738}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -124,6 +134,18 @@ Global
 		{EB20BB8A-2033-4B11-A92E-97FB354AF436}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB20BB8A-2033-4B11-A92E-97FB354AF436}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB20BB8A-2033-4B11-A92E-97FB354AF436}.Release|Any CPU.Build.0 = Release|Any CPU
+		{586260FD-1916-46BF-8989-EA5A9EF7B8FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{586260FD-1916-46BF-8989-EA5A9EF7B8FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{586260FD-1916-46BF-8989-EA5A9EF7B8FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{586260FD-1916-46BF-8989-EA5A9EF7B8FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28A6673E-5926-4008-A680-E6BBD970C382}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28A6673E-5926-4008-A680-E6BBD970C382}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28A6673E-5926-4008-A680-E6BBD970C382}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28A6673E-5926-4008-A680-E6BBD970C382}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3C917E7-05E0-4EFF-9FB0-1D0FBFFDA738}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3C917E7-05E0-4EFF-9FB0-1D0FBFFDA738}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3C917E7-05E0-4EFF-9FB0-1D0FBFFDA738}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3C917E7-05E0-4EFF-9FB0-1D0FBFFDA738}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FB9C823D-22B8-4E6E-AFB9-E4A03414CAEC} = {256FBC5B-3340-4A41-8668-C51830F107FD}
@@ -139,5 +161,9 @@ Global
 		{194371F5-B44C-4E9C-89E1-D8573AA1CC9D} = {45180037-A8CB-494B-AB31-F04E66A3D0BE}
 		{D3D27586-6213-4CA8-8F82-1BF3EA19C7DD} = {80A2F739-CC16-44EE-AF0F-33C09C16339F}
 		{D0A74C13-D189-44E4-BBCF-4AD6B718D436} = {80A2F739-CC16-44EE-AF0F-33C09C16339F}
+		{CB744CA9-F8A5-41C7-8076-D4BB341B1ED6} = {943625B5-08F8-4D67-9BA8-33FB94F47751}
+		{586260FD-1916-46BF-8989-EA5A9EF7B8FF} = {CB744CA9-F8A5-41C7-8076-D4BB341B1ED6}
+		{28A6673E-5926-4008-A680-E6BBD970C382} = {CB744CA9-F8A5-41C7-8076-D4BB341B1ED6}
+		{E3C917E7-05E0-4EFF-9FB0-1D0FBFFDA738} = {CB744CA9-F8A5-41C7-8076-D4BB341B1ED6}
 	EndGlobalSection
 EndGlobal
