@@ -4,7 +4,13 @@ using WebUI.Models.Authorization;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplication(builder.Configuration);
-builder.Services.AddAuthentication(AuthorizationConstants.AuthenticationScheme).AddCookie(AuthorizationConstants.AuthenticationScheme);
+builder.Services
+    .AddAuthentication(AuthorizationConstants.AuthenticationScheme)
+    .AddCookie(AuthorizationConstants.AuthenticationScheme, options =>
+    {
+        options.LoginPath = "/oauth/authorize";
+    });
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

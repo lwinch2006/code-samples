@@ -53,6 +53,12 @@ public class GithubController : Controller
     
     private IActionResult MakeAuthorizationRequest()
     {
+        //OAuthConstants.Scopes.User, OAuthConstants.Scopes.Github.PublicRepo
+        
+        
+        
+        
+        
         var rnd = new Random();
         var bytes = new byte[16];
         rnd.NextBytes(bytes);
