@@ -1,10 +1,12 @@
 using Application.Extensions;
+using OAuthClient.Extensions;
 using WebUI.Models.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddApplication(builder.Configuration);
 builder.Services
+    .AddOAuthClient(builder.Configuration)
+    .AddApplication(builder.Configuration)
     .AddAuthentication(AuthorizationConstants.AuthenticationScheme)
     .AddCookie(AuthorizationConstants.AuthenticationScheme, options =>
     {
@@ -12,6 +14,17 @@ builder.Services
     });
 
 builder.Services.AddControllersWithViews();
+
+if (builder.Environment.IsDevelopment())
+{
+    var urls = builder.Configuration.GetSection("host:urls")
+        .AsEnumerable()
+        .Select(t => t.Value)
+        .Where(t => t != null)
+        .ToArray();
+
+    builder.WebHost.UseUrls(urls);
+}
 
 var app = builder.Build();
 

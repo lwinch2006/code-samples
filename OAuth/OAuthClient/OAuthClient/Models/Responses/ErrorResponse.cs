@@ -2,7 +2,7 @@
 
 namespace OAuthClient.Models.Responses;
 
-public class OAuthClientErrorResponse : IOAuthClientResponse
+public class ErrorResponse : IOAuthClientResponse
 {
     [JsonPropertyName("error")]
     public string Error { get; init; }

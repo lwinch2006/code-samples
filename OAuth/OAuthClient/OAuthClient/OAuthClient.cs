@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
 using OAuthClient.Models;
+using OAuthClient.Models.Constants;
 using OAuthClient.Models.Responses;
 using OAuthClient.Utils;
 
@@ -8,7 +9,7 @@ namespace OAuthClient;
 
 public interface IOAuthClient
 {
-    IOAuthClientResponse CreateAuthorizationCodeRequest(params string[]? scopes);
+    IOAuthClientResponse CreateAuthorizationCodeRequest(string[] scopes = null, string state = null);
     Task<IOAuthClientResponse> ExchangeAuthorizationCodeToAccessToken(AuthorizationCodeResponse authorizationCodeResponse);
 }
 
@@ -23,17 +24,17 @@ public class OAuthClient : IOAuthClient
         _configuration = configuration;
     }
     
-    public IOAuthClientResponse CreateAuthorizationCodeRequest(params string[]? scopes)
+    public IOAuthClientResponse CreateAuthorizationCodeRequest(string[] scopes = null, string state = null)
     {
-        var state = OAuthStateUtils.Generate();
+        state ??= StateUtils.Generate();
             
-        var queryStringParams = new Dictionary<string, string?>
+        var queryStringParams = new Dictionary<string, string>
         {
-            {OAuthConstants.ResponseType, OAuthConstants.ResponseTypes.Code},
-            {OAuthConstants.ClientId, _configuration.ClientId},
-            {OAuthConstants.RedirectUri, _configuration.RedirectUri},
-            {OAuthConstants.Scope, OAuthConstants.Scopes.Combine(scopes) },
-            {OAuthConstants.State, state}
+            {Common.ResponseType, ResponseTypes.Code},
+            {Common.ClientId, _configuration.ClientId},
+            {Common.RedirectUri, _configuration.RedirectUri},
+            {Common.Scope, scopes?.ToString() ?? string.Empty },
+            {Common.State, state}
         };
 
         var redirectUri = QueryHelpers.AddQueryString(_configuration.AuthorizeEndpoint, queryStringParams);
@@ -51,11 +52,11 @@ public class OAuthClient : IOAuthClient
     {
         var requestParams = new Dictionary<string, string>
         {
-            {OAuthConstants.GrantType, OAuthConstants.GrantTypes.AuthorizationCode},
-            {OAuthConstants.ClientId, _configuration.ClientId},
-            {OAuthConstants.ClientSecret, _configuration.ClientSecret},
-            {OAuthConstants.RedirectUri, _configuration.RedirectUri},
-            {OAuthConstants.Code, authorizationCodeResponse.Code}
+            {Common.GrantType, GrantTypes.AuthorizationCode},
+            {Common.ClientId, _configuration.ClientId},
+            {Common.ClientSecret, _configuration.ClientSecret},
+            {Common.RedirectUri, _configuration.RedirectUri},
+            {Common.Code, authorizationCodeResponse.Code}
         };
 
         var requestMessage = new HttpRequestMessage(HttpMethod.Post, _configuration.TokenEndpoint)
@@ -63,9 +64,22 @@ public class OAuthClient : IOAuthClient
             Content = new FormUrlEncodedContent(requestParams)
         };
 
-        var httpResponse = await _httpClient.SendAsync(requestMessage);
-        var httpResponseContent = await httpResponse.Content.ReadAsStringAsync();
-        var response = JsonSerializer.Deserialize<AccessTokenResponse>(httpResponseContent);
-        return response;
+        try
+        {
+            var httpResponse = await _httpClient.SendAsync(requestMessage);
+            var httpResponseContent = await httpResponse.Content.ReadAsStringAsync();
+
+            if (!httpResponseContent.Contains("error"))
+            {
+                return JsonSerializer.Deserialize<AccessTokenResponse>(httpResponseContent);
+            }
+
+            return JsonSerializer.Deserialize<ErrorResponse>(httpResponseContent);            
+        }
+        catch (Exception ex)
+        {
+            // TODO: Logging functionality here
+            return ErrorResponseUtils.GetExchangeAuthCodeToAccessTokenErrorResponse();
+        }
     }
 }

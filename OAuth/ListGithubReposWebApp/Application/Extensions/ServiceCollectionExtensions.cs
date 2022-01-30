@@ -14,26 +14,13 @@ public static class ServiceCollectionExtensions
         var githubClientOptions = new GithubClientOptions();
         configuration.Bind("GithubClientOptions", githubClientOptions);
         services.AddSingleton(githubClientOptions);
-
-        var oauthClientConfiguration = new OAuthClientConfiguration();
-        configuration.Bind("OAuthClientConfiguration", oauthClientConfiguration);
-        services.AddSingleton(oauthClientConfiguration);        
         
         services.AddHttpClient<IGithubClient, GithubClient>(httpClient =>
         {
-            httpClient.BaseAddress = new Uri(GithubClientOptions.ApiUrlBase);
+            httpClient.BaseAddress = new Uri(githubClientOptions.ApiBaseUri);
             httpClient.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
             httpClient.DefaultRequestHeaders.Add("User-Agent", "localhost");
         });
-        
-        services.AddHttpClient<IOAuthClient, OAuthClient.OAuthClient>(httpClient =>
-        {
-            httpClient.BaseAddress = new Uri(oauthClientConfiguration.BaseUri);
-            httpClient.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "localhost");
-        });
-
-        services.AddScoped<IOAuthFlows, OAuthFlows>();
 
         return services;
     }

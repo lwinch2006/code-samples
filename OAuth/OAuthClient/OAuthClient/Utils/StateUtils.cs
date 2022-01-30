@@ -1,6 +1,6 @@
 ﻿namespace OAuthClient.Utils;
 
-public static class OAuthStateUtils
+public static class StateUtils
 {
     public static string Generate()
     {
@@ -10,9 +10,4 @@ public static class OAuthStateUtils
         var state = BitConverter.ToString(bytes).Replace("-", string.Empty).ToLower();
         return state;
     }
-    
-    
-    
-    
-    
 }

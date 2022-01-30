@@ -1,10 +1,13 @@
 ﻿using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using OAuthClient;
-using OAuthClient.Models;
+using OAuthClient.Models.Constants;
 using OAuthClient.Models.Responses;
 using WebUI.Models.Authorization;
+using WebUI.Utils.Mappers;
+using WebUI.ViewModels.OAuth;
 
 namespace WebUI.Controllers;
 
@@ -17,35 +20,45 @@ public class OAuthController : Controller
         _oAuthFlows = oAuthFlows;
     }
 
-    public IActionResult Authorize()
+    public IActionResult Authorize(string returnUrl)
     {
-        return Redirect(((AuthorizationCodeRedirect)_oAuthFlows.RunAuthorizationCodeFlow(new[] { OAuthConstants.Scopes.User, OAuthConstants.Scopes.Github.PublicRepo })).Uri);
+        var state = Base64UrlTextEncoder.Encode(Encoding.UTF8.GetBytes(returnUrl));
+
+        TempData[Common.State] = state;
+        
+        return Redirect(((AuthorizationCodeRedirect)_oAuthFlows.RunAuthorizationCodeFlow(
+            new[]
+            {
+                Scopes.User, 
+                GithubScopes.PublicRepo
+            },
+            state
+            )).Uri);
     }
     
-    public async Task<IActionResult> Callback(AuthorizationCodeResponse authorizationCodeResponse)
+    public async Task<IActionResult> Callback(AuthorizationCodeResponseViewModel authorizationCodeResponseViewModel, ErrorCallbackViewModel errorResponseAtCallbackViewModel)
     {
-        var response = await _oAuthFlows.RunAuthorizationCodeFlow(authorizationCodeResponse, authorizationCodeResponse.State);
+        var errorResponseAtCallback = OAuthMapper.Map(errorResponseAtCallbackViewModel);
+        
+        if (!string.IsNullOrWhiteSpace(errorResponseAtCallbackViewModel.Error))
+        {
+            return await ProcessOAuthClientErrorResponse(errorResponseAtCallback);
+        }
+
+        var originalState = (string)TempData[Common.State];
+        TempData.Remove(Common.State);
+        
+        var authorizationCodeResponse = OAuthMapper.Map(authorizationCodeResponseViewModel);
+        var response = await _oAuthFlows.RunAuthorizationCodeFlow(authorizationCodeResponse, originalState);
 
         return response switch
         {
-            AccessTokenResponse accessTokenResponse => await SignInUser(accessTokenResponse),
-            OAuthClientErrorResponse errorResponse => await ProcessOAuthClientErrorResponse(errorResponse)
+            AccessTokenResponse accessTokenResponse => await SignInUser(accessTokenResponse, authorizationCodeResponse.State),
+            ErrorResponse errorResponse => await ProcessOAuthClientErrorResponse(errorResponse)
         };
     }
 
-    // public async Task<IActionResult> Callback(string error, string errorDescription, string errorUri)
-    // {
-    //     var oAuthClientErrorResponse = new OAuthClientErrorResponse
-    //     {
-    //         Error = error,
-    //         ErrorDescription = errorDescription,
-    //         ErrorUri = errorUri
-    //     };
-    //     
-    //     return await ProcessOAuthClientErrorResponse(oAuthClientErrorResponse);
-    // }
-
-    private async Task<IActionResult> SignInUser(AccessTokenResponse accessTokenResponse)
+    private async Task<IActionResult> SignInUser(AccessTokenResponse accessTokenResponse, string state)
     {
         var claims = new List<Claim>
         {
@@ -61,11 +74,12 @@ public class OAuthController : Controller
             claimsPrincipal,
             authOptions);
 
-        return RedirectToAction("Index", "Home");
+        var returnUrl = Encoding.UTF8.GetString(Base64UrlTextEncoder.Decode(state));
+        return Redirect(returnUrl);
     }
-
-    private async Task<IActionResult> ProcessOAuthClientErrorResponse(OAuthClientErrorResponse oAuthClientErrorResponse)
+    
+    private async Task<IActionResult> ProcessOAuthClientErrorResponse(ErrorResponse errorResponse)
     {
-        return await Task.FromResult(Ok());
+        return await Task.FromResult(Json(errorResponse));
     }
 }

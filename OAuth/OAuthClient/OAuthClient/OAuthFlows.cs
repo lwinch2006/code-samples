@@ -5,7 +5,7 @@ namespace OAuthClient;
 
 public interface IOAuthFlows
 {
-    IOAuthClientResponse RunAuthorizationCodeFlow(string[] scopes = null);
+    IOAuthClientResponse RunAuthorizationCodeFlow(string[] scopes = null, string state = null);
     Task<IOAuthClientResponse> RunAuthorizationCodeFlow(AuthorizationCodeResponse authorizationCodeResponse, string originalState);
     Task<IOAuthClientResponse> RunAuthorizationFlowWithPKCE();
     Task<IOAuthClientResponse> RunImplicitFlow();
@@ -22,9 +22,9 @@ public class OAuthFlows : IOAuthFlows
         _oAuthClient = oAuthClient;
     }
 
-    public IOAuthClientResponse RunAuthorizationCodeFlow(string[] scopes = null)
+    public IOAuthClientResponse RunAuthorizationCodeFlow(string[] scopes = null, string state = null)
     {
-        var response = _oAuthClient.CreateAuthorizationCodeRequest(scopes);
+        var response = _oAuthClient.CreateAuthorizationCodeRequest(scopes, state);
         return response;
     }
 
@@ -32,7 +32,7 @@ public class OAuthFlows : IOAuthFlows
     {
         if (authorizationCodeResponse.State != originalState)
         {
-            return OAuthClientErrorResponseUtils.GetStateMismatchErrorResponse();
+            return ErrorResponseUtils.GetStateMismatchErrorResponse();
         }
 
         var response = await _oAuthClient.ExchangeAuthorizationCodeToAccessToken(authorizationCodeResponse);
