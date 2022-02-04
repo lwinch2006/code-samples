@@ -355,5 +355,6 @@ MigrationBackup/
 # Misc folders and files
 .idea/
 appsettings.Development.json
+appsettings.Development*.json
 log*.txt
 local.settings.json

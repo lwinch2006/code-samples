@@ -11,7 +11,7 @@ public class AccessTokenResponse : IOAuthClientResponse
     public string TokenType { get; init; }
     
     [JsonPropertyName("expires_in")]
-    public string ExpiresIn { get; init; }
+    public int ExpiresIn { get; init; }
     
     [JsonPropertyName("refresh_token")]
     public string RefreshToken { get; init; }

@@ -7,10 +7,13 @@ public interface IOAuthFlows
 {
     IOAuthClientResponse RunAuthorizationCodeFlow(string[] scopes = null, string state = null);
     Task<IOAuthClientResponse> RunAuthorizationCodeFlow(AuthorizationCodeResponse authorizationCodeResponse, string originalState);
-    Task<IOAuthClientResponse> RunAuthorizationFlowWithPKCE();
-    Task<IOAuthClientResponse> RunImplicitFlow();
-    Task<IOAuthClientResponse> RunPasswordFlow();
-    Task<IOAuthClientResponse> RunClientCredentialsFlow();
+    IOAuthClientResponse RunAuthorizationCodeWithPkceFlow(string[] scopes = null, string state = null);
+    Task<IOAuthClientResponse> RunAuthorizationCodeWithPkceFlow(AuthorizationCodeResponse authorizationCodeResponse, string originalState, string codeVerifier);
+    IOAuthClientResponse RunImplicitFlow(string[] scopes = null, string state = null);
+    IOAuthClientResponse RunImplicitFlow(ImplicitFlowResponse implicitFlowResponse, string originalState);
+    Task<IOAuthClientResponse> RunPasswordFlow(string username, string password, string[] scopes = null);
+    Task<IOAuthClientResponse> RunClientCredentialsFlow(string[] scopes = null);
+    Task<IOAuthClientResponse> RunDeviceFlow(string[] scopes = null);
 }
 
 public class OAuthFlows : IOAuthFlows
@@ -24,11 +27,12 @@ public class OAuthFlows : IOAuthFlows
 
     public IOAuthClientResponse RunAuthorizationCodeFlow(string[] scopes = null, string state = null)
     {
-        var response = _oAuthClient.CreateAuthorizationCodeRequest(scopes, state);
-        return response;
+        return _oAuthClient.CreateAuthorizationCodeRedirect(scopes, state);
     }
 
-    public async Task<IOAuthClientResponse> RunAuthorizationCodeFlow(AuthorizationCodeResponse authorizationCodeResponse, string originalState)
+    public async Task<IOAuthClientResponse> RunAuthorizationCodeFlow(
+        AuthorizationCodeResponse authorizationCodeResponse, 
+        string originalState)
     {
         if (authorizationCodeResponse.State != originalState)
         {
@@ -39,23 +43,56 @@ public class OAuthFlows : IOAuthFlows
         return response;
     }
     
-    public Task<IOAuthClientResponse> RunAuthorizationFlowWithPKCE()
+    public IOAuthClientResponse RunAuthorizationCodeWithPkceFlow(string[] scopes = null, string state = null)
     {
-        throw new NotImplementedException();
+        return _oAuthClient.CreateAuthorizationCodeWithPkceRedirect(scopes, state);
     }
 
-    public Task<IOAuthClientResponse> RunImplicitFlow()
+    public async Task<IOAuthClientResponse> RunAuthorizationCodeWithPkceFlow(
+        AuthorizationCodeResponse authorizationCodeResponse, 
+        string originalState,
+        string codeVerifier)
     {
-        throw new NotImplementedException();
+        if (authorizationCodeResponse.State != originalState)
+        {
+            return ErrorResponseUtils.GetStateMismatchErrorResponse();
+        }
+
+        var response = await _oAuthClient.ExchangeAuthorizationCodeWithPkceToAccessToken(authorizationCodeResponse, codeVerifier);
+        return response;
+    }
+    
+    public IOAuthClientResponse RunImplicitFlow(string[] scopes = null, string state = null)
+    {
+        var response = _oAuthClient.CreateImplicitFlowRedirect(scopes, state);
+        return response;
     }
 
-    public Task<IOAuthClientResponse> RunPasswordFlow()
+    public IOAuthClientResponse RunImplicitFlow(
+        ImplicitFlowResponse implicitFlowResponse, 
+        string originalState)
     {
-        throw new NotImplementedException();
+        if (implicitFlowResponse.State != originalState)
+        {
+            return ErrorResponseUtils.GetStateMismatchErrorResponse();
+        }
+
+        var accessTokenResponse = OAuthMapper.Map(implicitFlowResponse);
+        return accessTokenResponse;
     }
 
-    public Task<IOAuthClientResponse> RunClientCredentialsFlow()
+    public async Task<IOAuthClientResponse> RunPasswordFlow(string username, string password, string[] scopes = null)
     {
-        throw new NotImplementedException();
+        return await _oAuthClient.SendPasswordRequest(username, password, scopes);
+    }
+
+    public async Task<IOAuthClientResponse> RunClientCredentialsFlow(string[] scopes = null)
+    {
+        return await _oAuthClient.SendClientCredentialsRequest(scopes);
+    }
+
+    public Task<IOAuthClientResponse> RunDeviceFlow(string[] scopes = null)
+    {
+        return Task.FromResult((IOAuthClientResponse) null);
     }
 }

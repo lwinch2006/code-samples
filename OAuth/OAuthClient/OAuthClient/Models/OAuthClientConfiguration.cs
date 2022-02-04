@@ -1,4 +1,6 @@
-﻿namespace OAuthClient.Models;
+﻿using OAuthClient.Models.Constants;
+
+namespace OAuthClient.Models;
 
 public class OAuthClientConfiguration
 {
@@ -8,4 +10,5 @@ public class OAuthClientConfiguration
     public string RedirectUri { get; init; }
     public string ClientId { get; init; }
     public string ClientSecret { get; init; }
+    public OAuthFlowTypes FlowType { get; init; }
 }

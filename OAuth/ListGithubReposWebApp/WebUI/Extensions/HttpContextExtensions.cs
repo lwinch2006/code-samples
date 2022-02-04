@@ -8,7 +8,7 @@ public static class HttpContextExtensions
     {
         var accessCode =
             httpContext.User.Claims.Single(_ =>
-                _.Type == AuthorizationConstants.ClaimsCustomTypes.AccessToken);
+                _.Type == AuthenticationConstants.ClaimsCustomTypes.AccessToken);
         
         return accessCode.Value;
     }

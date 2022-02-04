@@ -38,4 +38,23 @@ public static class OAuthMapper
 
         return destination;
     }
+
+    public static ImplicitFlowResponse Map(ImplicitFlowResponseViewModel source)
+    {
+        if (source == null)
+        {
+            return null;
+        }
+
+        var destination = new ImplicitFlowResponse
+        {
+            AccessToken = source.AccessToken,
+            State = source.State,
+            TokenType = source.TokenType,
+            ExpiresIn = source.ExpiresIn,
+            Scope = source.Scope
+        };
+
+        return destination;
+    }
 }

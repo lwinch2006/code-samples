@@ -1,6 +1,6 @@
 namespace WebUI.Models.Authorization;
 
-public static class AuthorizationConstants
+public static class AuthenticationConstants
 {
     public const string AuthenticationScheme = "GithubOAuth";
 

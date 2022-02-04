@@ -4,18 +4,23 @@ using WebUI.Models.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+if (builder.Environment.EnvironmentName.StartsWith("Development"))
+{
+    builder.Configuration.AddUserSecrets<Program>();
+}
+
 builder.Services
     .AddOAuthClient(builder.Configuration)
     .AddApplication(builder.Configuration)
-    .AddAuthentication(AuthorizationConstants.AuthenticationScheme)
-    .AddCookie(AuthorizationConstants.AuthenticationScheme, options =>
+    .AddAuthentication(AuthenticationConstants.AuthenticationScheme)
+    .AddCookie(AuthenticationConstants.AuthenticationScheme, options =>
     {
         options.LoginPath = "/oauth/authorize";
     });
 
 builder.Services.AddControllersWithViews();
 
-if (builder.Environment.IsDevelopment())
+if (builder.Environment.EnvironmentName.StartsWith("Development"))
 {
     var urls = builder.Configuration.GetSection("host:urls")
         .AsEnumerable()
@@ -29,7 +34,7 @@ if (builder.Environment.IsDevelopment())
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (!app.Environment.EnvironmentName.StartsWith("Development"))
 {
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.

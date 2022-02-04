@@ -27,4 +27,16 @@ public static class ErrorResponseUtils
 
         return response;
     }
+
+    public static IOAuthClientResponse GetSendClientCredentialsRequestErrorResponse()
+    {
+        var response = new ErrorResponse
+        {
+            Error = "Send client credentials request error",
+            ErrorDescription = "Unhandled exception has happen during sending client credentials request",
+            ErrorUri = string.Empty
+        };
+
+        return response;
+    }
 }
