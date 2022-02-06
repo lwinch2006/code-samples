@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using System.Text;
+using Application.Models.OAuth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using OAuthClient;
@@ -20,10 +21,10 @@ public class OAuthController : Controller
     private readonly OAuthClientConfiguration _oAuthClientConfiguration;
     private readonly IOAuthFlows _oAuthFlows;
 
-    public OAuthController(IOAuthFlows oAuthFlows, OAuthClientConfiguration oAuthClientConfiguration)
+    public OAuthController(IOAuthFlowsFactory oAuthFlowsFactory, OAuthClientConfiguration oAuthClientConfiguration)
     {
         _oAuthClientConfiguration = oAuthClientConfiguration;
-        _oAuthFlows = oAuthFlows;
+        _oAuthFlows = oAuthFlowsFactory.CreateOAuthFlows(OAuthConfigurationNames.Github);
     }
 
     public async Task<IActionResult> Authorize(string returnUrl)

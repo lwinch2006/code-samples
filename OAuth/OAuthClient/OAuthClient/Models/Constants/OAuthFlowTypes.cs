@@ -6,5 +6,6 @@ public enum OAuthFlowTypes
     AuthorizationCodeWithPKCE = 2,
     Implicit = 3,
     Password = 4,
-    ClientCredentials = 5
+    ClientCredentials = 5,
+    Device = 6
 }

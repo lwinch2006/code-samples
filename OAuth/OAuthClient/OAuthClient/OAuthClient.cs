@@ -24,8 +24,11 @@ public class OAuthClient : IOAuthClient
     private readonly HttpClient _httpClient;
     private readonly OAuthClientConfiguration _configuration;
 
-    public OAuthClient(HttpClient httpClient, OAuthClientConfiguration configuration)
+    public OAuthClient(IHttpClientFactory httpClientFactory, OAuthClientConfiguration configuration)
     {
+        var httpClient = httpClientFactory.CreateClient(nameof(OAuthClient));
+        httpClient.BaseAddress = new Uri(configuration.BaseUri);
+        
         _httpClient = httpClient;
         _configuration = configuration;
     }
