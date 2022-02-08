@@ -23,7 +23,7 @@ public class OAuthClientFactory : IOAuthClientFactory
 
     public IOAuthClient CreateOAuthClient(string name = null)
     {
-        var oauthClientConfiguration = _optionsMonitor.Get(name);
+        var oauthClientConfiguration = _optionsMonitor.Get(name?.ToLower());
 
         var oauthClient = new OAuthClient(_httpClientFactory, oauthClientConfiguration);
         

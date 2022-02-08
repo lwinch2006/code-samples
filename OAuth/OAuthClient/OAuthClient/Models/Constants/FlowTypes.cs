@@ -1,6 +1,6 @@
 ﻿namespace OAuthClient.Models.Constants;
 
-public enum OAuthFlowTypes
+public enum FlowTypes
 {
     AuthorizationCode = 1,
     AuthorizationCodeWithPKCE = 2,

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebUI.ViewModels.OAuth;
 
-public class ErrorCallbackViewModel
+public class ErrorResponseViewModel
 {
     [FromQuery(Name = "error")]
     public string Error { get; init; }

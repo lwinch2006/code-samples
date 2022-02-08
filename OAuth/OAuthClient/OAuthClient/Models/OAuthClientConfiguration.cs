@@ -11,5 +11,6 @@ public class OAuthClientConfiguration
     public string RedirectUri { get; init; }
     public string ClientId { get; init; }
     public string ClientSecret { get; init; }
-    public OAuthFlowTypes FlowType { get; init; }
+    public FlowTypes FlowType { get; init; }
+    public IEnumerable<string> Scopes { get; init; }
 }

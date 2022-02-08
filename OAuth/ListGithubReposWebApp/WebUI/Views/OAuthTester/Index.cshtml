@@ -1,0 +1,119 @@
+﻿@using OAuthClient.Extensions
+@model WebUI.ViewModels.OAuthTester.OAuthTesterViewModel
+
+@{
+    ViewData["Title"] = "OAuth tester";
+}
+
+<form method="post" asp-controller="OAuthTester" asp-action="Index">
+    <div class="row mb-3">
+        <label asp-for="@Model.ConfigurationName" class="col-md-2 col-form-label"></label>
+        <div class="col-md-10">
+            <select id="configurationNameSelector" asp-for="@Model.ConfigurationName" asp-items="@(new SelectList(Model.AvailableConfigurationNames, "Key", "Value"))" class="form-select" style="max-width: 500px;"></select>
+            <span asp-validation-for="@Model.ConfigurationName" class="text-danger"></span>
+            <div class="form-text">Choose configuration name</div>
+
+            @foreach (var configurationName in Model.AvailableConfigurationNames)
+            {
+                <input type="hidden" id="AvailableTenantCategories[@configurationName.Key]" name="AvailableConfigurationNames[@configurationName.Key]" value="@configurationName.Value"/>
+            }
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label asp-for="@Model.OAuthClientConfiguration.BaseUri" class="col-md-2 col-form-label"></label>
+        <div class="col-md-10">
+            <input asp-for="@Model.OAuthClientConfiguration.BaseUri" class="form-control-plaintext" readonly/>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label asp-for="@Model.OAuthClientConfiguration.AuthorizeEndpoint" class="col-md-2 col-form-label"></label>
+        <div class="col-md-10">
+            <input asp-for="@Model.OAuthClientConfiguration.AuthorizeEndpoint" class="form-control-plaintext" readonly/>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label asp-for="@Model.OAuthClientConfiguration.TokenEndpoint" class="col-md-2 col-form-label"></label>
+        <div class="col-md-10">
+            <input asp-for="@Model.OAuthClientConfiguration.TokenEndpoint" class="form-control-plaintext" readonly/>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label asp-for="@Model.OAuthClientConfiguration.RedirectUri" class="col-md-2 col-form-label"></label>
+        <div class="col-md-10">
+            <input asp-for="@Model.OAuthClientConfiguration.RedirectUri" class="form-control-plaintext" readonly/>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label asp-for="@Model.OAuthClientConfiguration.ClientId" class="col-md-2 col-form-label"></label>
+        <div class="col-md-10">
+            <input asp-for="@Model.OAuthClientConfiguration.ClientId" class="form-control-plaintext" readonly/>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label asp-for="@Model.OAuthClientConfiguration.ClientSecret" class="col-md-2 col-form-label"></label>
+        <div class="col-md-10">
+            <input asp-for="@Model.OAuthClientConfiguration.ClientSecret" class="form-control-plaintext" readonly/>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label asp-for="@Model.OAuthClientConfiguration.Scopes" class="col-md-2 col-form-label"></label>
+        <div class="col-md-10">
+            <input class="form-control-plaintext" readonly value="@Model.OAuthClientConfiguration.Scopes.ToStringEx()"/>
+            @for (var i = 0; i < Model.OAuthClientConfiguration.Scopes.Count(); i++)
+            {
+                <input type="hidden" id="OAuthClientConfiguration.Scopes[@i]" name="OAuthClientConfiguration.Scopes[@i]" value="@Model.OAuthClientConfiguration.Scopes.ElementAt(i)"/>
+            }
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <input type="hidden" asp-for="@Model.OAuthClientConfiguration.FlowType"/>
+            <input type="hidden" asp-for="@Model.OAuthClientConfiguration.Name"/>
+            <button type="submit" class="btn btn-primary">Authorize</button>
+        </div>
+    </div>
+    @if (Model.AccessTokenResponse != null)
+    {
+        <div class="row mb-3">
+            <label asp-for="@Model.AccessTokenResponse.TokenType" class="col-md-2 col-form-label"></label>
+            <div class="col-md-10">
+                <input class="form-control-plaintext" value="@Model.AccessTokenResponse.TokenType" readonly/>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label asp-for="@Model.AccessTokenResponse.AccessToken" class="col-md-2 col-form-label"></label>
+            <div class="col-md-10">
+                <textarea rows="7" class="form-control-plaintext" readonly>@Model.AccessTokenResponse.AccessToken</textarea>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label asp-for="@Model.AccessTokenResponse.ExpiresIn" class="col-md-2 col-form-label"></label>
+            <div class="col-md-10">
+                <input type="text" class="form-control-plaintext" value="@Model.AccessTokenResponse.ExpiresIn" readonly/>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label asp-for="@Model.AccessTokenResponse.Scope" class="col-md-2 col-form-label"></label>
+            <div class="col-md-10">
+                <input class="form-control-plaintext" value="@Model.AccessTokenResponse.Scope" readonly/>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label asp-for="@Model.AccessTokenResponse.RefreshToken" class="col-md-2 col-form-label"></label>
+            <div class="col-md-10">
+                <textarea rows="7" class="form-control-plaintext" readonly>@Model.AccessTokenResponse.RefreshToken</textarea>
+            </div>
+        </div>
+    }
+</form>
+
+@section Scripts
+{
+    <script>
+        $('#configurationNameSelector').change(function () {
+            var value = $('#configurationNameSelector option:selected')[0].value;
+            var locationAsString = '' + window.location + '';            
+            window.location = locationAsString.substring(0, locationAsString.indexOf('?')) + '?configurationName=' + value; 
+        });
+    </script>
+}
