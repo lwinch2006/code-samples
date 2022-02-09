@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using OAuthClient.Extensions;
 using OAuthClient.Models;
 
 namespace OAuthClient;
@@ -23,7 +24,7 @@ public class OAuthClientFactory : IOAuthClientFactory
 
     public IOAuthClient CreateOAuthClient(string name = null)
     {
-        var oauthClientConfiguration = _optionsMonitor.Get(name?.ToLower());
+        var oauthClientConfiguration = _optionsMonitor.GetEx(name);
 
         var oauthClient = new OAuthClient(_httpClientFactory, oauthClientConfiguration);
         

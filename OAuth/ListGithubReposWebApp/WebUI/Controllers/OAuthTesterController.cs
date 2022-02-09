@@ -28,13 +28,12 @@ public class OAuthTesterController : Controller
     public IActionResult Index(string configurationName)
     {
         var model = Utils.Mappers.OAuthMapper.GetNewOAuthTesterViewModel(configurationName);
-        model.OAuthClientConfiguration = _optionsMonitor.Get(model.ConfigurationName.ToLower());
+        model.OAuthClientConfiguration = _optionsMonitor.GetEx(model.ConfigurationName);
         return View(model);
     }
     
     [HttpPost]
     [ValidateAntiForgeryToken]
-    //[ResponseCache(NoStore = true, Location = ResponseCacheLocation.None, Duration = -1)]
     public async Task<IActionResult> Index(OAuthTesterViewModel oAuthTesterViewModel)
     {
         var state = StateUtils.Generate();  
@@ -77,7 +76,7 @@ public class OAuthTesterController : Controller
         var codeVerifier = (string)TempData.ReadAndClear(Common.CodeVerifier);
 
         var oAuthTesterViewModel = Utils.Mappers.OAuthMapper.GetNewOAuthTesterViewModel(configurationName);
-        oAuthTesterViewModel.OAuthClientConfiguration = _optionsMonitor.Get(configurationName);
+        oAuthTesterViewModel.OAuthClientConfiguration = _optionsMonitor.GetEx(configurationName);
         var oAuthFlows = _oAuthFlowsFactory.CreateOAuthFlows(configurationName);
 
         var authorizationCodeCallbackResponse = Utils.Mappers.OAuthMapper.Map(authorizationCodeResponseViewModel);
