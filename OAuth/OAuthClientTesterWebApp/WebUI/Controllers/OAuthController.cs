@@ -1,11 +1,14 @@
 ﻿using System.Security.Claims;
 using System.Text;
+using Application.Models.OAuth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using OAuthClient;
 using OAuthClient.Models;
 using OAuthClient.Models.Constants;
 using OAuthClient.Models.Responses;
+using WebUI.Extensions;
 using WebUI.Models.Authorization;
 using WebUI.ViewModels.OAuth;
 using OAuthMapper = WebUI.Utils.Mappers.OAuthMapper;
@@ -14,34 +17,19 @@ namespace WebUI.Controllers;
 
 public class OAuthController : Controller
 {
-    private const string TestUsername = "";
-    private const string TestPassword = "";
-    
     private readonly OAuthClientConfiguration _oAuthClientConfiguration;
     private readonly IOAuthFlows _oAuthFlows;
 
-    public OAuthController(IOAuthFlows oAuthFlows, OAuthClientConfiguration oAuthClientConfiguration)
+    public OAuthController(IOAuthFlowsFactory oAuthFlowsFactory, IOptionsMonitor<OAuthClientConfiguration> optionsMonitor)
     {
-        _oAuthClientConfiguration = oAuthClientConfiguration;
-        _oAuthFlows = oAuthFlows;
+        _oAuthClientConfiguration = optionsMonitor.GetEx(OAuthConfigurationNames.Github);
+        _oAuthFlows = oAuthFlowsFactory.CreateOAuthFlows(OAuthConfigurationNames.Github);
     }
 
     public async Task<IActionResult> Authorize(string returnUrl)
     {
         var state = Base64UrlTextEncoder.Encode(Encoding.UTF8.GetBytes(returnUrl));
-
-        var response = _oAuthClientConfiguration.FlowType switch
-        {
-            OAuthFlowTypes.AuthorizationCode => _oAuthFlows.RunAuthorizationCodeFlow(new[] { Scopes.User, Models.OAuth.Scopes.Github.PublicRepo }, state),
-            
-            OAuthFlowTypes.AuthorizationCodeWithPKCE => _oAuthFlows.RunAuthorizationCodeWithPkceFlow(new[] { Models.OAuth.Scopes.DemoIdentityServer.Api }, state),
-            
-            OAuthFlowTypes.Implicit => _oAuthFlows.RunImplicitFlow(new[] { Models.OAuth.Scopes.Curity.Email }, state),
-            
-            OAuthFlowTypes.ClientCredentials => await _oAuthFlows.RunClientCredentialsFlow(new[] { Models.OAuth.Scopes.DemoIdentityServer.Api }),
-            
-            OAuthFlowTypes.Password => await _oAuthFlows.RunPasswordFlow(TestUsername, TestPassword),
-        };
+        var response = await _oAuthFlows.RunFlow(_oAuthClientConfiguration, state);
 
         switch (response)
         {
@@ -63,38 +51,26 @@ public class OAuthController : Controller
     public async Task<IActionResult> Callback(
         AuthorizationCodeResponseViewModel authorizationCodeResponseViewModel,
         ImplicitFlowResponseViewModel implicitFlowResponseViewModel,
-        ErrorCallbackViewModel errorResponseAtCallbackViewModel)
+        ErrorResponseViewModel errorResponseAtResponseViewModel)
     {
-        if (!string.IsNullOrWhiteSpace(errorResponseAtCallbackViewModel.Error))
+        if (!string.IsNullOrWhiteSpace(errorResponseAtResponseViewModel.Error))
         {
-            var errorResponseAtCallback = OAuthMapper.Map(errorResponseAtCallbackViewModel);
+            var errorResponseAtCallback = OAuthMapper.Map(errorResponseAtResponseViewModel);
             return ProcessOAuthClientErrorResponse(errorResponseAtCallback);
         }
 
-        var originalState = (string)TempData[Common.State];
-        TempData.Remove(Common.State);
+        var originalState = (string)TempData.ReadAndClear(Common.State);
+        var codeVerifier = (string)TempData.ReadAndClear(Common.CodeVerifier);
 
-        IOAuthClientResponse response = null;
-
-        switch (_oAuthClientConfiguration.FlowType)
-        {
-            case OAuthFlowTypes.AuthorizationCode:
-                var authorizationCodeResponse = OAuthMapper.Map(authorizationCodeResponseViewModel);
-                response = await _oAuthFlows.RunAuthorizationCodeFlow(authorizationCodeResponse, originalState);
-                break;
-            
-            case OAuthFlowTypes.AuthorizationCodeWithPKCE:
-                var codeVerifier = (string)TempData[Common.CodeVerifier];
-                TempData.Remove(Common.CodeVerifier);
-                authorizationCodeResponse = OAuthMapper.Map(authorizationCodeResponseViewModel);
-                response = await _oAuthFlows.RunAuthorizationCodeWithPkceFlow(authorizationCodeResponse, originalState, codeVerifier);
-                break;
-            
-            case OAuthFlowTypes.Implicit:
-                var implicitFlowResponse = OAuthMapper.Map(implicitFlowResponseViewModel);
-                response = _oAuthFlows.RunImplicitFlow(implicitFlowResponse, originalState);
-                break;
-        }
+        var authorizationCodeCallbackResponse = OAuthMapper.Map(authorizationCodeResponseViewModel);
+        var implicitFlowCallbackResponse = OAuthMapper.Map(implicitFlowResponseViewModel);
+        
+        var response = await _oAuthFlows.RunFlow(
+            _oAuthClientConfiguration, 
+            authorizationCodeCallbackResponse, 
+            implicitFlowCallbackResponse, 
+            originalState, 
+            codeVerifier);
 
         return response switch
         {

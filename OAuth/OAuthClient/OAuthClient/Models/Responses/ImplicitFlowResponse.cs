@@ -1,6 +1,6 @@
 ﻿namespace OAuthClient.Models.Responses;
 
-public class ImplicitFlowResponse
+public class ImplicitFlowResponse : IOAuthClientResponse
 {
     public string AccessToken { get; init; }
     public string State { get; init; }

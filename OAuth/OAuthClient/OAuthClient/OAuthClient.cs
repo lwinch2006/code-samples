@@ -10,13 +10,13 @@ namespace OAuthClient;
 
 public interface IOAuthClient
 {
-    IOAuthClientResponse CreateAuthorizationCodeRedirect(string[] scopes = null, string state = null);
-    IOAuthClientResponse CreateAuthorizationCodeWithPkceRedirect(string[] scopes = null, string state = null);
-    IOAuthClientResponse CreateImplicitFlowRedirect(string[] scopes = null, string state = null);
+    IOAuthClientResponse CreateAuthorizationCodeRedirect(IEnumerable<string> scopes = null, string state = null);
+    IOAuthClientResponse CreateAuthorizationCodeWithPkceRedirect(IEnumerable<string> scopes = null, string state = null);
+    IOAuthClientResponse CreateImplicitFlowRedirect(IEnumerable<string> scopes = null, string state = null);
     Task<IOAuthClientResponse> ExchangeAuthorizationCodeToAccessToken(AuthorizationCodeResponse authorizationCodeResponse);
     Task<IOAuthClientResponse> ExchangeAuthorizationCodeWithPkceToAccessToken(AuthorizationCodeResponse authorizationCodeResponse, string codeVerifier);
-    Task<IOAuthClientResponse> SendClientCredentialsRequest(string[] scopes = null);
-    Task<IOAuthClientResponse> SendPasswordRequest(string username, string password, string[] scopes = null);
+    Task<IOAuthClientResponse> SendClientCredentialsRequest(IEnumerable<string> scopes = null);
+    Task<IOAuthClientResponse> SendPasswordRequest(string username, string password, IEnumerable<string> scopes = null);
 }
 
 public class OAuthClient : IOAuthClient
@@ -24,13 +24,16 @@ public class OAuthClient : IOAuthClient
     private readonly HttpClient _httpClient;
     private readonly OAuthClientConfiguration _configuration;
 
-    public OAuthClient(HttpClient httpClient, OAuthClientConfiguration configuration)
+    public OAuthClient(IHttpClientFactory httpClientFactory, OAuthClientConfiguration configuration)
     {
+        var httpClient = httpClientFactory.CreateClient(nameof(OAuthClient));
+        httpClient.BaseAddress = new Uri(configuration.BaseUri);
+        
         _httpClient = httpClient;
         _configuration = configuration;
     }
     
-    public IOAuthClientResponse CreateAuthorizationCodeRedirect(string[] scopes = null, string state = null)
+    public IOAuthClientResponse CreateAuthorizationCodeRedirect(IEnumerable<string> scopes = null, string state = null)
     {
         var queryStringParams = new Dictionary<string, string>
         {
@@ -51,7 +54,7 @@ public class OAuthClient : IOAuthClient
         return response;
     }
 
-    public IOAuthClientResponse CreateAuthorizationCodeWithPkceRedirect(string[] scopes = null, string state = null)
+    public IOAuthClientResponse CreateAuthorizationCodeWithPkceRedirect(IEnumerable<string> scopes = null, string state = null)
     {
         var codeVerifier = PkceUtils.GenerateCodeVerifier();
         
@@ -77,7 +80,7 @@ public class OAuthClient : IOAuthClient
         return response;
     }
     
-    public IOAuthClientResponse CreateImplicitFlowRedirect(string[] scopes = null, string state = null)
+    public IOAuthClientResponse CreateImplicitFlowRedirect(IEnumerable<string> scopes = null, string state = null)
     {
         var queryStringParams = new Dictionary<string, string>
         {
@@ -137,7 +140,7 @@ public class OAuthClient : IOAuthClient
         return await RunPostRequestAndReturnResult(requestMessage);
     }
     
-    public async Task<IOAuthClientResponse> SendClientCredentialsRequest(string[] scopes = null)
+    public async Task<IOAuthClientResponse> SendClientCredentialsRequest(IEnumerable<string> scopes = null)
     {
         var requestParams = new Dictionary<string, string>
         {
@@ -155,7 +158,7 @@ public class OAuthClient : IOAuthClient
         return await RunPostRequestAndReturnResult(requestMessage);
     }
 
-    public async Task<IOAuthClientResponse> SendPasswordRequest(string username, string password, string[] scopes = null)
+    public async Task<IOAuthClientResponse> SendPasswordRequest(string username, string password, IEnumerable<string> scopes = null)
     {
         var requestParams = new Dictionary<string, string>
         {

@@ -18,7 +18,9 @@ builder.Services
         options.LoginPath = "/oauth/authorize";
     });
 
-builder.Services.AddControllersWithViews();
+builder.Services
+    .AddControllersWithViews()
+    .AddRazorRuntimeCompilation();
 
 if (builder.Environment.EnvironmentName.StartsWith("Development"))
 {

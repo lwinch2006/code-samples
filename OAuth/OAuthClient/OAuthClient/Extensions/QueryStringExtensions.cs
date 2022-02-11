@@ -6,7 +6,7 @@ public static class QueryStringExtensions
 {
     public static Dictionary<string, string> AddScopes(
         this Dictionary<string, string> queryStringParams,
-        string[] scopes)
+        IEnumerable<string> scopes)
     {
         var scopesAsString = scopes?.ToStringEx();
 

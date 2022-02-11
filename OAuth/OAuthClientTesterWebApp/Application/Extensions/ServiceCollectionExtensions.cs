@@ -2,8 +2,6 @@ using Application.HttpClients.Github;
 using Application.Models.Github;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using OAuthClient;
-using OAuthClient.Models;
 
 namespace Application.Extensions;
 
