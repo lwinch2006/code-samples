@@ -1,61 +1,10 @@
-﻿using OAuthClient.Models;
+﻿using OAuthClient.Interfaces;
+using OAuthClient.Models;
 using OAuthClient.Models.Constants;
 using OAuthClient.Models.Responses;
 using OAuthClient.Utils;
 
 namespace OAuthClient;
-
-public interface IOAuthFlows
-{
-    Task<IOAuthClientResponse> RunFlow(
-        OAuthClientConfiguration oAuthClientConfiguration, 
-        string state = null, 
-        string username = null, 
-        string password = null);
-
-    Task<IOAuthClientResponse> RunFlow(
-        OAuthClientConfiguration oAuthClientConfiguration,
-        AuthorizationCodeResponse authorizationCodeResponse = null,
-        ImplicitFlowResponse implicitFlowResponse = null,
-        string originalState = null,
-        string codeVerifier = null);
-    
-    IOAuthClientResponse RunAuthorizationCodeFlow(
-        IEnumerable<string> scopes = null, 
-        string state = null);
-    
-    Task<IOAuthClientResponse> RunAuthorizationCodeFlow(
-        AuthorizationCodeResponse authorizationCodeResponse, 
-        string originalState);
-    
-    IOAuthClientResponse RunAuthorizationCodeWithPkceFlow(
-        IEnumerable<string> scopes = null, 
-        string state = null);
-    
-    Task<IOAuthClientResponse> RunAuthorizationCodeWithPkceFlow(
-        AuthorizationCodeResponse authorizationCodeResponse, 
-        string originalState, 
-        string codeVerifier);
-    
-    IOAuthClientResponse RunImplicitFlow(
-        IEnumerable<string> scopes = null, 
-        string state = null);
-    
-    IOAuthClientResponse RunImplicitFlow(
-        ImplicitFlowResponse implicitFlowResponse, 
-        string originalState);
-    
-    Task<IOAuthClientResponse> RunPasswordFlow(
-        string username, 
-        string password, 
-        IEnumerable<string> scopes = null);
-    
-    Task<IOAuthClientResponse> RunClientCredentialsFlow(
-        IEnumerable<string> scopes = null);
-    
-    Task<IOAuthClientResponse> RunDeviceFlow(
-        IEnumerable<string> scopes = null);
-}
 
 public class OAuthFlows : IOAuthFlows
 {
@@ -82,7 +31,9 @@ public class OAuthFlows : IOAuthFlows
             
             FlowTypes.ClientCredentials => await RunClientCredentialsFlow(oAuthClientConfiguration.Scopes),
             
-            FlowTypes.Password => await RunPasswordFlow(username, password)
+            FlowTypes.Password => await RunPasswordFlow(username, password, oAuthClientConfiguration.Scopes),
+            
+            FlowTypes.Device => await RunDeviceFlow(oAuthClientConfiguration.Scopes)
         };
 
         return response;
@@ -92,6 +43,7 @@ public class OAuthFlows : IOAuthFlows
         OAuthClientConfiguration oAuthClientConfiguration,
         AuthorizationCodeResponse authorizationCodeResponse = null,
         ImplicitFlowResponse implicitFlowResponse = null,
+        DeviceCodeResponse deviceCodeResponse = null,
         string originalState = null,
         string codeVerifier = null)
     {
@@ -100,6 +52,7 @@ public class OAuthFlows : IOAuthFlows
             FlowTypes.AuthorizationCode => await RunAuthorizationCodeFlow(authorizationCodeResponse, originalState),
             FlowTypes.AuthorizationCodeWithPKCE => await RunAuthorizationCodeWithPkceFlow(authorizationCodeResponse,originalState, codeVerifier),
             FlowTypes.Implicit => RunImplicitFlow(implicitFlowResponse, originalState),
+            FlowTypes.Device => await RunDeviceFlow(deviceCodeResponse),
             _ => null
         };
     }
@@ -180,9 +133,15 @@ public class OAuthFlows : IOAuthFlows
         return await _oAuthClient.SendClientCredentialsRequest(scopes);
     }
 
-    public Task<IOAuthClientResponse> RunDeviceFlow(
+    public async Task<IOAuthClientResponse> RunDeviceFlow(
         IEnumerable<string> scopes = null)
     {
-        return Task.FromResult((IOAuthClientResponse) null);
+        return await _oAuthClient.SendDeviceCodeRequest(scopes);
     }
+    
+    public async Task<IOAuthClientResponse> RunDeviceFlow(
+        DeviceCodeResponse deviceCodeResponse)
+    {
+        return await _oAuthClient.SendDeviceTokenRequest(deviceCodeResponse);
+    }    
 }

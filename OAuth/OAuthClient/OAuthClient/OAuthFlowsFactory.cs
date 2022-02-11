@@ -1,3 +1,5 @@
+using OAuthClient.Interfaces;
+
 namespace OAuthClient;
 
 public interface IOAuthFlowsFactory

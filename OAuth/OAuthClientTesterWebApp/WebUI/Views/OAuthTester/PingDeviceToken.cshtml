@@ -1,0 +1,40 @@
+﻿@model WebUI.ViewModels.OAuthTester.DeviceCodeResponseViewModel
+
+@{
+    ViewData["Title"] = "Device OAuth authorization";
+}
+
+<form id="PingDeviceTokenForm" method="post" asp-controller="OAuthTester" asp-action="PingDeviceToken">
+    <h5>Please click on button to open new page and enter user code to complete device authorization</h5>
+    <div class="row mb-3">
+        <label asp-for="@Model.UserCode" class="col-md-2 col-form-label"></label>
+        <div class="col-md-10">
+            <input asp-for="@Model.UserCode" class="form-control-plaintext" readonly/>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label asp-for="@Model.Expires" class="col-md-2 col-form-label"></label>
+        <div class="col-md-10">
+            <input class="form-control-plaintext" value="@Model.Expires.ToString("HH:mm")" readonly/>
+            <input type="hidden" asp-for="@Model.Expires" />
+            <input type="hidden" asp-for="@Model.Interval" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <a href="@Model.VerificationUri" target="_blank" class="btn btn-primary">Complete authorization</a>
+            <input type="hidden" asp-for="@Model.VerificationUri" />
+        </div>
+    </div>
+</form>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function() {
+            setTimeout(function() {
+                $('#PingDeviceTokenForm').submit();
+            }, @Model.Interval * 1000);
+        });
+    </script>
+}

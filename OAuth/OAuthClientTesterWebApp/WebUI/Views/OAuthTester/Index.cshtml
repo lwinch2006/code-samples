@@ -112,8 +112,8 @@
     <script>
         $('#configurationNameSelector').change(function () {
             var value = $('#configurationNameSelector option:selected')[0].value;
-            var locationAsString = '' + window.location + '';            
-            window.location = locationAsString.substring(0, locationAsString.indexOf('?')) + '?configurationName=' + value; 
+            var locationAsString = '@Url.Action("Index", "OAuthTester", null, Context.Request.Scheme, Context.Request.Host.Value)';
+            window.location = locationAsString + '?configurationName=' + value;
         });
     </script>
 }

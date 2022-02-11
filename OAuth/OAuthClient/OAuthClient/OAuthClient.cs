@@ -1,23 +1,13 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
 using OAuthClient.Extensions;
+using OAuthClient.Interfaces;
 using OAuthClient.Models;
 using OAuthClient.Models.Constants;
 using OAuthClient.Models.Responses;
 using OAuthClient.Utils;
 
 namespace OAuthClient;
-
-public interface IOAuthClient
-{
-    IOAuthClientResponse CreateAuthorizationCodeRedirect(IEnumerable<string> scopes = null, string state = null);
-    IOAuthClientResponse CreateAuthorizationCodeWithPkceRedirect(IEnumerable<string> scopes = null, string state = null);
-    IOAuthClientResponse CreateImplicitFlowRedirect(IEnumerable<string> scopes = null, string state = null);
-    Task<IOAuthClientResponse> ExchangeAuthorizationCodeToAccessToken(AuthorizationCodeResponse authorizationCodeResponse);
-    Task<IOAuthClientResponse> ExchangeAuthorizationCodeWithPkceToAccessToken(AuthorizationCodeResponse authorizationCodeResponse, string codeVerifier);
-    Task<IOAuthClientResponse> SendClientCredentialsRequest(IEnumerable<string> scopes = null);
-    Task<IOAuthClientResponse> SendPasswordRequest(string username, string password, IEnumerable<string> scopes = null);
-}
 
 public class OAuthClient : IOAuthClient
 {
@@ -117,7 +107,7 @@ public class OAuthClient : IOAuthClient
             Content = new FormUrlEncodedContent(requestParams)
         };
 
-        return await RunPostRequestAndReturnResult(requestMessage);
+        return await RunPostRequestAndReturnResult<AccessTokenResponse>(requestMessage);
     }
 
     public async Task<IOAuthClientResponse> ExchangeAuthorizationCodeWithPkceToAccessToken(
@@ -137,7 +127,7 @@ public class OAuthClient : IOAuthClient
             Content = new FormUrlEncodedContent(requestParams)
         };
 
-        return await RunPostRequestAndReturnResult(requestMessage);
+        return await RunPostRequestAndReturnResult<AccessTokenResponse>(requestMessage);
     }
     
     public async Task<IOAuthClientResponse> SendClientCredentialsRequest(IEnumerable<string> scopes = null)
@@ -155,7 +145,7 @@ public class OAuthClient : IOAuthClient
             Content = new FormUrlEncodedContent(requestParams)
         };
 
-        return await RunPostRequestAndReturnResult(requestMessage);
+        return await RunPostRequestAndReturnResult<AccessTokenResponse>(requestMessage);
     }
 
     public async Task<IOAuthClientResponse> SendPasswordRequest(string username, string password, IEnumerable<string> scopes = null)
@@ -175,10 +165,44 @@ public class OAuthClient : IOAuthClient
             Content = new FormUrlEncodedContent(requestParams)
         };
 
-        return await RunPostRequestAndReturnResult(requestMessage);
+        return await RunPostRequestAndReturnResult<AccessTokenResponse>(requestMessage);
     }
 
-    private async Task<IOAuthClientResponse> RunPostRequestAndReturnResult(HttpRequestMessage httpRequestMessage)
+    public async Task<IOAuthClientResponse> SendDeviceCodeRequest(IEnumerable<string> scopes = null)
+    {
+        var requestParams = new Dictionary<string, string>
+        {
+            {Common.ClientId, _configuration.ClientId},
+            {Common.Scope, scopes?.ToStringEx() ?? string.Empty}
+        };
+        
+        var requestMessage = new HttpRequestMessage(HttpMethod.Post, _configuration.AuthorizeEndpoint)
+        {
+            Content = new FormUrlEncodedContent(requestParams)
+        };
+        
+       return await RunPostRequestAndReturnResult<DeviceCodeResponse>(requestMessage);
+    }
+
+    public async Task<IOAuthClientResponse> SendDeviceTokenRequest(DeviceCodeResponse deviceCodeResponse)
+    {
+        var requestParams = new Dictionary<string, string>
+        {
+            {Common.GrantType, GrantTypes.Device},
+            {Common.ClientId, _configuration.ClientId},
+            {Common.DeviceCode, deviceCodeResponse.DeviceCode}
+        };
+        
+        var requestMessage = new HttpRequestMessage(HttpMethod.Post, _configuration.TokenEndpoint)
+        {
+            Content = new FormUrlEncodedContent(requestParams)
+        };
+        
+        return await RunPostRequestAndReturnResult<AccessTokenResponse>(requestMessage);
+    }
+
+    private async Task<IOAuthClientResponse> RunPostRequestAndReturnResult<T>(HttpRequestMessage httpRequestMessage)
+        where T : IOAuthClientResponse
     {
         try
         {
@@ -187,7 +211,7 @@ public class OAuthClient : IOAuthClient
 
             if (!httpResponseContent.Contains("error"))
             {
-                return JsonSerializer.Deserialize<AccessTokenResponse>(httpResponseContent);
+                return JsonSerializer.Deserialize<T>(httpResponseContent);
             }
 
             return JsonSerializer.Deserialize<ErrorResponse>(httpResponseContent);            

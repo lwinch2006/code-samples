@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using OAuthClient.Interfaces;
 using OAuthClient.Models;
 using OAuthClient.Models.Constants;
 

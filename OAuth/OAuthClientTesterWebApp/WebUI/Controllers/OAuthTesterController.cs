@@ -1,6 +1,4 @@
-﻿using System.Net;
-using System.Security.Cryptography;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using OAuthClient;
 using OAuthClient.Models;
@@ -46,12 +44,17 @@ public class OAuthTesterController : Controller
             case OAuthRedirect oAuthRedirect:
                 TempData[Common.State] = oAuthRedirect.State;
                 TempData[Common.CodeVerifier] = oAuthRedirect.CodeVerifier;
-                TempData[WebUiConstants.OAuthTesterConfigurationName] = oAuthTesterViewModel.ConfigurationName;
+                TempData[TempDataNames.OAuthTesterConfigurationName] = oAuthTesterViewModel.ConfigurationName;
                 return Redirect(oAuthRedirect.Uri);                
 
             case AccessTokenResponse accessTokenResponse:
                 oAuthTesterViewModel.AccessTokenResponse = Utils.Mappers.OAuthMapper.Map(accessTokenResponse);
                 break;
+                
+            case DeviceCodeResponse deviceCodeResponse:
+                TempData[TempDataNames.OAuthTesterConfigurationName] = oAuthTesterViewModel.ConfigurationName;
+                TempData.Write(TempDataNames.DeviceCodeResponse, deviceCodeResponse);
+                return RedirectToAction(nameof(PingDeviceToken));
             
             case ErrorResponse errorResponse:
                 return ProcessOAuthClientErrorResponse(errorResponse);
@@ -71,7 +74,7 @@ public class OAuthTesterController : Controller
             return ProcessOAuthClientErrorResponse(errorResponseAtCallback);
         }
 
-        var configurationName = (string)TempData.ReadAndClear(WebUiConstants.OAuthTesterConfigurationName);
+        var configurationName = (string)TempData.ReadAndClear(TempDataNames.OAuthTesterConfigurationName);
         var originalState = (string)TempData.ReadAndClear(Common.State);
         var codeVerifier = (string)TempData.ReadAndClear(Common.CodeVerifier);
 
@@ -86,8 +89,8 @@ public class OAuthTesterController : Controller
             oAuthTesterViewModel.OAuthClientConfiguration, 
             authorizationCodeCallbackResponse, 
             implicitFlowCallbackResponse, 
-            originalState, 
-            codeVerifier);
+            originalState: originalState, 
+            codeVerifier: codeVerifier);
 
         switch (response)
         {
@@ -101,7 +104,43 @@ public class OAuthTesterController : Controller
         
         return View("Index", oAuthTesterViewModel);
     }
-    
+
+    public IActionResult PingDeviceToken()
+    {
+        var deviceCodeResponse = TempData.ReadAndClean<DeviceCodeResponse>(TempDataNames.DeviceCodeResponse);
+        var viewModel = Utils.Mappers.OAuthMapper.Map(deviceCodeResponse);
+        TempData.Write(TempDataNames.DeviceCodeResponse, deviceCodeResponse);
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> PingDeviceToken(DeviceCodeResponseViewModel viewModel)
+    {
+        var configurationName = (string)TempData.ReadAndClear(TempDataNames.OAuthTesterConfigurationName);
+        var deviceCodeResponse = TempData.ReadAndClean<DeviceCodeResponse>(TempDataNames.DeviceCodeResponse);
+        var oAuthTesterViewModel = Utils.Mappers.OAuthMapper.GetNewOAuthTesterViewModel(configurationName);
+        oAuthTesterViewModel.OAuthClientConfiguration = _optionsMonitor.GetEx(configurationName);
+
+        var oAuthFlows = _oAuthFlowsFactory.CreateOAuthFlows(configurationName);
+
+        var response = await oAuthFlows.RunFlow(oAuthTesterViewModel.OAuthClientConfiguration, deviceCodeResponse: deviceCodeResponse);
+
+        switch (response)
+        {
+            case AccessTokenResponse accessTokenResponse:
+                oAuthTesterViewModel.AccessTokenResponse = Utils.Mappers.OAuthMapper.Map(accessTokenResponse);
+                return View("Index", oAuthTesterViewModel);
+            
+            case ErrorResponse {Error: DeviceTokenResponseErrors.Slowdown}:
+                deviceCodeResponse.Interval += 1;
+                break;
+        }
+        
+        TempData[TempDataNames.OAuthTesterConfigurationName] = configurationName;
+        TempData.Write(TempDataNames.DeviceCodeResponse, deviceCodeResponse);
+        return View(viewModel);
+    }
+
     private IActionResult ProcessOAuthClientErrorResponse(ErrorResponse errorResponse)
     {
         return Json(errorResponse);
