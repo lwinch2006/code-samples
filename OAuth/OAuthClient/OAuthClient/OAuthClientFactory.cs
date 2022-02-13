@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using OAuthClient.Extensions;
+using OAuthClient.Interfaces;
 using OAuthClient.Models;
 
 namespace OAuthClient;

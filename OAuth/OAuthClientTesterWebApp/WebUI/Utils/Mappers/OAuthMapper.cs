@@ -102,7 +102,24 @@ public static class OAuthMapper
 
         return response;
     }
- 
+
+    public static DeviceCodeResponseViewModel Map(DeviceCodeResponse source)
+    {
+        if (source == null)
+        {
+            return null;
+        }
+
+        var destination = new DeviceCodeResponseViewModel
+        {
+            UserCode = source.UserCode,
+            VerificationUri = source.VerficationUri,
+            Interval = source.Interval,
+            Expires = DateTime.Now.AddSeconds(source.ExpiresIn)
+        };
+
+        return destination;
+    }
     
     private static IDictionary<string, string> GetAvailableConfigurationNames()
     {

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using OAuthClient;
+using OAuthClient.Interfaces;
 using OAuthClient.Models;
 using OAuthClient.Models.Constants;
 using OAuthClient.Models.Responses;
@@ -69,8 +70,8 @@ public class OAuthController : Controller
             _oAuthClientConfiguration, 
             authorizationCodeCallbackResponse, 
             implicitFlowCallbackResponse, 
-            originalState, 
-            codeVerifier);
+            originalState: originalState, 
+            codeVerifier: codeVerifier);
 
         return response switch
         {
