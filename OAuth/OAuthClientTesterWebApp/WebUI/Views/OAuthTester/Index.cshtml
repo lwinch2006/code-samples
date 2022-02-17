@@ -1,4 +1,5 @@
 ﻿@using OAuthClient.Extensions
+@using OAuthClient.Models.Constants
 @model WebUI.ViewModels.OAuthTester.OAuthTesterViewModel
 
 @{
@@ -65,6 +66,17 @@
             }
         </div>
     </div>
+    @if (Model.OAuthClientConfiguration.FlowType == FlowTypes.Password)
+    {
+        <div class="row mb-3">
+            <label asp-for="@Model.Username" class="col-md-2 col-form-label"></label>
+            <input asp-for="@Model.Username" class="form-control" style="max-width: 500px;"/>
+        </div>
+        <div class="row mb-3">
+            <label asp-for="@Model.Password" class="col-md-2 col-form-label"></label>
+            <input asp-for="@Model.Password" class="form-control" style="max-width: 500px;"/>
+        </div>
+    }
     <div class="row mb-3">
         <div class="col-md-12">
             <input type="hidden" asp-for="@Model.OAuthClientConfiguration.FlowType"/>

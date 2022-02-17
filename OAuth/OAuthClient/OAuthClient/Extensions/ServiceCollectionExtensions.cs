@@ -24,7 +24,7 @@ public static class ServiceCollectionExtensions
                 .Bind(configuration.GetSection(ConfigurationConstants.RootSectionName));
             
             services
-                .AddOptions<OAuthClientConfiguration>(oauthClientConfiguration.Name)
+                .AddOptions<OAuthClientConfiguration>(oauthClientConfiguration.Name.ToLower())
                 .Bind(configuration.GetSection(ConfigurationConstants.RootSectionName));
         }
         else
@@ -34,7 +34,7 @@ public static class ServiceCollectionExtensions
             for (var i = 0; i < oAuthClientConfigurations.Count; i++)
             {
                 services
-                    .AddOptions<OAuthClientConfiguration>(oAuthClientConfigurations[i].Name)
+                    .AddOptions<OAuthClientConfiguration>(oAuthClientConfigurations[i].Name.ToLower())
                     .Bind(configuration.GetSection($"{ConfigurationConstants.RootSectionName}:{i}"));
             }
         }

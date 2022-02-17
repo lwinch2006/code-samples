@@ -19,7 +19,8 @@ public class OAuthFlows : IOAuthFlows
         OAuthClientConfiguration oAuthClientConfiguration, 
         string state = null, 
         string username = null, 
-        string password = null)
+        string password = null,
+        string responseMode = null)
     {
         var response = oAuthClientConfiguration.FlowType switch
         {
@@ -27,7 +28,7 @@ public class OAuthFlows : IOAuthFlows
             
             FlowTypes.AuthorizationCodeWithPKCE => RunAuthorizationCodeWithPkceFlow(oAuthClientConfiguration.Scopes, state),
             
-            FlowTypes.Implicit => RunImplicitFlow(oAuthClientConfiguration.Scopes, state),
+            FlowTypes.Implicit => RunImplicitFlow(oAuthClientConfiguration.Scopes, state, responseMode),
             
             FlowTypes.ClientCredentials => await RunClientCredentialsFlow(oAuthClientConfiguration.Scopes),
             
@@ -100,9 +101,10 @@ public class OAuthFlows : IOAuthFlows
     
     public IOAuthClientResponse RunImplicitFlow(
         IEnumerable<string> scopes = null, 
-        string state = null)
+        string state = null,
+        string responseMode = null)
     {
-        var response = _oAuthClient.CreateImplicitFlowRedirect(scopes, state);
+        var response = _oAuthClient.CreateImplicitFlowRedirect(scopes, state, responseMode);
         return response;
     }
 

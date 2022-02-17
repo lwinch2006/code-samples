@@ -54,7 +54,26 @@ public static class OAuthMapper
         return destination;
     }
 
-    public static ImplicitFlowResponse Map(ImplicitFlowResponseViewModel source)
+    public static ImplicitFlowResponse Map(ImplicitFlowResponseQueryStringViewModel source)
+    {
+        if (source == null)
+        {
+            return null;
+        }
+
+        var destination = new ImplicitFlowResponse
+        {
+            AccessToken = source.AccessToken,
+            State = source.State,
+            TokenType = source.TokenType,
+            ExpiresIn = source.ExpiresIn,
+            Scope = source.Scope
+        };
+
+        return destination;
+    }
+    
+    public static ImplicitFlowResponse Map(ImplicitFlowResponseFormViewModel source)
     {
         if (source == null)
         {
@@ -97,7 +116,7 @@ public static class OAuthMapper
         var response = (IOAuthClientResponse) (source switch
         {
             AuthorizationCodeResponseViewModel authorizationCodeResponseViewModel => Map(authorizationCodeResponseViewModel),
-            ImplicitFlowResponseViewModel implicitFlowResponseViewModel => Map(implicitFlowResponseViewModel),
+            ImplicitFlowResponseQueryStringViewModel implicitFlowResponseViewModel => Map(implicitFlowResponseViewModel),
         });
 
         return response;

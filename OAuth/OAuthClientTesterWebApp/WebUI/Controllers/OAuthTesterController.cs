@@ -37,7 +37,7 @@ public class OAuthTesterController : Controller
         var state = StateUtils.Generate();  
         var oAuthClientConfiguration = oAuthTesterViewModel.OAuthClientConfiguration;
         var oAuthFlows = _oAuthFlowsFactory.CreateOAuthFlows(oAuthClientConfiguration.Name);
-        var response = await oAuthFlows.RunFlow(oAuthClientConfiguration, state, oAuthTesterViewModel.Username, oAuthTesterViewModel.Password);
+        var response = await oAuthFlows.RunFlow(oAuthClientConfiguration, state, oAuthTesterViewModel.Username, oAuthTesterViewModel.Password, ResponseModes.FormPost);
         
         switch (response)
         {
@@ -65,7 +65,7 @@ public class OAuthTesterController : Controller
 
     public async Task<IActionResult> Callback(
         AuthorizationCodeResponseViewModel authorizationCodeResponseViewModel,
-        ImplicitFlowResponseViewModel implicitFlowResponseViewModel,
+        ImplicitFlowResponseQueryStringViewModel implicitFlowResponseQueryStringViewModel,
         ErrorResponseViewModel errorResponseAtResponseViewModel)
     {
         if (!string.IsNullOrWhiteSpace(errorResponseAtResponseViewModel.Error))
@@ -83,7 +83,7 @@ public class OAuthTesterController : Controller
         var oAuthFlows = _oAuthFlowsFactory.CreateOAuthFlows(configurationName);
 
         var authorizationCodeCallbackResponse = Utils.Mappers.OAuthMapper.Map(authorizationCodeResponseViewModel);
-        var implicitFlowCallbackResponse = Utils.Mappers.OAuthMapper.Map(implicitFlowResponseViewModel);
+        var implicitFlowCallbackResponse = Utils.Mappers.OAuthMapper.Map(implicitFlowResponseQueryStringViewModel);
         
         var response = await oAuthFlows.RunFlow(
             oAuthTesterViewModel.OAuthClientConfiguration, 
@@ -92,6 +92,38 @@ public class OAuthTesterController : Controller
             originalState: originalState, 
             codeVerifier: codeVerifier);
 
+        switch (response)
+        {
+            case AccessTokenResponse accessTokenResponse:
+                oAuthTesterViewModel.AccessTokenResponse = Utils.Mappers.OAuthMapper.Map(accessTokenResponse);
+                break;
+            
+            case ErrorResponse errorResponse:
+                return ProcessOAuthClientErrorResponse(errorResponse);
+        }
+        
+        return View("Index", oAuthTesterViewModel);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Callback(ImplicitFlowResponseFormViewModel implicitFlowResponseFormViewModel)
+    {
+        var configurationName = (string)TempData.ReadAndClear(TempDataNames.OAuthTesterConfigurationName);
+        var originalState = (string)TempData.ReadAndClear(Common.State);
+        var codeVerifier = (string)TempData.ReadAndClear(Common.CodeVerifier);
+
+        var oAuthTesterViewModel = Utils.Mappers.OAuthMapper.GetNewOAuthTesterViewModel(configurationName);
+        oAuthTesterViewModel.OAuthClientConfiguration = _optionsMonitor.GetEx(configurationName);
+        var oAuthFlows = _oAuthFlowsFactory.CreateOAuthFlows(configurationName);
+
+        var implicitFlowCallbackResponse = Utils.Mappers.OAuthMapper.Map(implicitFlowResponseFormViewModel);
+        
+        var response = await oAuthFlows.RunFlow(
+            oAuthTesterViewModel.OAuthClientConfiguration, 
+            implicitFlowResponse: implicitFlowCallbackResponse, 
+            originalState: originalState, 
+            codeVerifier: codeVerifier);
+        
         switch (response)
         {
             case AccessTokenResponse accessTokenResponse:

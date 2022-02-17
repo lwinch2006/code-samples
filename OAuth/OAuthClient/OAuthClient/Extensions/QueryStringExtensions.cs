@@ -18,6 +18,20 @@ public static class QueryStringExtensions
         return queryStringParams;
     }
 
+    public static Dictionary<string, string> AddResponseMode(
+        this Dictionary<string, string> queryStringParams,
+        string responseMode)
+    {
+        if (string.IsNullOrWhiteSpace(responseMode))
+        {
+            return queryStringParams;
+        }
+        
+        queryStringParams.Add(Common.ResponseMode, responseMode);
+
+        return queryStringParams;
+    }
+
     public static Dictionary<string, string> AddClientSecret(this Dictionary<string, string> queryStringParams, string clientSecret)
     {
         if (!string.IsNullOrWhiteSpace(clientSecret))

@@ -16,4 +16,5 @@ public static class Common
     public const string CodeChallenge = "code_challenge";
     public const string CodeChallengeMethod = "code_challenge_method";
     public const string DeviceCode = "device_code";
+    public const string ResponseMode = "response_mode";
 }

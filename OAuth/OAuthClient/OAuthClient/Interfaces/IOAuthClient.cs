@@ -6,7 +6,7 @@ public interface IOAuthClient
 {
     IOAuthClientResponse CreateAuthorizationCodeRedirect(IEnumerable<string> scopes = null, string state = null);
     IOAuthClientResponse CreateAuthorizationCodeWithPkceRedirect(IEnumerable<string> scopes = null, string state = null);
-    IOAuthClientResponse CreateImplicitFlowRedirect(IEnumerable<string> scopes = null, string state = null);
+    IOAuthClientResponse CreateImplicitFlowRedirect(IEnumerable<string> scopes = null, string state = null, string responseMode = null);
     Task<IOAuthClientResponse> ExchangeAuthorizationCodeToAccessToken(AuthorizationCodeResponse authorizationCodeResponse);
     Task<IOAuthClientResponse> ExchangeAuthorizationCodeWithPkceToAccessToken(AuthorizationCodeResponse authorizationCodeResponse, string codeVerifier);
     Task<IOAuthClientResponse> SendClientCredentialsRequest(IEnumerable<string> scopes = null);

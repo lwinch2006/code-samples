@@ -9,7 +9,8 @@ public interface IOAuthFlows
         OAuthClientConfiguration oAuthClientConfiguration, 
         string state = null, 
         string username = null, 
-        string password = null);
+        string password = null,
+        string responseMode = null);
 
     Task<IOAuthClientResponse> RunFlow(
         OAuthClientConfiguration oAuthClientConfiguration,
@@ -38,7 +39,8 @@ public interface IOAuthFlows
     
     IOAuthClientResponse RunImplicitFlow(
         IEnumerable<string> scopes = null, 
-        string state = null);
+        string state = null,
+        string responseMode = null);
     
     IOAuthClientResponse RunImplicitFlow(
         ImplicitFlowResponse implicitFlowResponse, 

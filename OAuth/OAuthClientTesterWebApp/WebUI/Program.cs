@@ -1,4 +1,5 @@
 using Application.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using OAuthClient.Extensions;
 using WebUI.Models.Authorization;
 
@@ -17,6 +18,13 @@ builder.Services
     {
         options.LoginPath = "/oauth/authorize";
     });
+
+
+builder.Services.Configure<CookieTempDataProviderOptions>(options =>
+{
+    options.Cookie.SameSite = SameSiteMode.None;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+});
 
 builder.Services
     .AddControllersWithViews()

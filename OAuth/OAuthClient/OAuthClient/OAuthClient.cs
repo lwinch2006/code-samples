@@ -70,15 +70,17 @@ public class OAuthClient : IOAuthClient
         return response;
     }
     
-    public IOAuthClientResponse CreateImplicitFlowRedirect(IEnumerable<string> scopes = null, string state = null)
+    public IOAuthClientResponse CreateImplicitFlowRedirect(IEnumerable<string> scopes = null, string state = null, string responseMode = null)
     {
         var queryStringParams = new Dictionary<string, string>
         {
             {Common.ResponseType, ResponseTypes.Token},
             {Common.ClientId, _configuration.ClientId},
             {Common.RedirectUri, _configuration.RedirectUri},
-            {Common.State, state ?? StateUtils.Generate()}
-        }.AddScopes(scopes);
+            {Common.State, state ?? StateUtils.Generate()},
+        }
+            .AddScopes(scopes)
+            .AddResponseMode(responseMode);
         
         var redirectUri = QueryHelpers.AddQueryString(_configuration.AuthorizeEndpoint, queryStringParams);
         
@@ -137,8 +139,7 @@ public class OAuthClient : IOAuthClient
             {Common.GrantType, GrantTypes.ClientCredentials},
             {Common.ClientId, _configuration.ClientId},
             {Common.ClientSecret, _configuration.ClientSecret},
-            {Common.Scope, scopes?.ToStringEx() ?? string.Empty}
-        };
+        }.AddScopes(scopes);
         
         var requestMessage = new HttpRequestMessage(HttpMethod.Post, _configuration.TokenEndpoint)
         {
@@ -154,11 +155,11 @@ public class OAuthClient : IOAuthClient
         {
             {Common.GrantType, GrantTypes.Password},
             {Common.ClientId, _configuration.ClientId},
-            {Common.ClientSecret, _configuration.ClientSecret},
             {Common.Username, username},
-            {Common.Password, password},
-            {Common.Scope, scopes?.ToStringEx() ?? string.Empty}
-        };
+            {Common.Password, password}
+        }
+            .AddClientSecret(_configuration.ClientSecret)
+            .AddScopes(scopes);
         
         var requestMessage = new HttpRequestMessage(HttpMethod.Post, _configuration.TokenEndpoint)
         {
@@ -173,8 +174,7 @@ public class OAuthClient : IOAuthClient
         var requestParams = new Dictionary<string, string>
         {
             {Common.ClientId, _configuration.ClientId},
-            {Common.Scope, scopes?.ToStringEx() ?? string.Empty}
-        };
+        }.AddScopes(scopes);;
         
         var requestMessage = new HttpRequestMessage(HttpMethod.Post, _configuration.AuthorizeEndpoint)
         {

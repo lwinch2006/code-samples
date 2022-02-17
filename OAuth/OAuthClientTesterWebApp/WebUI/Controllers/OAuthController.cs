@@ -51,7 +51,7 @@ public class OAuthController : Controller
 
     public async Task<IActionResult> Callback(
         AuthorizationCodeResponseViewModel authorizationCodeResponseViewModel,
-        ImplicitFlowResponseViewModel implicitFlowResponseViewModel,
+        ImplicitFlowResponseQueryStringViewModel implicitFlowResponseQueryStringViewModel,
         ErrorResponseViewModel errorResponseAtResponseViewModel)
     {
         if (!string.IsNullOrWhiteSpace(errorResponseAtResponseViewModel.Error))
@@ -64,7 +64,7 @@ public class OAuthController : Controller
         var codeVerifier = (string)TempData.ReadAndClear(Common.CodeVerifier);
 
         var authorizationCodeCallbackResponse = OAuthMapper.Map(authorizationCodeResponseViewModel);
-        var implicitFlowCallbackResponse = OAuthMapper.Map(implicitFlowResponseViewModel);
+        var implicitFlowCallbackResponse = OAuthMapper.Map(implicitFlowResponseQueryStringViewModel);
         
         var response = await _oAuthFlows.RunFlow(
             _oAuthClientConfiguration, 

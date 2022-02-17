@@ -2,7 +2,7 @@
 
 namespace WebUI.ViewModels.OAuth;
 
-public class ImplicitFlowResponseViewModel
+public class ImplicitFlowResponseQueryStringViewModel
 {
     [FromQuery(Name = "access_token")]
     public string AccessToken { get; init; }
@@ -18,4 +18,7 @@ public class ImplicitFlowResponseViewModel
 
     [FromQuery(Name = "scope")]
     public string Scope { get; init; }
+
+    [FromQuery(Name = "session_state")]
+    public string SessionState { get; init; }
 }
