@@ -15,6 +15,7 @@ public class OAuthTesterViewModel
     public string Username { get; init; }
     
     [DisplayName("Password")]
+    [DataType(DataType.Password)]
     public string Password { get; init; }
     
     public OAuthClientConfiguration OAuthClientConfiguration { get; set; }

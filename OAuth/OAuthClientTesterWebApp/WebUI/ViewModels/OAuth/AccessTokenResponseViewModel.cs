@@ -18,4 +18,10 @@ public class AccessTokenResponseViewModel
     
     [DisplayName("Scope")]
     public string Scope { get; init; }
+    
+    [DisplayName("ID token")]
+    public string IdToken { get; init; }
+
+    [DisplayName("Extended expires in")]
+    public int ExtendedExpiresIn { get; init; }
 }

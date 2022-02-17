@@ -105,7 +105,9 @@ public static class OAuthMapper
             TokenType = source.TokenType,
             ExpiresIn = source.ExpiresIn,
             RefreshToken = source.RefreshToken,
-            Scope = source.Scope
+            Scope = source.Scope,
+            IdToken = source.IdToken,
+            ExtendedExpiresIn = source.ExtendedExpiresIn
         };
 
         return destination;

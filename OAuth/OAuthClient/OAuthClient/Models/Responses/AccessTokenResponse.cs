@@ -18,4 +18,10 @@ public class AccessTokenResponse : IOAuthClientResponse
     
     [JsonPropertyName("scope")]
     public string Scope { get; init; }
+
+    [JsonPropertyName("id_token")]
+    public string IdToken { get; init; }    
+    
+    [JsonPropertyName("ext_expires_in")]
+    public int ExtendedExpiresIn { get; init; }
 }
