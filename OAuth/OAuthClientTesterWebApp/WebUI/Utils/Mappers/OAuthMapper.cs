@@ -1,8 +1,9 @@
 using System.ComponentModel;
+using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
+using System.Text.Json;
 using Application.Models.OAuth;
 using OAuthClient.Models.Responses;
-using WebUI.ViewModels;
 using WebUI.ViewModels.OAuth;
 using WebUI.ViewModels.OAuthTester;
 
@@ -140,6 +141,19 @@ public static class OAuthMapper
         };
 
         return destination;
+    }
+
+    public static string MapUserInfo(string idToken)
+    {
+        if (string.IsNullOrWhiteSpace(idToken))
+        {
+            return null;
+        }
+        
+        var jwtSecurityToken = new JwtSecurityToken(idToken);
+        var serializedClaims = JsonSerializer.Serialize(jwtSecurityToken.Claims.ToDictionary(t => t.Type, t => t.Value), new JsonSerializerOptions { WriteIndented = true });
+
+        return serializedClaims;
     }
     
     private static IDictionary<string, string> GetAvailableConfigurationNames()

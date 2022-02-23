@@ -24,4 +24,7 @@ public static class OAuthConfigurationNames
     
     [Description("Device")]
     public const string Device = "Device";
+    
+    [Description("OpenID Connect")]
+    public const string OpenIdConnect = "OpenIdConnect";
 }

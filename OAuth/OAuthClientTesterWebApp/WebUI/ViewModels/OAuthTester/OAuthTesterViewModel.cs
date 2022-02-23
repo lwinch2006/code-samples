@@ -23,4 +23,7 @@ public class OAuthTesterViewModel
     public AccessTokenResponseViewModel AccessTokenResponse { get; set; }
 
     public IDictionary<string, string> AvailableConfigurationNames { get; init; }
+
+    [DisplayName("User info")]
+    public string UserInfo { get; set; }
 }

@@ -49,6 +49,7 @@ public class OAuthTesterController : Controller
 
             case AccessTokenResponse accessTokenResponse:
                 oAuthTesterViewModel.AccessTokenResponse = Utils.Mappers.OAuthMapper.Map(accessTokenResponse);
+                oAuthTesterViewModel.UserInfo = Utils.Mappers.OAuthMapper.MapUserInfo(oAuthTesterViewModel.AccessTokenResponse.IdToken);
                 break;
                 
             case DeviceCodeResponse deviceCodeResponse:
@@ -96,6 +97,7 @@ public class OAuthTesterController : Controller
         {
             case AccessTokenResponse accessTokenResponse:
                 oAuthTesterViewModel.AccessTokenResponse = Utils.Mappers.OAuthMapper.Map(accessTokenResponse);
+                oAuthTesterViewModel.UserInfo = Utils.Mappers.OAuthMapper.MapUserInfo(oAuthTesterViewModel.AccessTokenResponse.IdToken);
                 break;
             
             case ErrorResponse errorResponse:
@@ -128,6 +130,7 @@ public class OAuthTesterController : Controller
         {
             case AccessTokenResponse accessTokenResponse:
                 oAuthTesterViewModel.AccessTokenResponse = Utils.Mappers.OAuthMapper.Map(accessTokenResponse);
+                oAuthTesterViewModel.UserInfo = Utils.Mappers.OAuthMapper.MapUserInfo(oAuthTesterViewModel.AccessTokenResponse.IdToken);
                 break;
             
             case ErrorResponse errorResponse:
@@ -161,6 +164,7 @@ public class OAuthTesterController : Controller
         {
             case AccessTokenResponse accessTokenResponse:
                 oAuthTesterViewModel.AccessTokenResponse = Utils.Mappers.OAuthMapper.Map(accessTokenResponse);
+                oAuthTesterViewModel.UserInfo = Utils.Mappers.OAuthMapper.MapUserInfo(oAuthTesterViewModel.AccessTokenResponse.IdToken);
                 return View("Index", oAuthTesterViewModel);
             
             case ErrorResponse {Error: DeviceTokenResponseErrors.Slowdown}:
