@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using System.Security.Claims;
 using System.Threading;
 using Application.Logic.ServiceBus;
 using Application.Mapping;
@@ -10,7 +12,10 @@ using Infrastructure;
 using Infrastructure.Mapping;
 using Infrastructure.Repositories;
 using MediatR;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -75,7 +80,40 @@ namespace Application.Extensions
                 {
                     return Task.CompletedTask;
                 };
+
+                options.SaveTokens = true;
+                options.GetClaimsFromUserInfoEndpoint = true;
+                options.ClaimActions.MapAll();
+                
+                options.ClaimActions.MapUniqueJsonKey("iss", "iss"); 
+                options.ClaimActions.MapUniqueJsonKey("idp", "idp"); 
+                
+                options.Events.OnTicketReceived = ctx =>
+                {
+                    var tokens = ctx.Properties.GetTokens().ToList(); 
+
+                    tokens.Add(new AuthenticationToken
+                    {
+                        Name = "TicketReceived", 
+                        Value = DateTime.UtcNow.ToString()
+                    });
+
+                    ctx.Properties.StoreTokens(tokens);
+
+                    return Task.CompletedTask;
+                };
             });
+
+            services.Configure<CookieAuthenticationOptions>(IdentityConstants.ExternalScheme,
+                options =>
+                {
+                    options.Events.OnSigningIn = ctx =>
+                    {
+                        return Task.CompletedTask;
+                    };
+                });
+            
+            
             
             return services;
         }
