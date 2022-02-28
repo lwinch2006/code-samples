@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading;
 using Application.Logic.ServiceBus;
 using Application.Mapping;
 using Application.Models;
+using Application.Models.Authentication;
 using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
 using Infrastructure;
@@ -15,10 +15,10 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 using Scrutor;
@@ -65,6 +65,11 @@ namespace Application.Extensions
 
         public static IServiceCollection AddAzureAd(this IServiceCollection services, IConfiguration configuration)
         {
+            services.TryAddSingleton<SavedClaimsDictionary>();
+            
+            var sp = services.BuildServiceProvider();
+            var savedClaimsDictionary = sp.GetRequiredService<SavedClaimsDictionary>(); 
+            
             services.AddMicrosoftIdentityWebAppAuthentication(configuration, "AzureAd", displayName: "Azure AD", subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: true);
 
             services.Configure<OpenIdConnectOptions>(OpenIdConnectDefaults.AuthenticationScheme, options =>
@@ -81,25 +86,26 @@ namespace Application.Extensions
                     return Task.CompletedTask;
                 };
 
-                options.SaveTokens = true;
-                options.GetClaimsFromUserInfoEndpoint = true;
                 options.ClaimActions.MapAll();
-                
-                options.ClaimActions.MapUniqueJsonKey("iss", "iss"); 
-                options.ClaimActions.MapUniqueJsonKey("idp", "idp"); 
                 
                 options.Events.OnTicketReceived = ctx =>
                 {
-                    var tokens = ctx.Properties.GetTokens().ToList(); 
+                    var claims = ctx.Principal?.Claims;
 
-                    tokens.Add(new AuthenticationToken
+                    if (claims == null)
                     {
-                        Name = "TicketReceived", 
-                        Value = DateTime.UtcNow.ToString()
-                    });
+                        return Task.CompletedTask;
+                    }
 
-                    ctx.Properties.StoreTokens(tokens);
+                    var userId = ctx.Principal.Identity?.Name;
 
+                    if (userId == null)
+                    {
+                        return Task.CompletedTask;
+                    }
+
+                    savedClaimsDictionary.Add(userId, claims);
+                    
                     return Task.CompletedTask;
                 };
             });
@@ -113,7 +119,33 @@ namespace Application.Extensions
                     };
                 });
             
-            
+            services.Configure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme,
+                options =>
+                {
+                    options.Events.OnSigningIn = ctx =>
+                    {
+                        var claims = ctx.Principal?.Claims;
+
+                        if (claims == null)
+                        {
+                            return Task.CompletedTask;
+                        }
+                        
+                        var userId = ctx.Principal.Identity?.Name;
+                        
+                        if (userId == null || !savedClaimsDictionary.ContainsKey(userId))
+                        {
+                            return Task.CompletedTask;
+                        }
+
+                        var claimsIdentity = new ClaimsIdentity(savedClaimsDictionary[userId], IdentityConstants.ExternalScheme);
+                        ctx.Principal.AddIdentity(claimsIdentity);
+
+                        savedClaimsDictionary.Remove(userId);
+                        
+                        return Task.CompletedTask;
+                    };
+                });            
             
             return services;
         }

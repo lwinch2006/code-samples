@@ -1,5 +1,6 @@
 ﻿@using Dka.Net5.IdentityWithDapper.Models
 @using Microsoft.AspNetCore.Identity
+@using Application.Extensions;
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
@@ -7,7 +8,7 @@
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity.Name!</a>
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity.Name.Substring(0, User.Identity.Name.IndexOf('@')) (@(User.IsAzureAdMember() ? "Member" : "Guest"))</a>
         </li>
         <li class="nav-item">
             <form class="form-inline" asp-area="Identity" asp-controller="Account" asp-action="SignOut" asp-route-returnUrl="@Url.Action("Index", "Home", new {area = ""})">
