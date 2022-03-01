@@ -7,6 +7,7 @@
             public static class Claims
             {
                 public const string Amr = "amr";
+                public const string IdentityProvider = "http://schemas.microsoft.com/identity/claims/identityprovider";
             }
         }
 
