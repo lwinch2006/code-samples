@@ -90,22 +90,13 @@ namespace Application.Extensions
                 
                 options.Events.OnTicketReceived = ctx =>
                 {
-                    var claims = ctx.Principal?.Claims;
-
-                    if (claims == null)
+                    if (ctx.Principal?.Identity is not ClaimsIdentity claimsIdentity || 
+                        claimsIdentity.Name == null)
                     {
                         return Task.CompletedTask;
                     }
 
-                    var userId = ctx.Principal.Identity?.Name;
-
-                    if (userId == null)
-                    {
-                        return Task.CompletedTask;
-                    }
-
-                    savedClaimsDictionary.Add(userId, claims);
-                    
+                    savedClaimsDictionary.Add(claimsIdentity.Name, ctx.Principal.Claims);
                     return Task.CompletedTask;
                 };
             });
@@ -124,25 +115,16 @@ namespace Application.Extensions
                 {
                     options.Events.OnSigningIn = ctx =>
                     {
-                        var claims = ctx.Principal?.Claims;
-
-                        if (claims == null)
-                        {
-                            return Task.CompletedTask;
-                        }
-                        
-                        var userId = ctx.Principal.Identity?.Name;
-                        
-                        if (userId == null || !savedClaimsDictionary.ContainsKey(userId))
+                        if (ctx.Principal?.Identity is not ClaimsIdentity claimsIdentity 
+                            || claimsIdentity.Name == null
+                            || !savedClaimsDictionary.TryGetValue(claimsIdentity.Name, out var savedClaims))
                         {
                             return Task.CompletedTask;
                         }
 
-                        var claimsIdentity = new ClaimsIdentity(savedClaimsDictionary[userId], IdentityConstants.ExternalScheme);
-                        ctx.Principal.AddIdentity(claimsIdentity);
-
-                        savedClaimsDictionary.Remove(userId);
-                        
+                        var newClaimsIdentity = new ClaimsIdentity(savedClaims, IdentityConstants.ExternalScheme);
+                        ctx.Principal.AddIdentity(newClaimsIdentity);
+                        savedClaimsDictionary.Remove(claimsIdentity.Name);
                         return Task.CompletedTask;
                     };
                 });            
