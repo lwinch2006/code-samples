@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using Application.Models;
+using IdentityModel;
 using Microsoft.Identity.Web;
 
 namespace Application.Extensions;
@@ -40,7 +41,7 @@ public static class ClaimsPrincipalExtensions
     public static IEnumerable<string> GetIdentityProviders(this ClaimsPrincipal principal)
     {
         var identityProviders = principal.Claims
-            .Where(t => t.Type == ApplicationConstants.Authentication.Claims.IdentityProvider)
+            .Where(t => t.Type is ApplicationConstants.Authentication.Claims.IdentityProvider or JwtClaimTypes.IdentityProvider)
             .Select(t => t.Value);
 
         return identityProviders;
