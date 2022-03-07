@@ -63,6 +63,15 @@ public static class ClaimsPrincipalExtensions
 
     public static bool IsAzureAdGuest(this ClaimsPrincipal principal)
     {
-        return principal.GetIdentityProviders().Any();
+        var claimsToCheck = principal.GetIdentityProviders();
+
+        if (!claimsToCheck.Any())
+        {
+            claimsToCheck = principal.GetIssuerIdentifiers();
+        }
+        
+        var issuerValue = principal.Claims.FirstOrDefault()?.Issuer;
+        
+        return claimsToCheck.Any(t => t != issuerValue);
     }
 }
