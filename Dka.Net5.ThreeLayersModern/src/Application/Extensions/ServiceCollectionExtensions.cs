@@ -14,6 +14,7 @@ using Infrastructure.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -47,6 +48,18 @@ namespace Application.Extensions
                 microsoftOptions.ClientId = configuration["MicrosoftAuthentication:ClientId"];
                 microsoftOptions.ClientSecret = configuration["MicrosoftAuthentication:ClientSecret"];
             });
+            
+            services.Configure<MicrosoftAccountOptions>(MicrosoftAccountDefaults.AuthenticationScheme, options =>
+            {
+                options.SaveTokens = true;
+                
+                options.Events.OnTicketReceived = ctx =>
+                {
+                    return Task.CompletedTask;
+                };
+            });
+
+            services.ConfigureCookieAuthenticationOptions();
 
             return services;
         }
@@ -65,69 +78,49 @@ namespace Application.Extensions
 
         public static IServiceCollection AddAzureAd(this IServiceCollection services, IConfiguration configuration)
         {
-            services.TryAddSingleton<SavedClaimsDictionary>();
-            
-            var sp = services.BuildServiceProvider();
-            var savedClaimsDictionary = sp.GetRequiredService<SavedClaimsDictionary>(); 
-            
             services.AddMicrosoftIdentityWebAppAuthentication(configuration, "AzureAd", displayName: "Azure AD", subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: true);
 
-            services.Configure<OpenIdConnectOptions>(OpenIdConnectDefaults.AuthenticationScheme, options =>
-            {
-                options.SignInScheme = IdentityConstants.ExternalScheme;
+            services
+                .AddOptions<OpenIdConnectOptions>(OpenIdConnectDefaults.AuthenticationScheme)
+                .Configure<SavedClaimsDictionary>((options, savedClaimsDictionary) =>
+                {
+                    options.SignInScheme = IdentityConstants.ExternalScheme;
                 
-                options.Events.OnSignedOutCallbackRedirect += context =>
-                {
-                    return Task.CompletedTask;
-                };
-
-                options.Events.OnRemoteSignOut += context =>
-                {
-                    return Task.CompletedTask;
-                };
-
-                options.ClaimActions.MapAll();
-                
-                options.Events.OnTicketReceived = ctx =>
-                {
-                    if (ctx.Principal?.Identity is not ClaimsIdentity claimsIdentity || 
-                        claimsIdentity.Name == null)
-                    {
-                        return Task.CompletedTask;
-                    }
-
-                    savedClaimsDictionary.Add(claimsIdentity.Name, ctx.Principal.Claims);
-                    return Task.CompletedTask;
-                };
-            });
-
-            services.Configure<CookieAuthenticationOptions>(IdentityConstants.ExternalScheme,
-                options =>
-                {
-                    options.Events.OnSigningIn = ctx =>
+                    options.Events.OnSignedOutCallbackRedirect += ctx =>
                     {
                         return Task.CompletedTask;
                     };
-                });
-            
-            services.Configure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme,
-                options =>
-                {
-                    options.Events.OnSigningIn = ctx =>
+
+                    options.Events.OnRemoteSignOut += ctx =>
                     {
-                        if (ctx.Principal?.Identity is not ClaimsIdentity claimsIdentity 
-                            || claimsIdentity.Name == null
-                            || !savedClaimsDictionary.TryGetValue(claimsIdentity.Name, out var savedClaims))
+                        return Task.CompletedTask;
+                    };
+
+                    options.ClaimActions.MapAll();
+                
+                    options.Events.OnTicketReceived = ctx =>
+                    {
+                        if (ctx.Principal?.Identity is not ClaimsIdentity claimsIdentity || 
+                            claimsIdentity.Name == null)
                         {
                             return Task.CompletedTask;
                         }
 
-                        var newClaimsIdentity = new ClaimsIdentity(savedClaims, IdentityConstants.ExternalScheme);
-                        ctx.Principal.AddIdentity(newClaimsIdentity);
-                        savedClaimsDictionary.Remove(claimsIdentity.Name);
+                        if (savedClaimsDictionary.ContainsKey(claimsIdentity.Name))
+                        {
+                            savedClaimsDictionary[claimsIdentity.Name] = ctx.Principal.Claims;
+                        }
+                        else
+                        {
+                            savedClaimsDictionary.Add(claimsIdentity.Name, ctx.Principal.Claims);
+                        }
+
                         return Task.CompletedTask;
                     };
-                });            
+                });
+            
+
+            services.ConfigureCookieAuthenticationOptions();
             
             return services;
         }
@@ -205,6 +198,42 @@ namespace Application.Extensions
             var sp = services.BuildServiceProvider();
             var infrastucture = sp.GetService<IInfrastructure>();
             infrastucture.Setup();
+        }
+
+        private static IServiceCollection ConfigureCookieAuthenticationOptions(this IServiceCollection services)
+        {
+            services.TryAddSingleton<SavedClaimsDictionary>();
+            
+            services.Configure<CookieAuthenticationOptions>(IdentityConstants.ExternalScheme,
+                options =>
+                {
+                    options.Events.OnSigningIn = ctx =>
+                    {
+                        return Task.CompletedTask;
+                    };
+                });
+
+            services
+                .AddOptions<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme)
+                .Configure<SavedClaimsDictionary>((options, savedClaimsDictionary) =>
+                {
+                    options.Events.OnSigningIn = ctx =>
+                    {
+                        if (ctx.Principal?.Identity is not ClaimsIdentity claimsIdentity 
+                            || claimsIdentity.Name == null
+                            || !savedClaimsDictionary.TryGetValue(claimsIdentity.Name, out var savedClaims))
+                        {
+                            return Task.CompletedTask;
+                        }
+
+                        var newClaimsIdentity = new ClaimsIdentity(savedClaims, IdentityConstants.ExternalScheme);
+                        ctx.Principal.AddIdentity(newClaimsIdentity);
+                        savedClaimsDictionary.Remove(claimsIdentity.Name);
+                        return Task.CompletedTask;
+                    };
+                });
+
+            return services;
         }
     }
 }
