@@ -1,19 +1,24 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
+using System.Security.Claims;
 using System.Threading;
 using Application.Logic.ServiceBus;
 using Application.Mapping;
 using Application.Models;
+using Application.Models.Authentication;
 using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
 using Infrastructure;
 using Infrastructure.Mapping;
 using Infrastructure.Repositories;
 using MediatR;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 using Scrutor;
@@ -60,6 +65,11 @@ namespace Application.Extensions
 
         public static IServiceCollection AddAzureAd(this IServiceCollection services, IConfiguration configuration)
         {
+            services.TryAddSingleton<SavedClaimsDictionary>();
+            
+            var sp = services.BuildServiceProvider();
+            var savedClaimsDictionary = sp.GetRequiredService<SavedClaimsDictionary>(); 
+            
             services.AddMicrosoftIdentityWebAppAuthentication(configuration, "AzureAd", displayName: "Azure AD", subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: true);
 
             services.Configure<OpenIdConnectOptions>(OpenIdConnectDefaults.AuthenticationScheme, options =>
@@ -75,7 +85,49 @@ namespace Application.Extensions
                 {
                     return Task.CompletedTask;
                 };
+
+                options.ClaimActions.MapAll();
+                
+                options.Events.OnTicketReceived = ctx =>
+                {
+                    if (ctx.Principal?.Identity is not ClaimsIdentity claimsIdentity || 
+                        claimsIdentity.Name == null)
+                    {
+                        return Task.CompletedTask;
+                    }
+
+                    savedClaimsDictionary.Add(claimsIdentity.Name, ctx.Principal.Claims);
+                    return Task.CompletedTask;
+                };
             });
+
+            services.Configure<CookieAuthenticationOptions>(IdentityConstants.ExternalScheme,
+                options =>
+                {
+                    options.Events.OnSigningIn = ctx =>
+                    {
+                        return Task.CompletedTask;
+                    };
+                });
+            
+            services.Configure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme,
+                options =>
+                {
+                    options.Events.OnSigningIn = ctx =>
+                    {
+                        if (ctx.Principal?.Identity is not ClaimsIdentity claimsIdentity 
+                            || claimsIdentity.Name == null
+                            || !savedClaimsDictionary.TryGetValue(claimsIdentity.Name, out var savedClaims))
+                        {
+                            return Task.CompletedTask;
+                        }
+
+                        var newClaimsIdentity = new ClaimsIdentity(savedClaims, IdentityConstants.ExternalScheme);
+                        ctx.Principal.AddIdentity(newClaimsIdentity);
+                        savedClaimsDictionary.Remove(claimsIdentity.Name);
+                        return Task.CompletedTask;
+                    };
+                });            
             
             return services;
         }
