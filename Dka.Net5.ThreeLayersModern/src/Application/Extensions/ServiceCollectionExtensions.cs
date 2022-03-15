@@ -22,9 +22,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
 using Scrutor;
 using ServiceBusPublisher;
 using ServiceBusSubscriber;
+
+// TODO: Move all these extensions to Web project. This is not connected to Application.
 
 namespace Application.Extensions
 {
@@ -76,6 +80,68 @@ namespace Application.Extensions
             return services;
         }
 
+        public static IServiceCollection AddOpenIdConnectAuthentication(this IServiceCollection services, IConfiguration configuration)
+        {
+            services
+                .AddAuthentication()
+                .AddOpenIdConnect(ApplicationConstants.Authentication.Schemes.OIDC, "OpenID Connect", options =>
+                {
+                    options.Authority = configuration["OpenIDConnectAuthentication:Authority"];
+                    options.ResponseType = OpenIdConnectResponseType.Code;
+                    options.ClientId = configuration["OpenIDConnectAuthentication:ClientId"];
+                    options.ClientSecret = configuration["OpenIDConnectAuthentication:ClientSecret"];
+                    options.CallbackPath = "/signin-plain-oidc";
+                    options.SignedOutCallbackPath = "/signout-plain-oidc";
+                    options.SignInScheme = IdentityConstants.ExternalScheme;
+                    
+                    options.Scope.Add("openid");
+                    options.Scope.Add("profile");
+                    options.Scope.Add("email");
+                    options.Scope.Add("address");
+                    options.Scope.Add("phone");
+                    
+                    options.GetClaimsFromUserInfoEndpoint = true;
+                    options.SaveTokens = true;
+                    options.ClaimActions.MapAll();
+                    
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        NameClaimType = ClaimConstants.PreferredUserName,
+                        RoleClaimType = ApplicationConstants.Authentication.Claims.Groups,
+                        ValidateIssuer = true
+                    };
+                });
+            
+            services
+                .AddOptions<OpenIdConnectOptions>(ApplicationConstants.Authentication.Schemes.OIDC)
+                .Configure<SavedClaimsDictionary>((options, savedClaimsDictionary) =>
+                {
+                    options.Events.OnTicketReceived = ctx =>
+                    {
+                        if (ctx.Principal?.Identity is not ClaimsIdentity claimsIdentity || 
+                            claimsIdentity.Name == null)
+                        {
+                            return Task.CompletedTask;
+                        }
+
+                        if (savedClaimsDictionary.ContainsKey(claimsIdentity.Name))
+                        {
+                            savedClaimsDictionary[claimsIdentity.Name] = ctx.Principal.Claims;
+                        }
+                        else
+                        {
+                            savedClaimsDictionary.Add(claimsIdentity.Name, ctx.Principal.Claims);
+                        }
+
+                        return Task.CompletedTask;
+                    };
+                });            
+            
+            services.ConfigureCookieAuthenticationOptions();
+            
+            return services;
+        }
+        
         public static IServiceCollection AddAzureAd(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddMicrosoftIdentityWebAppAuthentication(configuration, "AzureAd", displayName: "Azure AD", subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: true);
@@ -118,7 +184,6 @@ namespace Application.Extensions
                         return Task.CompletedTask;
                     };
                 });
-            
 
             services.ConfigureCookieAuthenticationOptions();
             

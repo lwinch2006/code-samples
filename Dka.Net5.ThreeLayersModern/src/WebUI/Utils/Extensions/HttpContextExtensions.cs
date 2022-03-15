@@ -27,4 +27,9 @@ public static class HttpContextExtensions
     {
         return httpContext.User.Identity?.IsAuthenticated == true && httpContext.User.HasClaim(ClaimTypes.AuthenticationMethod, TwitterDefaults.AuthenticationScheme);
     }
+
+    public static bool IsAuthenticatedWithScheme(this HttpContext httpContext, string authenticationScheme)
+    {
+        return httpContext.User.Identity?.IsAuthenticated == true && httpContext.User.HasClaim(ClaimTypes.AuthenticationMethod, authenticationScheme);
+    }
 }

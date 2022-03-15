@@ -1,11 +1,7 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Application.Models;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using WebUI.Utils.Extensions;
 
 namespace WebUI.Areas.Identity.Controllers
 {
@@ -26,6 +22,11 @@ namespace WebUI.Areas.Identity.Controllers
             if (HttpContext.IsMicrosoftAccountLogin() || HttpContext.IsAzureAdLogin())
             {
                 signOutSchemes.AddRange(new[] {CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme});
+            }
+
+            if (HttpContext.IsAuthenticatedWithScheme(ApplicationConstants.Authentication.Schemes.OIDC))
+            {
+                signOutSchemes.Add(ApplicationConstants.Authentication.Schemes.OIDC);
             }
 
             return SignOut(

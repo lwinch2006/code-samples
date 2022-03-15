@@ -4,10 +4,16 @@
     {
         public static class Authentication
         {
+            public static class Schemes
+            {
+                public const string OIDC = "oidc";
+            }
+
             public static class Claims
             {
                 public const string Amr = "amr";
                 public const string IdentityProvider = "http://schemas.microsoft.com/identity/claims/identityprovider";
+                public const string Groups = "groups";
             }
         }
 
