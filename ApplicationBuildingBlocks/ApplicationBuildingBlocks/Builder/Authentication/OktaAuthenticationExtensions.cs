@@ -80,7 +80,7 @@ public static class OktaAuthenticationExtensions
                 };
             });            
             
-            builder.Services.ConfigureCookieAuthenticationOptions();            
+            //builder.Services.ConfigureCookieAuthenticationOptions();            
 		
 		return builder;
 	}

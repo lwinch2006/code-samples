@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace ApplicationBuildingBlocks.Builder.Authentication;
@@ -72,7 +74,52 @@ public static class OpenIdConnectAuthenticationExtensions
                 };
             });            
         
-        builder.Services.ConfigureCookieAuthenticationOptions();
+        //builder.Services.ConfigureCookieAuthenticationOptions();
+        
+        builder.Services.TryAddSingleton<SavedClaimsDictionary>();
+            
+        builder.Services.Configure<CookieAuthenticationOptions>(IdentityConstants.ExternalScheme,
+            options =>
+            {
+                options.Events.OnSigningIn = ctx =>
+                {
+                    return Task.CompletedTask;
+                };
+            });
+        
+        builder.Services.Configure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme,
+            options =>
+            {
+                options.Events.OnSignedIn = ctx =>
+                {
+                    return Task.CompletedTask;
+                };
+                
+                options.Events.OnSigningIn = ctx =>
+                {
+                    return Task.CompletedTask;
+                };
+            });
+
+        builder.Services
+            .AddOptions<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme)
+            .Configure<SavedClaimsDictionary>((options, savedClaimsDictionary) =>
+            {
+                options.Events.OnSigningIn = ctx =>
+                {
+                    if (ctx.Principal?.Identity is not ClaimsIdentity claimsIdentity 
+                        || claimsIdentity.Name == null
+                        || !savedClaimsDictionary.TryGetValue(claimsIdentity.Name, out var savedClaims))
+                    {
+                        return Task.CompletedTask;
+                    }
+
+                    var newClaimsIdentity = new ClaimsIdentity(savedClaims, IdentityConstants.ExternalScheme);
+                    ctx.Principal.AddIdentity(newClaimsIdentity);
+                    savedClaimsDictionary.Remove(claimsIdentity.Name);
+                    return Task.CompletedTask;
+                };
+            });
         
         return builder;
 	}
