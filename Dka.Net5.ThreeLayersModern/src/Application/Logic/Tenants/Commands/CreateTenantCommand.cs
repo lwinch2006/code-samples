@@ -1,5 +1,5 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Threading;
 using Application.Models.Tenants;
 using Application.ViewModels.Tenants;
 using AutoMapper;
@@ -11,6 +11,7 @@ namespace Application.Logic.Tenants.Commands
 {
     public class CreateTenantCommand : IRequest<TenantVm>
     {
+        [Required]
         public string Name { get; set; }
     }
 

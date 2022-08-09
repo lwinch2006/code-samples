@@ -1,8 +1,8 @@
 ﻿@using Dka.Net5.IdentityWithDapper.Models
 @using Microsoft.AspNetCore.Identity
-@using Application.Extensions;
+@using ApplicationBuildingBlocks.Builder.Authentication
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @inject SignInManager<ApplicationUser> SignInManager
-@inject UserManager<ApplicationUser> UserManager
 
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))

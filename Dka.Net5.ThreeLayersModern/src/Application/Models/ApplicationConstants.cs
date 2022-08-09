@@ -7,6 +7,7 @@
             public static class Schemes
             {
                 public const string OIDC = "oidc";
+                public const string Okta = "okta";
             }
 
             public static class Claims

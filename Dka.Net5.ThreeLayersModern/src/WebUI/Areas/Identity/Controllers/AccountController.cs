@@ -1,4 +1,5 @@
 ﻿using Application.Models;
+using ApplicationBuildingBlocks.Builder.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +20,11 @@ namespace WebUI.Areas.Identity.Controllers
                 IdentityConstants.TwoFactorUserIdScheme
             };
 
+            var authenticationProperties = new AuthenticationProperties
+            {
+                RedirectUri = returnUrl
+            };
+
             if (HttpContext.IsMicrosoftAccountLogin() || HttpContext.IsAzureAdLogin())
             {
                 signOutSchemes.AddRange(new[] {CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme});
@@ -28,12 +34,15 @@ namespace WebUI.Areas.Identity.Controllers
             {
                 signOutSchemes.Add(ApplicationConstants.Authentication.Schemes.OIDC);
             }
+            
+            if (HttpContext.IsAuthenticatedWithScheme(ApplicationConstants.Authentication.Schemes.Okta))
+            {
+                signOutSchemes.Add(ApplicationConstants.Authentication.Schemes.Okta);
+                authenticationProperties.SetString("client_id", "0oa495nn7pRnQoGHZ5d7");
+            }
 
             return SignOut(
-                new AuthenticationProperties
-                {
-                    RedirectUri = returnUrl
-                },
+                authenticationProperties,
                 signOutSchemes.ToArray());
         }
     }

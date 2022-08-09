@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web;
+using ApplicationBuildingBlocks.Builder.Authentication;
 using Dka.Net5.IdentityWithDapper.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;

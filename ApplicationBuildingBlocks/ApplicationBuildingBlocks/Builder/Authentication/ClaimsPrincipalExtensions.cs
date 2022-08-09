@@ -1,12 +1,8 @@
-﻿using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using Application.Models;
 using IdentityModel;
 using Microsoft.Identity.Web;
+using Microsoft.IdentityModel.JsonWebTokens;
 
-namespace Application.Extensions;
+namespace ApplicationBuildingBlocks.Builder.Authentication;
 
 public static class ClaimsPrincipalExtensions
 {
@@ -36,12 +32,11 @@ public static class ClaimsPrincipalExtensions
         
         return emailAddress;
     }
-    
 
     public static IEnumerable<string> GetIdentityProviders(this ClaimsPrincipal principal)
     {
         var identityProviders = principal.Claims
-            .Where(t => t.Type is ApplicationConstants.Authentication.Claims.IdentityProvider or JwtClaimTypes.IdentityProvider)
+            .Where(t => t.Type is "http://schemas.microsoft.com/identity/claims/identityprovider" or JwtClaimTypes.IdentityProvider)
             .Select(t => t.Value);
 
         return identityProviders;
@@ -56,6 +51,15 @@ public static class ClaimsPrincipalExtensions
         return issuerIdentifiers;
     }
 
+    public static IEnumerable<string> GetIdTokens(this ClaimsPrincipal principal)
+    {
+        var issuerIdentifiers = principal.Claims
+            .Where(t => t.Type == "id_token")
+            .Select(t => t.Value);
+
+        return issuerIdentifiers;
+    }
+    
     public static bool IsAzureAdMember(this ClaimsPrincipal principal)
     {
         return !principal.GetIdentityProviders().Any();
@@ -73,5 +77,5 @@ public static class ClaimsPrincipalExtensions
         var issuerValue = principal.Claims.FirstOrDefault()?.Issuer;
         
         return claimsToCheck.Any(t => t != issuerValue);
-    }
+    }	
 }
