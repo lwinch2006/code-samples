@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Web;
+﻿using System.Web;
 using ApplicationBuildingBlocks.Builder.Authentication;
 using Dka.Net5.IdentityWithDapper.Models;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using WebUI.Utils.Extensions;
 
 namespace WebUI.Controllers
 {

@@ -11,4 +11,4 @@ global using FluentValidation.AspNetCore;
 global using Application.Extensions;
 global using Application.Logic.Tenants.Commands;
 global using Dka.Net5.IdentityWithDapper.Utils.Extensions;
-global using WebUI.Utils.Extensions;
+global using WebUI;

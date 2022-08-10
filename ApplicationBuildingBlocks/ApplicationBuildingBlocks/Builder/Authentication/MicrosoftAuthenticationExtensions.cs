@@ -35,7 +35,7 @@ public static class MicrosoftAuthenticationExtensions
 			};
 		});
 
-		//builder.Services.ConfigureCookieAuthenticationOptions();
+		builder.Services.ConfigureCookieAuthenticationOptions();
 
 		return builder;
 	}
@@ -93,7 +93,7 @@ public static class MicrosoftAuthenticationExtensions
                 };
             });
 
-        //builder.Services.ConfigureCookieAuthenticationOptions();
+        builder.Services.ConfigureCookieAuthenticationOptions();
         
         return builder;
     }

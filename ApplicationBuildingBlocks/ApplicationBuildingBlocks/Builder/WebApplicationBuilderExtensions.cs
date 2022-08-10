@@ -35,4 +35,10 @@ public static class WebApplicationBuilderExtensions
 	{
 		return builder.Build();
 	}
+	
+	public static WebApplicationBuilder Configure(this WebApplicationBuilder builder, Action action)
+	{
+		action();
+		return builder;
+	}
 }
