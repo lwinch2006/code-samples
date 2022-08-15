@@ -9,13 +9,13 @@ public static class ProgramExtensions
 	{
 		builder
 			.ConfigureDefaultBuilder()
-			.Configure(() => { builder.Services.AddSingleton<IHostEnvironment>(builder.Environment); })
-			.Configure(() => { builder.Services.AddFullIdentityWithDapper(builder.Configuration); })
-			.Configure(() => { builder.Services.ConfigureAuthenticationCookies(); })
+			.ConfigureBuilderServices(services => services.AddSingleton<IHostEnvironment>(builder.Environment))
+			.ConfigureBuilderServices(services => services.AddFullIdentityWithDapper(builder.Configuration))
+			.ConfigureBuilderServices(services => services.ConfigureAuthenticationCookies())
 			.AddAuthenticationServicesFromProviders()
-			.Configure(() => { builder.Services.AddApplication(); })
-			.Configure(() => { builder.Services.AddFluentValidation(config => config.RegisterValidatorsFromAssemblyContaining<CreateTenantCommandValidator>()); })
-			.Configure(() => { builder.Services.AddServiceBus(builder.Configuration); });
+			.ConfigureBuilderServices(services => services.AddApplication())
+			.ConfigureBuilderServices(services => services.AddFluentValidation(config => config.RegisterValidatorsFromAssemblyContaining<CreateTenantCommandValidator>()))
+			.ConfigureBuilderServices(services => services.AddServiceBus(builder.Configuration));
 		
 		return builder;
 	}

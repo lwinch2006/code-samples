@@ -41,4 +41,16 @@ public static class WebApplicationBuilderExtensions
 		action();
 		return builder;
 	}
+
+	public static WebApplicationBuilder ConfigureBuilder(this WebApplicationBuilder builder, Action<WebApplicationBuilder> action)
+	{
+		action(builder);
+		return builder;
+	}
+
+	public static WebApplicationBuilder ConfigureBuilderServices(this WebApplicationBuilder builder, Action<IServiceCollection> action)
+	{
+		action(builder.Services);
+		return builder;
+	}
 }
