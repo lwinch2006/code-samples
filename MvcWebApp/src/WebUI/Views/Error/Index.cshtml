@@ -1,0 +1,16 @@
+﻿@model MvcWebApp.WebUI.ViewModels.Error.ErrorVm
+
+@{
+    ViewData["Title"] = "Error";
+    ViewData["CardHeader"] = $"Error {Model.StatusCode}";
+}
+
+<p>
+    Request Id: @Model.RequestId
+</p>
+<p>
+    Trace Id: @Model.TraceId
+</p>
+<p>
+    Path: @Model.Path
+</p>

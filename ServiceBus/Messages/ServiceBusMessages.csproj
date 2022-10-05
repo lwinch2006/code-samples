@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <AssemblyName>Dka.Net.ServiceBusMessages</AssemblyName>
+        <RootNamespace>ServiceBusMessages</RootNamespace>
+        <LangVersion>10</LangVersion>
+    </PropertyGroup>
+
+</Project>
