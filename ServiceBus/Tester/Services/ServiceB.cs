@@ -14,7 +14,7 @@ namespace ServiceBusTester.Services
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
 
         private CancellationToken _cancellationToken;
-        private CancellationTokenSource _cancellationTokenSource;
+        private CancellationTokenSource _cancellationTokenSource = default!;
 
         public CancellationToken CancellationToken => _cancellationTokenSource.Token;
 

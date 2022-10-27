@@ -4,8 +4,9 @@
         <OutputType>Exe</OutputType>
         <TargetFramework>net6.0</TargetFramework>
       <UserSecretsId>8b76e8e5-f3a8-4589-a2f9-8d1537318647</UserSecretsId>
-      <LangVersion>10</LangVersion>
+      <LangVersion>default</LangVersion>
       <AssemblyName>Dka.Net.ServiceBusTester</AssemblyName>
+      <Nullable>enable</Nullable>
   </PropertyGroup>
 
     <ItemGroup>

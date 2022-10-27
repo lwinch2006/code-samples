@@ -56,7 +56,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "MvcWebApp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "MvcWebApp\src\Application\Application.csproj", "{795EB5C8-0966-418C-8164-81BBACE2273B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebUI", "MvcWebApp\src\WebUI\WebUI.csproj", "{D4E4F127-E14E-4944-93FE-C0D1B9C8E899}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp", "MvcWebApp\src\WebApp\WebApp.csproj", "{D4E4F127-E14E-4944-93FE-C0D1B9C8E899}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

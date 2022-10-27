@@ -28,7 +28,7 @@ namespace ServiceBusPublisher
 
         public async Task SendMessage(string queueOrTopicName, ServiceBusReceivedMessage message, CancellationToken cancellationToken)
         {
-            ServiceBusSender publisher = null;
+            ServiceBusSender? publisher = null;
             
             try
             {
@@ -53,7 +53,7 @@ namespace ServiceBusPublisher
         public async Task SendMessage<T>(string queueOrTopicName, ServiceBusMessage<T> message, CancellationToken cancellationToken) 
             where T : class
         {
-            ServiceBusSender publisher = null;
+            ServiceBusSender? publisher = null;
             
             try
             {

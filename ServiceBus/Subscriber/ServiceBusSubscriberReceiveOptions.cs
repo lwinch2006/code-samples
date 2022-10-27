@@ -2,8 +2,8 @@
 {
     public class ServiceBusSubscriberReceiveOptions
     {
-        public string SessionId { get; set; }
-        public bool ConnectToDeadLetterQueue { get; set; }
-        public ServiceBusSubscriberReceiveMessageTypes ReceiveMessageType { get; set; }
+        public string? SessionId { get; init; }
+        public bool ConnectToDeadLetterQueue { get; init; }
+        public ServiceBusSubscriberReceiveMessageTypes ReceiveMessageType { get; init; }
     }
 }

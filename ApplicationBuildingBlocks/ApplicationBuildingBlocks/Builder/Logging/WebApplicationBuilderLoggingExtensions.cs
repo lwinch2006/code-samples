@@ -22,7 +22,7 @@ public static class WebApplicationBuilderLoggingExtensions
 			.Enrich.WithExceptionDetails()
 			.CreateLogger();
 
-		builder.WebHost.UseSerilog();
+		builder.Host.UseSerilog();
         
 		return builder;
 	}

@@ -1,0 +1,53 @@
+﻿@model Application.ViewModels.Tenants.TenantsVm;
+
+@{
+    ViewData["Title"] = "Tenants";
+    ViewData["CardHeader"] = "Tenants";
+}
+
+<div class="row">
+    <div class="col">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var tenant in Model.Tenants)
+                {
+                    <tr>
+                        <td>
+                            @tenant.Id
+                        </td>
+                        <td>
+                            @tenant.Name
+                        </td>
+                        <td style="white-space: nowrap;">
+                            <a class="btn btn-primary" asp-controller="Tenants" asp-action="Details" asp-route-id="@tenant.Id">
+                                <i class="fas fa-info-circle"></i>
+                            </a>
+                            <a class="btn btn-success" asp-controller="Tenants" asp-action="Update" asp-route-id="@tenant.Id">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a class="btn btn-danger" asp-controller="Tenants" asp-action="Delete" asp-route-id="@tenant.Id">
+                                <i class="fas fa-times-circle"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+@Model.Tenants.First().Name
+
+
+
+@Html.Raw(Model.Tenants.First().Name)

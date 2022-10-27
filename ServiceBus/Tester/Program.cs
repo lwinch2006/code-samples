@@ -20,7 +20,7 @@ namespace ServiceBusTester
 {
     class Program
     {
-        private static IConfiguration _configuration;
+        private static IConfiguration? _configuration;
         
         static async Task Main(string[] args)
         {
@@ -66,7 +66,7 @@ namespace ServiceBusTester
         
         private static void ConfigureServices(IServiceCollection services)
         {
-            services.AddServiceBus(_configuration);
+            services.AddServiceBus(_configuration!);
 
             services.AddHostedService<ServiceA>();
             services.AddHostedService<ServiceB>();

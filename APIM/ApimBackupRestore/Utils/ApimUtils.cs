@@ -59,9 +59,9 @@ public static class ApimUtils
             var responseContent = await response.Content.ReadAsStringAsync();
             var errorModel = JsonSerializer.Deserialize<ApimErrorResponse>(
                 responseContent, 
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
 
-            Console.WriteLine("Error ({0}) with message ({1})", errorModel.Error.Code, errorModel.Error.Message);
+            Console.WriteLine("Error ({0}) with message ({1})", errorModel.Error!.Code, errorModel.Error.Message);
             Console.WriteLine();
             throw;
         }
@@ -107,9 +107,9 @@ public static class ApimUtils
             var responseContent = await response.Content.ReadAsStringAsync();
             var errorModel = JsonSerializer.Deserialize<ApimErrorResponse>(
                 responseContent, 
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
 
-            Console.WriteLine("Error ({0}) with message ({1})", errorModel.Error.Code, errorModel.Error.Message);
+            Console.WriteLine("Error ({0}) with message ({1})", errorModel.Error!.Code, errorModel.Error.Message);
             Console.WriteLine();
             throw;
         }        

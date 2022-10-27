@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Application.ViewModels.Tenants
+﻿namespace Application.ViewModels.Tenants
 {
     public class TenantVm
     {

@@ -21,5 +21,6 @@ public class ThreeLayersModernEventsSubscriber
         // TODO: Processing logic goes here...
         
         _logger.LogWarning("Received topic/subscription {Event} event - raw data {RawData}", "unknown", messageAsJson.Replace(Environment.NewLine, string.Empty));
+        await Task.Delay(0);
     }
 }

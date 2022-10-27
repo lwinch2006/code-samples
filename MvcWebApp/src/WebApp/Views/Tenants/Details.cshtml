@@ -1,0 +1,22 @@
+﻿@model Application.ViewModels.Tenants.TenantVm;
+
+@{
+    ViewData["Title"] = "Tenant details";
+    ViewData["CardHeader"] = "Tenant details";
+}
+
+<div class="mb-3 row">
+    <label asp-for="@Model.Id" class="col-sm-2 col-form-label"></label>
+    <div class="col-sm-10">
+        <input asp-for="@Model.Id" type="text" readonly class="form-control-plaintext">
+    </div>
+</div>
+<div class="mb-3 row">
+    <label asp-for="@Model.Name" class="col-sm-2 col-form-label"></label>
+    <div class="col-sm-10">
+        <input asp-for="@Model.Name" type="text" readonly class="form-control-plaintext">
+    </div>
+</div>
+<div class="mb-3">
+    <a asp-action="Index" class="btn btn-secondary">Back</a>
+</div>

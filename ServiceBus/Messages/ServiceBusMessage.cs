@@ -6,13 +6,13 @@ namespace ServiceBusMessages
     public class ServiceBusMessage<T>
         where T : class
     {
-        public Metadata Metadata { get; set; }
-        public T Payload { get; set; }
-        public Guid? CorrelationId { get; set; }  
-        public string SessionId { get; set; }
-        public string ReplyToSessionId { get; set; }
+        public Metadata Metadata { get; init; } = default!;
+        public T Payload { get; init; } = default!;
+        public Guid? CorrelationId { get; init; }  
+        public string? SessionId { get; init; }
+        public string? ReplyToSessionId { get; init; }
 
-        public static ServiceBusMessage<T> FromObject(object source)
+        public static ServiceBusMessage<T>? FromObject(object? source)
         {
             if (source == null)
             {
@@ -39,7 +39,7 @@ namespace ServiceBusMessages
 
                 if (sourcePublicProperty.PropertyType.IsGenericParameter)
                 {
-                    destinationPublicProperty.SetValue(destination, (T) value);
+                    destinationPublicProperty.SetValue(destination, (T) value!);
                     continue;
                 }
                 

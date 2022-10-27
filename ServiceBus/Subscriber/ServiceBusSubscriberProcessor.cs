@@ -10,16 +10,16 @@ namespace ServiceBusSubscriber
     {
         private readonly object _serviceBusProcessorAsObject;
 
-        public string QueueOrTopicName { get; set; }
-        public string SubscriptionName { get; set; }
-        public ServiceBusSubscriberReceiveOptions ServiceBusSubscriberReceiveOptions { get; set; }
-        public Func<string, string, object, Task> ClientProcessMessageFunc { get; set; }
-        public Func<string, string, Exception, Task> ClientProcessErrorFunc { get; set; }
+        public string QueueOrTopicName { get; init; }
+        public string? SubscriptionName { get; init; }
+        public ServiceBusSubscriberReceiveOptions ServiceBusSubscriberReceiveOptions { get; }
+        public Func<string, string?, object?, Task>? ClientProcessMessageFunc { get; init; }
+        public Func<string, string?, Exception, Task>? ClientProcessErrorFunc { get; init; }
 
         public ServiceBusSubscriberProcessor(ServiceBusClient client,
             string queueOrTopicName, 
-            string subscriptionName = default,
-            ServiceBusSubscriberReceiveOptions options = default)
+            string? subscriptionName = default,
+            ServiceBusSubscriberReceiveOptions? options = default)
         {
             QueueOrTopicName = queueOrTopicName;
             SubscriptionName = subscriptionName;
@@ -169,7 +169,6 @@ namespace ServiceBusSubscriber
             {
                 ProcessMessageEventArgs args => args.Message,
                 ProcessSessionMessageEventArgs args => args.Message,
-                _ => null
             };
         }
 
@@ -179,13 +178,12 @@ namespace ServiceBusSubscriber
             {
                 ProcessMessageEventArgs args => args.CompleteMessageAsync(args.Message, cancellationToken),
                 ProcessSessionMessageEventArgs args => args.CompleteMessageAsync(args.Message, cancellationToken),
-                _ => Task.CompletedTask
             };
         }
 
         public Task AbandonMessageAsync(
             object argsAsObject, 
-            IDictionary<string, object> propertiesToModify = default,
+            IDictionary<string, object>? propertiesToModify = default,
             CancellationToken cancellationToken = default)
         {
             return argsAsObject switch
@@ -199,7 +197,7 @@ namespace ServiceBusSubscriber
         public Task DeadLetterMessageAsync(
             object argsAsObject, 
             string deadLetterReason,
-            string deadLetterErrorDescription = default, 
+            string? deadLetterErrorDescription = default, 
             CancellationToken cancellationToken = default)
         {
             return argsAsObject switch

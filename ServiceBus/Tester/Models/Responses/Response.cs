@@ -2,8 +2,8 @@
 {
     public class Response
     {
-        public string EventName { get; set; }
-        public int StatusCode { get; set; }
-        public string Message { get; set; }
+        public string EventName { get; init; } = default!;
+        public int StatusCode { get; init; }
+        public string Message { get; init; } = default!;
     }
 }

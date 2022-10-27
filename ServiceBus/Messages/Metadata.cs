@@ -4,10 +4,10 @@ namespace ServiceBusMessages
 {
     public class Metadata
     {
-        public string EventType { get; set; }
-        public string EventName { get; set; }
-        public int Version { get; set; }
-        public string CreatedBy { get; set; }
-        public DateTime CreatedOnUtc { get; set; }
+        public string EventType { get; init; } = default!;
+        public string EventName { get; init; } = default!;
+        public int Version { get; init; }
+        public string CreatedBy { get; init; } = default!;
+        public DateTime CreatedOnUtc { get; init; }
     }
 }

@@ -4,7 +4,8 @@
         <TargetFramework>net6.0</TargetFramework>
         <AssemblyName>Dka.Net.ServiceBusMessages</AssemblyName>
         <RootNamespace>ServiceBusMessages</RootNamespace>
-        <LangVersion>10</LangVersion>
+        <LangVersion>default</LangVersion>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
 </Project>

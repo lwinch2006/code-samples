@@ -17,7 +17,7 @@ namespace ServiceBusSubscriber
         private readonly ServiceBusSubscriberConfiguration _serviceBusSubscriberConfiguration;
         private readonly ILogger<ServiceBusSubscriber> _logger;
 
-        private ServiceBusSubscriberProcessor _serviceBusSubscriberProcessor;
+        private ServiceBusSubscriberProcessor? _serviceBusSubscriberProcessor;
         
         public ServiceBusSubscriber(
             ServiceBusClient client,
@@ -31,10 +31,10 @@ namespace ServiceBusSubscriber
             _logger = logger;
         }
 
-        public async Task<T> ReceiveMessage<T>(
+        public async Task<T?> ReceiveMessage<T>(
             string queueOrTopicName, 
-            string subscriptionName = default,
-            ServiceBusSubscriberReceiveOptions options = default, 
+            string? subscriptionName = default,
+            ServiceBusSubscriberReceiveOptions? options = default, 
             CancellationToken cancellationToken = default)
             where T : class
         {
@@ -51,10 +51,10 @@ namespace ServiceBusSubscriber
             return payload;
         }
 
-        public async Task<object> ReceiveMessage(
+        public async Task<object?> ReceiveMessage(
             string queueOrTopicName,
-            string subscriptionName = default,
-            ServiceBusSubscriberReceiveOptions options = default,
+            string? subscriptionName = default,
+            ServiceBusSubscriberReceiveOptions? options = default,
             CancellationToken cancellationToken = default)
         {
             await using var receiver = await GetServiceBusReceiver(queueOrTopicName, subscriptionName, options, cancellationToken);
@@ -72,8 +72,8 @@ namespace ServiceBusSubscriber
 
         public async IAsyncEnumerable<T> ReceiveMessages<T>(
             string queueOrTopicName, 
-            string subscriptionName = default,
-            ServiceBusSubscriberReceiveOptions options = default, 
+            string? subscriptionName = default,
+            ServiceBusSubscriberReceiveOptions? options = default, 
             CancellationToken cancellationToken = default)
             where T : class
         {
@@ -90,8 +90,8 @@ namespace ServiceBusSubscriber
 
         public async IAsyncEnumerable<object> ReceiveMessages(
             string queueOrTopicName,
-            string subscriptionName = default, 
-            ServiceBusSubscriberReceiveOptions options = default,
+            string? subscriptionName = default, 
+            ServiceBusSubscriberReceiveOptions? options = default,
             CancellationToken cancellationToken = default)
         {
             var receiveMessageType = options?.ReceiveMessageType ?? ServiceBusSubscriberReceiveMessageTypes.Payload;
@@ -107,10 +107,10 @@ namespace ServiceBusSubscriber
 
         public async Task StartReceiveMessages(
             string queueOrTopicName,
-            string subscriptionName = default,
-            Func<string, string, object, Task> processMessageFunc = default,
-            Func<string, string, Exception, Task> processErrorFunc = default,
-            ServiceBusSubscriberReceiveOptions options = default,
+            string? subscriptionName = default,
+            Func<string, string?, object?, Task>? processMessageFunc = default,
+            Func<string, string?, Exception, Task>? processErrorFunc = default,
+            ServiceBusSubscriberReceiveOptions? options = default,
             CancellationToken cancellationToken = default)
         {
             if (_serviceBusSubscriberProcessor != null)
@@ -160,7 +160,7 @@ namespace ServiceBusSubscriber
 
         public async Task EnsureTopicSubscription(
             string topicName, 
-            string subscriptionName, 
+            string? subscriptionName, 
             CancellationToken cancellationToken = default,
             string sqlFilterRule = "1=1")
         {
@@ -211,7 +211,7 @@ namespace ServiceBusSubscriber
             var eventName = (string)eventNameAsObject;
             var version = (int)versionAsObject;
             
-            if (!_serviceBusSubscriberConfiguration.DeserializationDictionary.TryGetValue((version, eventName), out var payloadType)
+            if (!_serviceBusSubscriberConfiguration.DeserializationDictionary!.TryGetValue((version, eventName), out var payloadType)
                 || payloadType == null)
             {
                 return GetPayload<object>(serviceBusReceivedMessage, receiveMessageType, cancellationToken);
@@ -219,10 +219,10 @@ namespace ServiceBusSubscriber
             
             try
             {
-                var message = JsonConvert.DeserializeObject(serviceBusReceivedMessage.Body.ToString(), payloadType);
+                var message = JsonConvert.DeserializeObject(serviceBusReceivedMessage.Body.ToString(), payloadType)!;
                 return receiveMessageType == ServiceBusSubscriberReceiveMessageTypes.Message
                     ? message
-                    : message.GetType().GetProperty(nameof(ServiceBusMessage<object>.Payload)).GetValue(message, null);
+                    : message.GetType().GetProperty(nameof(ServiceBusMessage<object>.Payload))!.GetValue(message, null)!;
             }
             catch (Exception ex)
             {
@@ -236,15 +236,15 @@ namespace ServiceBusSubscriber
         {
             if (receiveMessageType == ServiceBusSubscriberReceiveMessageTypes.FullMessage)
             {
-                return serviceBusReceivedMessage as T;
+                return (serviceBusReceivedMessage as T)!;
             }
             
             try
             {
-                var message = JsonConvert.DeserializeObject(serviceBusReceivedMessage.Body.ToString(), typeof(ServiceBusMessage<T>));
+                var message = JsonConvert.DeserializeObject(serviceBusReceivedMessage.Body.ToString(), typeof(ServiceBusMessage<T>))!;
                 return receiveMessageType == ServiceBusSubscriberReceiveMessageTypes.Message
                 ? (T) message
-                : ((ServiceBusMessage<T>)message)?.Payload;
+                : ((ServiceBusMessage<T>)message).Payload;
             }
             catch (Exception ex)
             {
@@ -256,7 +256,7 @@ namespace ServiceBusSubscriber
         private async Task ProcessMessageInternal(object argsAsObject)
         {
             var (queueOrTopicName, subscriptionName, clientProcessMessageFunc, receiveMessageType) = (
-                _serviceBusSubscriberProcessor.QueueOrTopicName, 
+                _serviceBusSubscriberProcessor!.QueueOrTopicName, 
                 _serviceBusSubscriberProcessor.SubscriptionName,
                 _serviceBusSubscriberProcessor.ClientProcessMessageFunc,
                 _serviceBusSubscriberProcessor.ServiceBusSubscriberReceiveOptions.ReceiveMessageType);
@@ -299,7 +299,7 @@ namespace ServiceBusSubscriber
             _logger.LogError(ex, "Service Bus processor error");
             
             var (queueOrTopicName, subscriptionName, clientProcessErrorFunc) = (
-                _serviceBusSubscriberProcessor.QueueOrTopicName, 
+                _serviceBusSubscriberProcessor!.QueueOrTopicName, 
                 _serviceBusSubscriberProcessor.SubscriptionName,
                 _serviceBusSubscriberProcessor.ClientProcessErrorFunc);            
             
@@ -340,8 +340,8 @@ namespace ServiceBusSubscriber
 
         private async Task<ServiceBusReceiver> GetServiceBusReceiver(
             string queueOrTopicName, 
-            string subscriptionName = default,
-            ServiceBusSubscriberReceiveOptions options = default,
+            string? subscriptionName = default,
+            ServiceBusSubscriberReceiveOptions? options = default,
             CancellationToken cancellationToken = default)
         {
             var (sessionId, _, connectToDeadLetterQueue) = (options?.SessionId, ServiceBusSubscriberReceiveMessageTypes.Payload, options?.ConnectToDeadLetterQueue ?? false);

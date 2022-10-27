@@ -68,7 +68,7 @@ namespace ServiceBusTester.Logic
                     //source.Cancel();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             { }
         }
         
@@ -98,7 +98,7 @@ namespace ServiceBusTester.Logic
                     //source.Cancel();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             { }
         }
 
@@ -163,15 +163,15 @@ namespace ServiceBusTester.Logic
             try
             {
                 await _serviceBusPublisher.SendMessage(requestQueue, message, CancellationToken.None);
-                var responseAsObject = await _serviceBusSubscriber.ReceiveMessage(
+                var responseAsObject = (await _serviceBusSubscriber.ReceiveMessage(
                     responseQueue, 
                     options: new ServiceBusSubscriberReceiveOptions { SessionId = sessionId, ReceiveMessageType = ServiceBusSubscriberReceiveMessageTypes.Message}, 
-                    cancellationToken: CancellationToken.None);
+                    cancellationToken: CancellationToken.None))!;
                 
                 var response = (ServiceBusMessage<Response>)responseAsObject;
                 _logger.LogInformation("Received response for request on event {EventFullName} with status {StatusCode} and message {Message}", response.Payload.EventName, response.Payload.StatusCode, response.Payload.Message);
             }
-            catch (Exception ex)
+            catch (Exception)
             { }
         }
 
@@ -206,7 +206,7 @@ namespace ServiceBusTester.Logic
                     //source.Cancel();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             { }
         }
         
@@ -233,7 +233,7 @@ namespace ServiceBusTester.Logic
                 await _serviceBusPublisher
                     .SendMessage(queueOrTopic, message, CancellationToken.None);
             }
-            catch (Exception ex)
+            catch (Exception)
             { }
         }
 
@@ -259,11 +259,11 @@ namespace ServiceBusTester.Logic
             {
                 await _serviceBusPublisher.SendMessage(queueOrTopic, message, CancellationToken.None); 
             }
-            catch (Exception ex)
+            catch (Exception)
             { }
         }
 
-        private Task ProcessMessagesInternal(string queueOrTopicName, string subscriptionName, object payload)
+        private Task ProcessMessagesInternal(string queueOrTopicName, string? subscriptionName, object? payload)
         {
             switch (payload)
             {
@@ -283,13 +283,13 @@ namespace ServiceBusTester.Logic
             return Task.CompletedTask;
         }
         
-        private Task ProcessErrorsInternal(string queueOrTopicName, string subscriptionName, Exception exception)
+        private Task ProcessErrorsInternal(string queueOrTopicName, string? subscriptionName, Exception exception)
         {
             _logger.LogError(exception, "Service Bus receive message error");
             return Task.CompletedTask;
         }        
 
-        private async Task ProcessMessagesInDeadLetterQueueInternal(string queueOrTopicName, string subscriptionName, object message)
+        private async Task ProcessMessagesInDeadLetterQueueInternal(string queueOrTopicName, string? subscriptionName, object? message)
         {
             if (string.IsNullOrWhiteSpace(subscriptionName))
             {
@@ -300,26 +300,26 @@ namespace ServiceBusTester.Logic
                 _logger.LogInformation("Received {Event} event from dead letter subqueue of {Topic}/{Subscription} topic/subscription - raw data {RawData}", "unknown", queueOrTopicName, subscriptionName, message?.ToString()?.Replace(Environment.NewLine, string.Empty));
             }
             
-            await _serviceBusPublisher.SendMessage(queueOrTopicName, ServiceBusMessage<object>.FromObject(message), CancellationToken.None);
+            await _serviceBusPublisher.SendMessage(queueOrTopicName, ServiceBusMessage<object>.FromObject(message)!, CancellationToken.None);
         }
         
-        private async Task ProcessFullMessagesInDeadLetterQueueInternal(string queueOrTopicName, string subscriptionName, object messageAsObject)
+        private async Task ProcessFullMessagesInDeadLetterQueueInternal(string queueOrTopicName, string? subscriptionName, object? messageAsObject)
         {
-            var message = (ServiceBusReceivedMessage) messageAsObject;
+            var message = (ServiceBusReceivedMessage) messageAsObject!;
             
             if (string.IsNullOrWhiteSpace(subscriptionName))
             {
-                _logger.LogInformation("Received {Event} event from dead letter subqueue of {Queue} queue - raw data {RawData}", "unknown", queueOrTopicName, message?.ToString()?.Replace(Environment.NewLine, string.Empty));
+                _logger.LogInformation("Received {Event} event from dead letter subqueue of {Queue} queue - raw data {RawData}", "unknown", queueOrTopicName, message.ToString()?.Replace(Environment.NewLine, string.Empty));
             }
             else
             {
-                _logger.LogInformation("Received {Event} event from dead letter subqueue of {Topic}/{Subscription} topic/subscription - raw data {RawData}", "unknown", queueOrTopicName, subscriptionName, message?.ToString()?.Replace(Environment.NewLine, string.Empty));
+                _logger.LogInformation("Received {Event} event from dead letter subqueue of {Topic}/{Subscription} topic/subscription - raw data {RawData}", "unknown", queueOrTopicName, subscriptionName, message.ToString()?.Replace(Environment.NewLine, string.Empty));
             }
             
             await _serviceBusPublisher.SendMessage(queueOrTopicName, message, CancellationToken.None);
         }        
 
-        private Task ProcessErrorsInDeadLetterQueueInternal(string queueOrTopicName, string subscriptionName, Exception exception)
+        private Task ProcessErrorsInDeadLetterQueueInternal(string queueOrTopicName, string? subscriptionName, Exception exception)
         {
             _logger.LogError(exception, "Service Bus receive message error");
             return Task.CompletedTask;

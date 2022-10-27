@@ -3,8 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <AssemblyName>Dka.Net.MvcWebApp.Application</AssemblyName>
-        <LangVersion>10</LangVersion>
-        <RootNamespace>MvcWebApp.Application</RootNamespace>
+        <LangVersion>default</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>

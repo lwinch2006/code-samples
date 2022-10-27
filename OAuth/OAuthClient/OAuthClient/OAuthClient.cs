@@ -216,7 +216,7 @@ public class OAuthClient : IOAuthClient
 
             return JsonSerializer.Deserialize<ErrorResponse>(httpResponseContent);            
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // TODO: Logging functionality here
             return ErrorResponseUtils.GetSendClientCredentialsRequestErrorResponse();
