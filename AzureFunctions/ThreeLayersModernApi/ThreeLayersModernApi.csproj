@@ -4,7 +4,8 @@
         <AzureFunctionsVersion>V4</AzureFunctionsVersion>
         <LangVersion>default</LangVersion>
         <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>        
-      <UserSecretsId>1424af13-45aa-4261-8ed0-1bcf58da501f</UserSecretsId>
+      <UserSecretsId>1424af13-45aa-4261-8ed0-1bcf58da501f</UserSecretsId>        
+      <AssemblyName>Dka.Net.ThreeLayersModernApi</AssemblyName>
   </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />

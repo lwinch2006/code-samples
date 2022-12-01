@@ -5,6 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>default</LangVersion>
+        <AssemblyName>Dka.Net.ApplicationBuildingBlocks</AssemblyName>
     </PropertyGroup>
     
     <ItemGroup>

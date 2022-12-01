@@ -12,6 +12,7 @@ using Infrastructure.Repositories;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Scrutor;
 using ServiceBusPublisher;
 using ServiceBusSubscriber;
@@ -35,8 +36,6 @@ namespace Application.Extensions
 
         public static IServiceCollection AddServiceBus(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSingleton(new ServiceBusClient(configuration[ApplicationConstants.ServiceBus.Configuration.ConnnectionStringPath]));
-            services.AddSingleton(new ServiceBusAdministrationClient(configuration[ApplicationConstants.ServiceBus.Configuration.ConnnectionStringPath]));
             services.AddSingleton(
                 new ServiceBusSubscriberConfiguration
                 {
@@ -45,10 +44,25 @@ namespace Application.Extensions
                     }
                 });
 
-            services.AddScoped<IServiceBusPublisher, ServiceBusPublisher.ServiceBusPublisher>();
-            services.AddScoped<IServiceBusSubscriber, ServiceBusSubscriber.ServiceBusSubscriber>();
-            services.AddScoped<IServiceBusSubscriberForDeadLetter, ServiceBusSubscriber.ServiceBusSubscriber>();
+            var serviceBusConnectionString =
+                configuration[ApplicationConstants.ServiceBus.Configuration.ConnnectionStringPath];
 
+            if (!string.IsNullOrWhiteSpace(serviceBusConnectionString))
+            {
+                services.TryAddSingleton(new ServiceBusClient(serviceBusConnectionString));
+                services.TryAddSingleton(new ServiceBusAdministrationClient(serviceBusConnectionString));
+
+                services.AddScoped<IServiceBusPublisher, ServiceBusPublisher.ServiceBusPublisher>();
+                services.AddScoped<IServiceBusSubscriber, ServiceBusSubscriber.ServiceBusSubscriber>();
+                services.AddScoped<IServiceBusSubscriberForDeadLetter, ServiceBusSubscriber.ServiceBusSubscriber>();
+            }
+            else
+            {
+                services.AddScoped<IServiceBusPublisher, LocalhostServiceBusPublisher>();
+                services.AddScoped<IServiceBusSubscriber, LocalhostServiceBusSubscriber>();
+                services.AddScoped<IServiceBusSubscriberForDeadLetter, LocalhostServiceBusSubscriber>();
+            }
+            
             var sp = services.BuildServiceProvider();
             var serviceBusPublisher = sp.GetRequiredService<IServiceBusPublisher>();
             var serviceBusSubscriber = sp.GetRequiredService<IServiceBusSubscriber>();
