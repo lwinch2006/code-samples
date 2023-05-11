@@ -1,6 +1,13 @@
 {
     "version": "2.0",
-    "functions": ["ThreeLayersModernEventsSubscriber"],
+    "functions": [
+        "ThreeLayersModernEventsSubscriber",
+        "TenantCreatedEventProcessor",
+        "TenantUpdatedEventProcessor",
+        "ProcessMessage1",
+        "ProcessMessage3",
+        "ProcessMessage4"
+    ],
     "functionTimeout": "00:05:00",
     "healthMonitor": {
         "enabled": false

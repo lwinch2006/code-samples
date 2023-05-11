@@ -130,7 +130,7 @@ namespace IdentityWithDapper.Infrastructure.Repositories.SQLite
 
             await using (var connection = _dbConnectionFactory.GetDbConnection())
             {
-                var user = await connection.QuerySingleOrDefaultAsync<User>(query, new {@Id = userId});
+                var user = await connection.QueryFirstOrDefaultAsync<User>(query, new {@Id = userId});
 
                 var userDto = _mapper.Map<UserDto>(user);
 
@@ -148,7 +148,7 @@ namespace IdentityWithDapper.Infrastructure.Repositories.SQLite
 
             await using (var connection = _dbConnectionFactory.GetDbConnection())
             {
-                var user = await connection.QuerySingleOrDefaultAsync<User>(query, new {@NormalizedUserName = normalizedUserName});
+                var user = await connection.QueryFirstOrDefaultAsync<User>(query, new {@NormalizedUserName = normalizedUserName});
 
                 var userDto = _mapper.Map<UserDto>(user);
 
@@ -166,7 +166,7 @@ namespace IdentityWithDapper.Infrastructure.Repositories.SQLite
 
             await using (var connection = _dbConnectionFactory.GetDbConnection())
             {
-                var user = await connection.QuerySingleOrDefaultAsync<User>(query, new {@NormalizedEmail = normalizedEmail});
+                var user = await connection.QueryFirstOrDefaultAsync<User>(query, new {@NormalizedEmail = normalizedEmail});
                 var userDto = _mapper.Map<UserDto>(user);
                 return userDto;
             }
@@ -181,12 +181,10 @@ namespace IdentityWithDapper.Infrastructure.Repositories.SQLite
                 AND [ul].[ProviderKey] = @ProviderKey;
             ";
 
-            await using (var connection = _dbConnectionFactory.GetDbConnection())
-            {
-                var user = await connection.QuerySingleOrDefaultAsync<User>(query, new { @LoginProvider = loginProvider, @ProviderKey = providerKey });
-                var userDto = _mapper.Map<UserDto>(user);
-                return userDto;
-            }
+            await using var connection = _dbConnectionFactory.GetDbConnection();
+            var user = await connection.QueryFirstOrDefaultAsync<User>(query, new { @LoginProvider = loginProvider, @ProviderKey = providerKey });
+            var userDto = _mapper.Map<UserDto>(user);
+            return userDto;
         }
 
         public async Task AddToRoleAsync(UserDto userDto, string roleName)

@@ -46,7 +46,7 @@ namespace ServiceBusTester
                 await host.StopAsync();
 
                 logger.LogInformation("Program finished {DateTime} UTC", DateTime.UtcNow);
-            }            
+            }
         }
         
         private static void ConfigureConfiguration(HostBuilderContext hostBuilderContext, IConfigurationBuilder configurationBuilder)
